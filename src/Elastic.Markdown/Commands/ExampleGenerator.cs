@@ -7,7 +7,7 @@ public class ExampleGenerator(int? count, string? path)
 	private int Count { get; } = count ?? 1_000;
 	public string OutputPath { get; } = path ?? ".artifacts/docset-source";
 
-	public async Task Build()
+	public async Task Build(CancellationToken ctx = default)
 	{
 		var dir = new DirectoryInfo(OutputPath);
 		if (OutputPath.StartsWith(".artifacts") && dir.Exists)
@@ -16,14 +16,16 @@ public class ExampleGenerator(int? count, string? path)
 
 		var random = new Random();
 		var folders = RandomSubFolderStructure();
-		var templates = await GetTemplates();
+		var templates = await GetTemplates(ctx);
 
-		await GenerateExamples(templates, random, folders, Count);
+		await GenerateExamples(templates, random, folders, Count - 3, ctx);
 		//generate 3 docs at root
-		await GenerateExamples(templates, random, [""], 3);
+		await GenerateExamples(templates, random, [""], 3, ctx);
+
+		Console.WriteLine($"Generated {Count} example markdown files in '{OutputPath}'");
 	}
 
-	private async Task GenerateExamples(List<Template> templates, Random random, List<string> folders, int count)
+	private async Task GenerateExamples(List<Template> templates, Random random, List<string> folders, int count, CancellationToken ctx)
 	{
 		foreach (var i in Enumerable.Range(0, count))
 		{
@@ -31,9 +33,8 @@ public class ExampleGenerator(int? count, string? path)
 			var folder = folders[random.Next(0, folders.Count)];
 			var file = template.Name.Replace(".md", $"-{i}.md");
 			var path = new FileInfo(Path.Combine(OutputPath, folder, file));
-			Console.WriteLine(path.FullName);
 			Directory.CreateDirectory(path.Directory!.FullName);
-			await File.WriteAllTextAsync(path.FullName, template.Contents);
+			await File.WriteAllTextAsync(path.FullName, template.Contents, ctx);
 		}
 	}
 
@@ -53,25 +54,25 @@ public class ExampleGenerator(int? count, string? path)
 		return folders;
 	}
 
-	private static async Task<List<Template>> GetTemplates()
+	private static async Task<List<Template>> GetTemplates(CancellationToken ctx)
 	{
 		var assembly = Assembly.GetExecutingAssembly();
 		var templates = assembly
 			.GetManifestResourceNames()
-			.Select(async n => await ReadEmbeddedTemplates(assembly, n))
+			.Select(async n => await ReadEmbeddedTemplates(assembly, n, ctx))
 			.ToList();
 
 		var templateMap = new List<Template>();
-		await foreach (var template in templates.WhenEach())
+		await foreach (var template in templates.WhenEach(ctx))
 			templateMap.Add(template);
 		return templateMap;
 	}
 
-	private static async Task<Template> ReadEmbeddedTemplates(Assembly assembly, string name)
+	private static async Task<Template> ReadEmbeddedTemplates(Assembly assembly, string name, CancellationToken ctx)
 	{
 		await using var stream = assembly.GetManifestResourceStream(name)!;
 		using var textReader = new StreamReader(stream);
-		var text = await textReader.ReadToEndAsync();
+		var text = await textReader.ReadToEndAsync(ctx);
 		return new Template(name.Replace("docset-templates/", ""), text);
 	}
 

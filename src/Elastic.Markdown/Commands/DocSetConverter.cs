@@ -1,14 +1,8 @@
-﻿using Cysharp.IO;
+using Cysharp.IO;
 using Markdig;
 using Markdig.Syntax;
 
 namespace Elastic.Markdown;
-
-public class Template(string name, string contents)
-{
-	public string Name { get; } = name;
-	public string Contents { get; } = contents;
-};
 
 public class DocSetConverter(string? sourcePath, string? outputPath)
 {
@@ -17,30 +11,30 @@ public class DocSetConverter(string? sourcePath, string? outputPath)
 
 	public static MarkdownPipeline DefaultPipeline =
 		new MarkdownPipelineBuilder()
-            .UseAlertBlocks()
-            .UseAbbreviations()
-            .UseAutoIdentifiers()
-            .UseCitations()
-            .UseCustomContainers()
-            .UseDefinitionLists()
-            .UseEmphasisExtras()
-            .UseFigures()
-            .UseFooters()
-            .UseFootnotes()
-            .UseMathematics()
-            .UseMediaLinks()
-            .UsePipeTables()
-            .UseListExtras()
-            .UseTaskLists()
-            .UseAutoLinks()
-            //.UseGridTables()
-            //.UseDiagrams()
-            .UseGenericAttributes() // Must be last as it is one parser that is modifying other parsers
+			.UseAlertBlocks()
+			.UseAbbreviations()
+			.UseAutoIdentifiers()
+			.UseCitations()
+			.UseCustomContainers()
+			.UseDefinitionLists()
+			.UseEmphasisExtras()
+			.UseFigures()
+			.UseFooters()
+			.UseFootnotes()
+			.UseMathematics()
+			.UseMediaLinks()
+			.UsePipeTables()
+			.UseListExtras()
+			.UseTaskLists()
+			.UseAutoLinks()
+			//.UseGridTables()
+			//.UseDiagrams()
+			.UseGenericAttributes() // Must be last as it is one parser that is modifying other parsers
 			//.EnableTrackTrivia()
 			.DisableHtml()
 			.Build();
 
-	public async Task Build()
+	public async Task Build(CancellationToken cancellationToken)
 	{
 		var dir = new DirectoryInfo(OutputPath);
 		if (OutputPath.StartsWith(".artifacts") && dir.Exists)
@@ -87,15 +81,5 @@ public class DocSetConverter(string? sourcePath, string? outputPath)
 		var context = new MarkdownParserContext();
 		var markdownDocument = Markdig.Markdown.Parse(inputMarkdown, DefaultPipeline, context);
 		return markdownDocument;
-	}
-}
-
-public static class TaskExtensions
-{
-	// Temporarily until dotnet 9 is released, this is not ordered by completion
-	public static async IAsyncEnumerable<T> WhenEach<T>(this IEnumerable<Task<T>> tasks)
-	{
-		foreach (var task in tasks)
-			yield return await task;
 	}
 }
