@@ -28,9 +28,9 @@ under `.artifacts/docset-generated`.
 # Build without docker
 
 If you have dotnet 8 installed you can use its CLI to publish a self contained `docs-builder`
-binary. 
+binary. (On my M2 Pro mac the binary is currently 13mb)
 
-(On my M2 Pro mac the binary is currently 13mb)
+This self contained binary can be copied to machines without dotnet installed.
 
 
 ```bash
