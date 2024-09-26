@@ -1,0 +1,10 @@
+@inherits RazorSliceHttpResult
+
+@using System.Globalization;
+@using Microsoft.AspNetCore.Razor;
+@using Microsoft.AspNetCore.Http.HttpResults;
+@using Elastic.Markdown.Templating;
+@using Microsoft.AspNetCore.Html
+
+@tagHelperPrefix __disable_tagHelpers__:
+@removeTagHelper *, Microsoft.AspNetCore.Mvc.Razor

@@ -2,7 +2,7 @@ using Cysharp.IO;
 using Markdig;
 using Markdig.Syntax;
 
-namespace Elastic.Markdown;
+namespace Elastic.Markdown.Commands;
 
 public class DocSetConverter(string? sourcePath, string? outputPath)
 {

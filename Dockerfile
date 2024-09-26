@@ -1,14 +1,20 @@
 FROM mcr.microsoft.com/dotnet/runtime-deps:8.0-alpine AS base
 WORKDIR /app
-EXPOSE 80
+EXPOSE 8080
 EXPOSE 443
 
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
 ARG TARGETARCH
 ARG BUILDPLATFORM
 
+# Install NativeAOT build prerequisites
+#RUN apt-get update \
+#    && apt-get install -y --no-install-recommends \
+#       clang zlib1g-dev
+
 WORKDIR /src
 COPY ["src/Elastic.Markdown/Elastic.Markdown.csproj", "src/Elastic.Markdown/Elastic.Markdown.csproj"]
+COPY ["docs/docs.csproj", "docs/docs.csproj"]
 COPY ["docs-builder.sln", "docs-builder.sln"]
 RUN dotnet restore "docs-builder.sln"
 COPY . .
@@ -21,6 +27,7 @@ RUN dotnet publish "src/Elastic.Markdown/Elastic.Markdown.csproj" -c Release -o 
     --self-contained true \
     /p:PublishTrimmed=true \
     /p:PublishSingleFile=true \
+    /p:PublishAot=false \
     -a $TARGETARCH
 
 FROM --platform=$BUILDPLATFORM base AS final
@@ -37,4 +44,6 @@ USER dotnetuser
 WORKDIR /app
 
 COPY --from=publish /app/publish .
+CMD chmod +x docs-builder
+
 ENTRYPOINT ["./docs-builder"]

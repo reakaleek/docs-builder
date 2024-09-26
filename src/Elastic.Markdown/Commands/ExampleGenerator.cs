@@ -1,6 +1,12 @@
 using System.Reflection;
 
-namespace Elastic.Markdown;
+namespace Elastic.Markdown.Commands;
+
+public class Template(string name, string contents)
+{
+	public string Name { get; } = name;
+	public string Contents { get; } = contents;
+}
 
 public class ExampleGenerator(int? count, string? path)
 {

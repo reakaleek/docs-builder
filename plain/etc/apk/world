@@ -1,0 +1,10 @@
+alpine-baselayout
+alpine-keys
+apk-tools
+busybox
+ca-certificates-bundle
+libc-utils
+libgcc
+libssl3
+libstdc++
+zlib

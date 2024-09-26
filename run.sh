@@ -26,4 +26,7 @@ if [ -z "$ARCHITECTURE" ]; then
 fi
 
 docker build --platform="${OS_TYPE}/${ARCHITECTURE}" -f Dockerfile -t docs-builder-${ARCHITECTURE}:latest .
-docker run -v ${PWD}/.artifacts/:/app/.artifacts/ --entrypoint "./docs-builder" docs-builder-${ARCHITECTURE}:latest "$@"
+echo "Dockerfile build"
+docker run -v "${PWD}/docs/:/app/docs/" -v "${PWD}/.artifacts/:/app/.artifacts/" \
+    -p 8080:8080 \
+    --entrypoint "./docs-builder" "docs-builder-${ARCHITECTURE}:latest" "$@"
