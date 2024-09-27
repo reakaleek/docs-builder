@@ -3,18 +3,20 @@
 // See the license.txt file in the project root for more information.
 
 using Markdig;
+using Markdig.Parsers;
 using Markdig.Parsers.Inlines;
 using Markdig.Renderers;
+using Markdig.Renderers.Html;
 
 namespace Elastic.Markdown.Myst.CustomContainers;
 
 public static class CustomContainersBuilderExtensions
 {
-    public static MarkdownPipelineBuilder UseAdmonitions(this MarkdownPipelineBuilder pipeline)
-    {
-        pipeline.Extensions.AddIfNotAlready<AdmonitionExtension>();
-        return pipeline;
-    }
+	public static MarkdownPipelineBuilder UseAdmonitions(this MarkdownPipelineBuilder pipeline)
+	{
+		pipeline.Extensions.AddIfNotAlready<AdmonitionExtension>();
+		return pipeline;
+	}
 }
 
 /// <summary>
@@ -23,47 +25,37 @@ public static class CustomContainersBuilderExtensions
 /// <seealso cref="IMarkdownExtension" />
 public class AdmonitionExtension : IMarkdownExtension
 {
-    public void Setup(MarkdownPipelineBuilder pipeline)
-    {
-        if (!pipeline.BlockParsers.Contains<AdmonitionParser>())
-        {
-            // Insert the parser before any other parsers
-            pipeline.BlockParsers.Insert(0, new AdmonitionParser());
-        }
+	public void Setup(MarkdownPipelineBuilder pipeline)
+	{
+		if (!pipeline.BlockParsers.Contains<AdmonitionParser>())
+		{
+			// Insert the parser before any other parsers
+			pipeline.BlockParsers.InsertBefore<ThematicBreakParser>(new AdmonitionParser());
+		}
 
-        // Plug the inline parser for CustomContainerInline
-        var inlineParser = pipeline.InlineParsers.Find<EmphasisInlineParser>();
-        if (inlineParser != null && !inlineParser.HasEmphasisChar(':'))
-        {
-            inlineParser.EmphasisDescriptors.Add(new EmphasisDescriptor(':', 2, 2, true));
-            inlineParser.TryCreateEmphasisInlineList.Add((emphasisChar, delimiterCount) =>
-            {
-                if (delimiterCount == 2 && emphasisChar == ':')
-                {
-                    return new Role();
-                }
-                return null;
-            });
-        }
-    }
+		// Plug the inline parser for CustomContainerInline
+		var inlineParser = pipeline.InlineParsers.Find<EmphasisInlineParser>();
+		if (inlineParser != null && !inlineParser.HasEmphasisChar(':'))
+		{
+			inlineParser.EmphasisDescriptors.Add(new EmphasisDescriptor(':', 2, 2, true));
+			inlineParser.TryCreateEmphasisInlineList.Add((emphasisChar, delimiterCount) =>
+			{
+				if (delimiterCount == 2 && emphasisChar == ':')
+				{
+					return new Role();
+				}
 
-    public void Setup(MarkdownPipeline pipeline, IMarkdownRenderer renderer)
-    {
-        if (renderer is HtmlRenderer htmlRenderer)
-        {
-            if (!htmlRenderer.ObjectRenderers.Contains<HtmlAdmonitionRenderer>())
-            {
-                // Must be inserted before CodeBlockRenderer
-                htmlRenderer.ObjectRenderers.Insert(0, new HtmlAdmonitionRenderer());
-            }
-            if (!htmlRenderer.ObjectRenderers.Contains<HtmlCustomContainerInlineRenderer>())
-            {
-                // Must be inserted before EmphasisRenderer
-                htmlRenderer.ObjectRenderers.Insert(0, new HtmlCustomContainerInlineRenderer());
-            }
-        }
+				return null;
+			});
+		}
+	}
 
-    }
-
+	public void Setup(MarkdownPipeline pipeline, IMarkdownRenderer renderer)
+	{
+		if (!renderer.ObjectRenderers.Contains<HtmlAdmonitionRenderer>())
+		{
+			// Must be inserted before CodeBlockRenderer
+			renderer.ObjectRenderers.InsertBefore<CodeBlockRenderer>(new HtmlAdmonitionRenderer());
+		}
+	}
 }
-

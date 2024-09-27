@@ -1,5 +1,7 @@
+using Elastic.Markdown.DocSet;
 using Elastic.Markdown.Templating;
 using Markdig;
+using Markdig.Syntax;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RazorSlices;
@@ -20,17 +22,19 @@ public class HtmlTemplateWriter
 	public ILoggerFactory LoggerFactory { get; }
 	public ServiceProvider ServiceProvider { get; }
 
-	public async Task<string> RenderLayout(string markdownHtml, CancellationToken ctx = default)
+	public async Task<string> RenderLayout(MarkdownFile markdown, CancellationToken ctx = default)
 	{
-		var slice = Slices.Index.Create(new MyModel { MarkdownHtml = markdownHtml });
+		var html = markdown.CreateHtml();
+
+		var slice = Slices.Index.Create(new MyModel { Title = markdown.Title ?? "[TITLE NOT SET]", MarkdownHtml = html });
 		return await slice.RenderAsync(cancellationToken: ctx);
 	}
 
-	public async Task WriteAsync(FileInfo outputFile, string markdownHtml, CancellationToken ctx = default)
+	public async Task WriteAsync(FileInfo outputFile, MarkdownFile markdown, CancellationToken ctx = default)
 	{
 		if (outputFile.Directory is { Exists: false })
 			outputFile.Directory.Create();
-		var rendered = await RenderLayout(markdownHtml, ctx);
+		var rendered = await RenderLayout(markdown, ctx);
 		await File.WriteAllTextAsync(outputFile.FullName, rendered, ctx);
 	}
 }

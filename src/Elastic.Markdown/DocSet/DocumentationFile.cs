@@ -1,8 +1,11 @@
 using System.Text;
+using Markdig;
+using Markdig.Extensions.Yaml;
+using Markdig.Syntax;
 
 namespace Elastic.Markdown.DocSet;
 
-public class DocumentationFile
+public abstract class DocumentationFile
 {
 	public Encoding Encoding { get; }
 	public FileInfo SourceFile { get; }
@@ -26,32 +29,31 @@ public class DocumentationFile
 	}
 }
 
-public class DocumentationSet
+public class StaticFile(FileInfo sourceFile, DirectoryInfo sourcePath, DirectoryInfo outputPath)
+	: DocumentationFile(sourceFile, sourcePath, outputPath);
+
+public class MarkdownFile(FileInfo sourceFile, DirectoryInfo sourcePath, DirectoryInfo outputPath)
+	: DocumentationFile(sourceFile, sourcePath, outputPath)
 {
-	public string Name { get; }
-	public DirectoryInfo SourcePath { get; }
-	public DirectoryInfo OutputPath { get; }
+	public required MarkdownConverter MarkdownConverter { get; init; }
+	private YamlFrontMatterConverter YamlFrontMatterConverter { get; } = new();
 
-	public DocumentationSet(string name, DirectoryInfo sourcePath, DirectoryInfo outputPath)
+	public string? Title { get; private set; }
+
+	private MarkdownDocument? Document { get; set; }
+
+	public async Task<MarkdownDocument> ParseAsync(CancellationToken ctx)
 	{
-		Name = name;
-		SourcePath = sourcePath;
-		OutputPath = outputPath;
+		Document = await MarkdownConverter.ParseAsync(SourceFile, ctx);
+		if (Document.FirstOrDefault() is YamlFrontMatterBlock yaml)
+		{
+			var raw = string.Join(Environment.NewLine, yaml.Lines.Lines);
+			var frontMatter = YamlFrontMatterConverter.Deserialize(raw);
+			Title = frontMatter.Title;
+		}
 
-		Files = Directory.EnumerateFiles(SourcePath.FullName, "*.*", SearchOption.AllDirectories)
-			.Select(file => new DocumentationFile(new FileInfo(file), SourcePath, OutputPath))
-			.ToList();
-
-		Map = Files.ToDictionary(file => file.RelativePath, file => file);
+		return Document;
 	}
 
-	public List<DocumentationFile> Files { get; }
-	public Dictionary<string, DocumentationFile> Map { get; }
-
-	public void ClearOutputDirectory()
-	{
-		if (OutputPath.Exists)
-			OutputPath.Delete(true);
-		OutputPath.Create();
-	}
+	public string CreateHtml() => Document?.ToHtml(MarkdownConverter.Pipeline) ?? string.Empty;
 }

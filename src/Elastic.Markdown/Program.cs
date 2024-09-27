@@ -1,10 +1,9 @@
-using System.Text.Json.Serialization;
 using ConsoleAppFramework;
 using Elastic.Markdown;
 using Elastic.Markdown.Commands;
+using Elastic.Markdown.DocSet;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 
 var app = ConsoleApp.Create();
@@ -33,38 +32,39 @@ app.Add("serve", () =>
 	var generator = new MystSampleGenerator();
 	var builder = WebApplication.CreateSlimBuilder(args);
 
-	builder.Services.ConfigureHttpJsonOptions(options =>
-	{
-		options.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonSerializerContext.Default);
-	});
-
 	var app = builder.Build();
 
 	app.UseStaticFiles(new StaticFileOptions
 	{
 		FileProvider = new PhysicalFileProvider(Path.Combine(Paths.Root.FullName, "docs", "source", "_static_template")),
-		RequestPath = "/_static"
+		RequestPath = "/_static",
 	});
+	app.UseRouting();
 
-	var todosApi = app.MapGroup("/");
-	todosApi.MapGet("/", async (CancellationToken ctx) =>
+	app.MapGet("/", async (CancellationToken ctx) =>
 	{
-		if (!generator.DocumentationSet.Map.TryGetValue("index.md", out var documentationFile))
+		if (!generator.DocumentationSet.Map.TryGetValue("index.md", out var documentationFile)
+		    || documentationFile is not MarkdownFile markdown)
 			return Results.NotFound();
 
-		var parsed = await generator.MarkdownConverter.ParseAsync(documentationFile.SourceFile, ctx);
-		var html = generator.MarkdownConverter.CreateHtml(parsed);
-		var rendered = await generator.HtmlWriter.RenderLayout(html, ctx);
+		_ = await markdown.ParseAsync(ctx);
+		var rendered = await generator.HtmlWriter.RenderLayout(markdown, ctx);
+		return Results.Content(rendered, "text/html");
+	});
+	app.MapGet("{**slug}", async (string slug, CancellationToken ctx) =>
+	{
+		slug = slug.Replace(".html", ".md");
+		if (!generator.DocumentationSet.Map.TryGetValue(slug, out var documentationFile))
+			return Results.NotFound();
+
+		if (documentationFile is not MarkdownFile markdown)
+			return Results.NotFound();
+
+		_ = await markdown.ParseAsync(ctx);
+		var rendered = await generator.HtmlWriter.RenderLayout(markdown, ctx);
 		return Results.Content(rendered, "text/html");
 	});
 
 	app.Run();
 });
 app.Run(args);
-
-public record Todo(int Id, string? Title, DateOnly? DueBy = null, bool IsComplete = false);
-
-[JsonSerializable(typeof(Todo[]))]
-internal partial class AppJsonSerializerContext : JsonSerializerContext
-{
-}

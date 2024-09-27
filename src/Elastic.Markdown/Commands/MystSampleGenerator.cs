@@ -1,4 +1,5 @@
 using Elastic.Markdown.DocSet;
+using Markdig.Syntax;
 
 namespace Elastic.Markdown.Commands;
 
@@ -14,7 +15,7 @@ public class MystSampleGenerator
 	public MarkdownConverter MarkdownConverter { get; } = new();
 
 	public MystSampleGenerator() =>
-		DocumentationSet = new DocumentationSet("Documentation Reference", SourcePath, OutputPath);
+		DocumentationSet = new DocumentationSet("Documentation Reference", SourcePath, OutputPath, MarkdownConverter);
 
 	public async Task Build(CancellationToken ctx)
 	{
@@ -22,9 +23,13 @@ public class MystSampleGenerator
 
 		foreach (var file in DocumentationSet.Files)
 		{
-			var parsed = await MarkdownConverter.ParseAsync(file.SourceFile, ctx);
-			var html = MarkdownConverter.CreateHtml(parsed);
-			await HtmlWriter.WriteAsync(file.OutputFile, html, ctx);
+			if (file is MarkdownFile markdown)
+			{
+				_ = await markdown.ParseAsync(ctx);
+				await HtmlWriter.WriteAsync(file.OutputFile, markdown, ctx);
+			}
+			else
+				File.Copy(file.SourceFile.FullName, file.OutputFile.FullName, true);
 		}
 
 		await Task.CompletedTask;

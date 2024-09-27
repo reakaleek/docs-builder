@@ -7,11 +7,12 @@ namespace Elastic.Markdown.DocSet;
 
 public class MarkdownConverter(MarkdownPipeline? pipeline = null)
 {
-	private readonly MarkdownPipeline _defaultPipeline =
+	public MarkdownPipeline Pipeline { get; } =
 		pipeline ??
 		new MarkdownPipelineBuilder()
-			.UseAdmonitions()
 			.EnableTrackTrivia()
+			.UseYamlFrontMatter()
+			.UseAdmonitions()
 			//.UseGenericAttributes()
 			.Build();
 
@@ -20,9 +21,7 @@ public class MarkdownConverter(MarkdownPipeline? pipeline = null)
 		await using var streamReader = new Utf8StreamReader(path.FullName, fileOpenMode: FileOpenMode.Throughput);
 		var inputMarkdown = await streamReader.AsTextReader().ReadToEndAsync(ctx);
 		var context = new MarkdownParserContext();
-		var markdownDocument = Markdig.Markdown.Parse(inputMarkdown, _defaultPipeline, context);
+		var markdownDocument = Markdig.Markdown.Parse(inputMarkdown, Pipeline, context);
 		return markdownDocument;
 	}
-
-	public string CreateHtml(MarkdownDocument document) => document.ToHtml(_defaultPipeline);
 }
