@@ -15,13 +15,15 @@ namespace Elastic.Markdown.Myst.CustomContainers;
 /// <seealso cref="IFencedBlock" />
 public class Admonition : ContainerBlock, IFencedBlock
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Admonition"/> class.
-    /// </summary>
-    /// <param name="parser">The parser used to create this block.</param>
-    public Admonition(BlockParser parser) : base(parser)
-    {
-    }
+	/// <summary>
+	/// Initializes a new instance of the <see cref="Admonition"/> class.
+	/// </summary>
+	/// <param name="parser">The parser used to create this block.</param>
+	/// <param name="admonitionData"></param>
+	public Admonition(AdmonitionParser parser, Dictionary<string, string> admonitionData) : base(parser) =>
+	    AdmonitionData = admonitionData;
+
+    public IReadOnlyDictionary<string, string> AdmonitionData { get; }
 
     /// <inheritdoc />
     public char FencedChar { get; set; }
