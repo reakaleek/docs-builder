@@ -12,6 +12,8 @@ public class MarkdownConverter(MarkdownPipeline? pipeline = null)
 		new MarkdownPipelineBuilder()
 			.EnableTrackTrivia()
 			.UseYamlFrontMatter()
+			.UseGridTables()
+			.UsePipeTables()
 			.UseAdmonitions()
 			//.UseGenericAttributes()
 			.Build();

@@ -1,0 +1,6 @@
+@inherits RazorSlices.RazorSlice<Elastic.Markdown.Slices.Blocks.TabItemHtml>
+<input checked="@(Model.Index == 0 ? "checked" : "")" id="sd-tab-item-@Model.Index" name="sd-tab-set-@Model.TabSetIndex" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-@Model.Index">@Model.Title</label>
+<div class="sd-tab-content docutils">
+	[CONTENT]
+</div>

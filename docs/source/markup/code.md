@@ -17,7 +17,6 @@ project:
 But you can also use the [code directive](https://mystmd.org/guide/code) that supposedly give you more features.
 
 ```{code} yaml
-
 project:
   title: MyST Markdown
   github: https://github.com/jupyter-book/mystmd

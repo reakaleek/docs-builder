@@ -36,4 +36,8 @@
     <Folder Include="Myst\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Slices\Admonition\Admonition.cshtml" />
+  </ItemGroup>
+
 </Project>
