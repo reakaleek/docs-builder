@@ -4,7 +4,7 @@
 
 using Markdig.Syntax.Inlines;
 
-namespace Elastic.Markdown.Myst.CustomContainers;
+namespace Elastic.Markdown.Myst.Directives;
 
 /// <summary>
 /// An inline custom container

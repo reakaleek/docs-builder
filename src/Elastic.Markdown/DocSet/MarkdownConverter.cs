@@ -1,5 +1,5 @@
 using Cysharp.IO;
-using Elastic.Markdown.Myst.CustomContainers;
+using Elastic.Markdown.Myst.Directives;
 using Markdig;
 using Markdig.Syntax;
 
@@ -14,7 +14,7 @@ public class MarkdownConverter(MarkdownPipeline? pipeline = null)
 			.UseYamlFrontMatter()
 			.UseGridTables()
 			.UsePipeTables()
-			.UseAdmonitions()
+			.UseDirectives()
 			//.UseGenericAttributes()
 			.Build();
 

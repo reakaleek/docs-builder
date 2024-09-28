@@ -8,13 +8,13 @@ using Markdig.Parsers.Inlines;
 using Markdig.Renderers;
 using Markdig.Renderers.Html;
 
-namespace Elastic.Markdown.Myst.CustomContainers;
+namespace Elastic.Markdown.Myst.Directives;
 
-public static class CustomContainersBuilderExtensions
+public static class DirectiveMarkdownBuilderExtensions
 {
-	public static MarkdownPipelineBuilder UseAdmonitions(this MarkdownPipelineBuilder pipeline)
+	public static MarkdownPipelineBuilder UseDirectives(this MarkdownPipelineBuilder pipeline)
 	{
-		pipeline.Extensions.AddIfNotAlready<AdmonitionExtension>();
+		pipeline.Extensions.AddIfNotAlready<DirectiveMarkdownExtension>();
 		return pipeline;
 	}
 }
@@ -23,14 +23,14 @@ public static class CustomContainersBuilderExtensions
 /// Extension to allow custom containers.
 /// </summary>
 /// <seealso cref="IMarkdownExtension" />
-public class AdmonitionExtension : IMarkdownExtension
+public class DirectiveMarkdownExtension : IMarkdownExtension
 {
 	public void Setup(MarkdownPipelineBuilder pipeline)
 	{
-		if (!pipeline.BlockParsers.Contains<AdmonitionParser>())
+		if (!pipeline.BlockParsers.Contains<DirectiveBlockParser>())
 		{
 			// Insert the parser before any other parsers
-			pipeline.BlockParsers.InsertBefore<ThematicBreakParser>(new AdmonitionParser());
+			pipeline.BlockParsers.InsertBefore<ThematicBreakParser>(new DirectiveBlockParser());
 		}
 
 		// Plug the inline parser for CustomContainerInline
@@ -52,10 +52,10 @@ public class AdmonitionExtension : IMarkdownExtension
 
 	public void Setup(MarkdownPipeline pipeline, IMarkdownRenderer renderer)
 	{
-		if (!renderer.ObjectRenderers.Contains<HtmlAdmonitionRenderer>())
+		if (!renderer.ObjectRenderers.Contains<DirectiveHtmlRenderer>())
 		{
 			// Must be inserted before CodeBlockRenderer
-			renderer.ObjectRenderers.InsertBefore<CodeBlockRenderer>(new HtmlAdmonitionRenderer());
+			renderer.ObjectRenderers.InsertBefore<CodeBlockRenderer>(new DirectiveHtmlRenderer());
 		}
 	}
 }

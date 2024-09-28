@@ -6,18 +6,18 @@ using Markdig.Parsers;
 using Markdig.Syntax;
 using static System.StringSplitOptions;
 
-namespace Elastic.Markdown.Myst.CustomContainers;
+namespace Elastic.Markdown.Myst.Directives;
 
 /// <summary>
-/// The block parser for a <see cref="Admonition"/>.
+/// The block parser for a <see cref="DirectiveBlock"/>.
 /// </summary>
 /// <seealso cref="FencedBlockParserBase{CustomContainer}" />
-public class AdmonitionParser : FencedBlockParserBase<Admonition>
+public class DirectiveBlockParser : FencedBlockParserBase<DirectiveBlock>
 {
 	/// <summary>
-    /// Initializes a new instance of the <see cref="AdmonitionParser"/> class.
+    /// Initializes a new instance of the <see cref="DirectiveBlockParser"/> class.
     /// </summary>
-    public AdmonitionParser()
+    public DirectiveBlockParser()
     {
         OpeningCharacters = [':', '`'];
 
@@ -26,13 +26,11 @@ public class AdmonitionParser : FencedBlockParserBase<Admonition>
     }
 
 	private Dictionary<string, string> _admonitionData = new();
-    public IReadOnlyDictionary<string, string> AdmonitionData => _admonitionData;
 
-    protected override Admonition CreateFencedBlock(BlockProcessor processor)
+    protected override DirectiveBlock CreateFencedBlock(BlockProcessor processor)
     {
-	    var data = _admonitionData;
 	    _admonitionData = new Dictionary<string, string>();
-	    return new Admonition(this, _admonitionData);
+	    return new DirectiveBlock(this, _admonitionData);
     }
 
     public override BlockState TryContinue(BlockProcessor processor, Block block)

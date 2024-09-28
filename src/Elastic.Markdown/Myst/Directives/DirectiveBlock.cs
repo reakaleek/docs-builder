@@ -3,27 +3,26 @@
 // See the license.txt file in the project root for more information.
 
 using Markdig.Helpers;
-using Markdig.Parsers;
 using Markdig.Syntax;
 
-namespace Elastic.Markdown.Myst.CustomContainers;
+namespace Elastic.Markdown.Myst.Directives;
 
 /// <summary>
 /// A block custom container.
 /// </summary>
 /// <seealso cref="ContainerBlock" />
 /// <seealso cref="IFencedBlock" />
-public class Admonition : ContainerBlock, IFencedBlock
+public class DirectiveBlock : ContainerBlock, IFencedBlock
 {
 	/// <summary>
-	/// Initializes a new instance of the <see cref="Admonition"/> class.
+	/// Initializes a new instance of the <see cref="DirectiveBlock"/> class.
 	/// </summary>
-	/// <param name="parser">The parser used to create this block.</param>
-	/// <param name="admonitionData"></param>
-	public Admonition(AdmonitionParser parser, Dictionary<string, string> admonitionData) : base(parser) =>
-	    AdmonitionData = admonitionData;
+	/// <param name="blockParser">The parser used to create this block.</param>
+	/// <param name="directiveProperties"></param>
+	public DirectiveBlock(DirectiveBlockParser blockParser, Dictionary<string, string> directiveProperties) : base(blockParser) =>
+	    DirectiveProperties = directiveProperties;
 
-    public IReadOnlyDictionary<string, string> AdmonitionData { get; }
+    public IReadOnlyDictionary<string, string> DirectiveProperties { get; }
 
     /// <inheritdoc />
     public char FencedChar { get; set; }
