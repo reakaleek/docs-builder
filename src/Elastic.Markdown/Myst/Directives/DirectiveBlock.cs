@@ -59,4 +59,5 @@ public class DirectiveBlock : ContainerBlock, IFencedBlock
 
     /// <inheritdoc />
     public int ClosingFencedCharCount { get; set; }
+
 }

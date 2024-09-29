@@ -32,6 +32,7 @@ public class DirectiveMarkdownExtension : IMarkdownExtension
 			// Insert the parser before any other parsers
 			pipeline.BlockParsers.InsertBefore<ThematicBreakParser>(new DirectiveBlockParser());
 		}
+		pipeline.BlockParsers.Replace<ParagraphBlockParser>(new DirectiveParagraphParser());
 
 		// Plug the inline parser for CustomContainerInline
 		var inlineParser = pipeline.InlineParsers.Find<EmphasisInlineParser>();

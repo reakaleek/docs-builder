@@ -53,14 +53,65 @@ public class DirectiveHtmlRenderer : HtmlObjectRenderer<DirectiveBlock>
 			case "{tab-item}":
 				WriteTabItem(renderer, directiveBlock);
 				break;
+			case "{card}":
+				WriteCard(renderer, directiveBlock);
+				break;
+			case "{grid}":
+				WriteGrid(renderer, directiveBlock);
+				break;
+			case "{grid-item-card}":
+				WriteGridItemCard(renderer, directiveBlock);
+				break;
 			default:
-				if (directiveBlock.Info != null && !directiveBlock.Info.StartsWith('{'))
+				if (!string.IsNullOrEmpty(directiveBlock.Info) && !directiveBlock.Info.StartsWith('{'))
 					WriteCode(renderer, directiveBlock);
-				else
+				else if (!string.IsNullOrEmpty(directiveBlock.Info))
 					WriteAdmonition(renderer, directiveBlock);
+				else
+					WriteChildren(renderer, directiveBlock);
 				break;
 		}
 	}
+
+	private void WriteChildren(HtmlRenderer renderer, DirectiveBlock directiveBlock) =>
+		renderer.WriteChildren(directiveBlock);
+
+	private void WriteCard(HtmlRenderer renderer, DirectiveBlock directiveBlock)
+	{
+		var title = directiveBlock.Arguments;
+		var link = directiveBlock.DirectiveProperties.GetValueOrDefault("link");
+		var slice = Card.Create(new CardModel { Title = title, Link = link });
+		RenderRazorSlice(slice, renderer, directiveBlock, implicitParagraph: false);
+	}
+
+	private void WriteGrid(HtmlRenderer renderer, DirectiveBlock directiveBlock)
+	{
+		//todo we always assume 4 integers
+		var columns = directiveBlock.Arguments?.Split(' ')
+			.Select(t => int.TryParse(t, out var c) ? c : 0).ToArray() ?? [];
+		// 1 1 2 3
+		int xs = 1, sm = 1, md = 2, lg = 3;
+		if (columns.Length >= 4)
+		{
+			xs = columns[0];
+			sm = columns[1];
+			md = columns[2];
+			lg = columns[3];
+		}
+		var slice = Grid.Create(new GridModel
+		{
+			BreakPointLg = lg, BreakPointMd = md, BreakPointSm = sm, BreakPointXs = xs
+		});
+		RenderRazorSlice(slice, renderer, directiveBlock);
+	}
+	private void WriteGridItemCard(HtmlRenderer renderer, DirectiveBlock directiveBlock)
+	{
+		var title = directiveBlock.Arguments;
+		var link = directiveBlock.DirectiveProperties.GetValueOrDefault("link");
+		var slice = GridItemCard.Create(new GridItemCardModel { Title = title, Link = link });
+		RenderRazorSlice(slice, renderer, directiveBlock);
+	}
+
 
 	private void WriteVersion(HtmlRenderer renderer, DirectiveBlock directiveBlock)
 	{
@@ -131,7 +182,8 @@ public class DirectiveHtmlRenderer : HtmlObjectRenderer<DirectiveBlock>
 		RenderRazorSlice(slice, renderer, directiveBlock);
 	}
 
-	private static void RenderRazorSlice<T>(RazorSlice<T> slice, HtmlRenderer renderer, DirectiveBlock obj)
+	private static void RenderRazorSlice<T>(
+		RazorSlice<T> slice, HtmlRenderer renderer, DirectiveBlock obj, bool implicitParagraph = true)
 	{
 		var html = slice.RenderAsync().GetAwaiter().GetResult();
 		var blocks = html.Split("[CONTENT]", 2, StringSplitOptions.RemoveEmptyEntries);

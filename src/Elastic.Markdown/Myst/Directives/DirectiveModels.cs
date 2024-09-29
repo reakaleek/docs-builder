@@ -26,3 +26,24 @@ public class TabItemModel
 	public required int TabSetIndex { get; init; }
 	public required string Title { get; init; }
 }
+
+public class CardModel
+{
+	public required string? Title { get; init; }
+	public required string? Link { get; init; }
+}
+
+public class GridModel
+{
+	public required int BreakPointXs { get; set; }
+	public required int BreakPointSm { get; set; }
+	public required int BreakPointMd { get; set; }
+	public required int BreakPointLg { get; set; }
+
+}
+
+public class GridItemCardModel
+{
+	public required string? Title { get; init; }
+	public required string? Link { get; init; }
+};

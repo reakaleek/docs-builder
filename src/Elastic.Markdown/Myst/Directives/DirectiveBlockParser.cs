@@ -20,7 +20,6 @@ public class DirectiveBlockParser : FencedBlockParserBase<DirectiveBlock>
     public DirectiveBlockParser()
     {
         OpeningCharacters = [':', '`'];
-
         // We don't need a prefix
         InfoPrefix = null;
     }
@@ -44,7 +43,6 @@ public class DirectiveBlockParser : FencedBlockParserBase<DirectiveBlock>
 		    var name = tokens[0];
 		    var data = tokens.Length > 1 ? tokens[1] : string.Empty;
 		    _admonitionData[name] = data;
-		    return BlockState.ContinueDiscard;
 	    }
 
 	    return base.TryContinue(processor, block);

@@ -21,19 +21,16 @@ You can define custom grids for content placement. Here we are using the grid di
 
 
 ````{grid} 1 1 2 3
-
 ```{grid-item-card} Admonitions
 :link: admonitions.html
-Click this card to learn about admonitions.
+  Click this card to learn about admonitions.
 ```
-
 ```{grid-item-card} Code Blocks
 :link: code.html
-Click this card to learn about code blocks.
+  Click this card to learn about code blocks.
 ```
-
 ```{grid-item-card} Tabs and Dropdowns
 :link: tabs_dropdowns.html
-Click this card to learn about Tabs and Dropdowns.
+  Click this card to learn about Tabs and Dropdowns.
 ```
 ````
