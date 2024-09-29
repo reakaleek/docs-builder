@@ -26,7 +26,7 @@ public class MystSampleGenerator
 			if (file is MarkdownFile markdown)
 			{
 				_ = await markdown.ParseAsync(ctx);
-				await HtmlWriter.WriteAsync(file.OutputFile, markdown, ctx);
+				await HtmlWriter.WriteAsync(DocumentationSet, file.OutputFile, markdown, ctx);
 			}
 			else
 				File.Copy(file.SourceFile.FullName, file.OutputFile.FullName, true);
@@ -35,4 +35,9 @@ public class MystSampleGenerator
 		await Task.CompletedTask;
 	}
 
+	public async Task<string?> RenderLayout(MarkdownFile markdown, CancellationToken ctx)
+	{
+		await DocumentationSet.Tree.Resolve(ctx);
+		return await HtmlWriter.RenderLayout(DocumentationSet, markdown, ctx);
+	}
 }

@@ -1,0 +1,16 @@
+@inherits RazorSlice<TreeItemModel>
+@foreach (var file in Model.SubTree.Files)
+{
+<li class="toctree-l@(Model.SubTree.Level + 1)"><a class="reference internal" href="@file.Url">@file.Title</a>
+</li>
+}
+@foreach (var g in Model.SubTree.Nested)
+{
+<li class="toctree-l@(g.Level)"><a class="reference internal" href="@g.Index?.Url">@g.Index?.Title</a><ul>@await RenderPartialAsync(Elastic.Markdown.Slices.Layout._TocTreeNav.Create(new TreeItemModel
+		{
+			Level = g.Level,
+			Index = g.Index,
+			SubTree = g
+		}))</ul>
+</li>
+}

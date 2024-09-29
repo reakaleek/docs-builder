@@ -19,6 +19,7 @@ public class YamlFrontMatterConverter
 		var input = new StringReader(yaml);
 
 		var deserializer = new StaticDeserializerBuilder(new YamlFrontMatterStaticContext())
+			.IgnoreUnmatchedProperties()
 			.WithNamingConvention(CamelCaseNamingConvention.Instance)
 			.Build();
 

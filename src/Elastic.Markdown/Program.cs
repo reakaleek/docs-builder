@@ -43,19 +43,19 @@ app.Add("serve", () =>
 	app.MapGet("/", async (CancellationToken ctx) =>
 	{
 		var generator = new MystSampleGenerator();
-		if (!generator.DocumentationSet.Map.TryGetValue("index.md", out var documentationFile)
+		if (!generator.DocumentationSet.FlatMappedFiles.TryGetValue("index.md", out var documentationFile)
 		    || documentationFile is not MarkdownFile markdown)
 			return Results.NotFound();
 
 		_ = await markdown.ParseAsync(ctx);
-		var rendered = await generator.HtmlWriter.RenderLayout(markdown, ctx);
+		var rendered = await generator.RenderLayout(markdown, ctx);
 		return Results.Content(rendered, "text/html");
 	});
 	app.MapGet("{**slug}", async (string slug, CancellationToken ctx) =>
 	{
 		var generator = new MystSampleGenerator();
 		slug = slug.Replace(".html", ".md");
-		if (!generator.DocumentationSet.Map.TryGetValue(slug, out var documentationFile))
+		if (!generator.DocumentationSet.FlatMappedFiles.TryGetValue(slug, out var documentationFile))
 			return Results.NotFound();
 
 		switch (documentationFile)
@@ -63,7 +63,7 @@ app.Add("serve", () =>
 			case MarkdownFile markdown:
 			{
 				_ = await markdown.ParseAsync(ctx);
-				var rendered = await generator.HtmlWriter.RenderLayout(markdown, ctx);
+				var rendered = await generator.RenderLayout(markdown, ctx);
 				return Results.Content(rendered, "text/html");
 			}
 			case ImageFile image:

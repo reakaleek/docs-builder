@@ -4,6 +4,7 @@ using Markdig;
 using Markdig.Extensions.Tables;
 using Markdig.Extensions.Yaml;
 using Markdig.Syntax;
+using Microsoft.AspNetCore.Routing.Constraints;
 using Slugify;
 
 namespace Elastic.Markdown.DocSet;
@@ -38,10 +39,17 @@ public class ImageFile(FileInfo sourceFile, DirectoryInfo sourcePath, DirectoryI
 public class StaticFile(FileInfo sourceFile, DirectoryInfo sourcePath, DirectoryInfo outputPath)
 	: DocumentationFile(sourceFile, sourcePath, outputPath);
 
-public class MarkdownFile(FileInfo sourceFile, DirectoryInfo sourcePath, DirectoryInfo outputPath)
-	: DocumentationFile(sourceFile, sourcePath, outputPath)
+public class MarkdownFile : DocumentationFile
 {
 	private readonly SlugHelper _slugHelper = new();
+
+	public MarkdownFile(FileInfo sourceFile, DirectoryInfo sourcePath, DirectoryInfo outputPath)
+		: base(sourceFile, sourcePath, outputPath)
+	{
+		ParentFolders = RelativePath.Split(Path.DirectorySeparatorChar).SkipLast(1).ToArray();
+		FileName = sourceFile.Name;
+	}
+
 	public required MarkdownConverter MarkdownConverter { get; init; }
 	private YamlFrontMatterConverter YamlFrontMatterConverter { get; } = new();
 
@@ -49,6 +57,9 @@ public class MarkdownFile(FileInfo sourceFile, DirectoryInfo sourcePath, Directo
 
 	private MarkdownDocument? Document { get; set; }
 	public List<PageTocItem> TableOfContents { get; } = new();
+	public IReadOnlyList<string> ParentFolders { get; }
+	public string FileName { get; }
+	public string Url => $"/{RelativePath.Replace(".md", ".html")}";
 
 	public async Task<MarkdownDocument> ParseAsync(CancellationToken ctx)
 	{
@@ -69,7 +80,6 @@ public class MarkdownFile(FileInfo sourceFile, DirectoryInfo sourcePath, Directo
 			.ToList();
 		TableOfContents.Clear();
 		TableOfContents.AddRange(contents);
-
 
 		return Document;
 	}
