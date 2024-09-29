@@ -29,6 +29,9 @@ public class DirectiveBlockParser : FencedBlockParserBase<DirectiveBlock>
     protected override DirectiveBlock CreateFencedBlock(BlockProcessor processor)
     {
 	    _admonitionData = new Dictionary<string, string>();
+	    var info = processor.Line;
+	    if (info.AsSpan().EndsWith("{toctree}"))
+			return new TocTreeBlock(this, _admonitionData);
 	    return new DirectiveBlock(this, _admonitionData);
     }
 
@@ -40,9 +43,13 @@ public class DirectiveBlockParser : FencedBlockParserBase<DirectiveBlock>
 	    if (line.StartsWith(":"))
 	    {
 		    var tokens = line.ToString().Split(':', 3, RemoveEmptyEntries | TrimEntries);
+		    if (tokens.Length < 1)
+				return base.TryContinue(processor, block);
+
 		    var name = tokens[0];
 		    var data = tokens.Length > 1 ? tokens[1] : string.Empty;
 		    _admonitionData[name] = data;
+		    return BlockState.Continue;
 	    }
 
 	    return base.TryContinue(processor, block);

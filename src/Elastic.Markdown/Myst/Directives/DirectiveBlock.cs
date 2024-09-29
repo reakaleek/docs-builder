@@ -7,6 +7,9 @@ using Markdig.Syntax;
 
 namespace Elastic.Markdown.Myst.Directives;
 
+public class TocTreeBlock(DirectiveBlockParser blockParser, Dictionary<string, string> directiveProperties)
+	: DirectiveBlock(blockParser, directiveProperties);
+
 /// <summary>
 /// A block custom container.
 /// </summary>

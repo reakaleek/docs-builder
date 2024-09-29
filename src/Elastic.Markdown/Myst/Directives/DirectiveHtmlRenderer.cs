@@ -17,6 +17,9 @@ public class DirectiveHtmlRenderer : HtmlObjectRenderer<DirectiveBlock>
 {
 	protected override void Write(HtmlRenderer renderer, DirectiveBlock directiveBlock)
 	{
+		if (directiveBlock is TocTreeBlock)
+			return;
+
 		renderer.EnsureLine();
 
 		switch (directiveBlock.Info)

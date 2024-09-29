@@ -12,6 +12,8 @@ public class DirectiveParagraphParser : ParagraphBlockParser
 		// TODO Validate properties on directive.
 		if (line.StartsWith(":") && processor.CurrentBlock is DirectiveBlock directive)
 			return BlockState.None;
+		else if (line.StartsWith(":"))
+			return BlockState.None;
 
 		return base.TryOpen(processor);
 	}
