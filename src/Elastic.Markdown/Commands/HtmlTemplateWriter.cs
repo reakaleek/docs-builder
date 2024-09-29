@@ -26,7 +26,12 @@ public class HtmlTemplateWriter
 	{
 		var html = markdown.CreateHtml();
 
-		var slice = Slices.Index.Create(new MyModel { Title = markdown.Title ?? "[TITLE NOT SET]", MarkdownHtml = html });
+		var slice = Slices.Index.Create(new MyModel
+		{
+			Title = markdown.Title ?? "[TITLE NOT SET]",
+			MarkdownHtml = html,
+			PageTocItems = markdown.TableOfContents
+		});
 		return await slice.RenderAsync(cancellationToken: ctx);
 	}
 

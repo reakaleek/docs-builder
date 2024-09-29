@@ -58,5 +58,7 @@ public class DirectiveMarkdownExtension : IMarkdownExtension
 			// Must be inserted before CodeBlockRenderer
 			renderer.ObjectRenderers.InsertBefore<CodeBlockRenderer>(new DirectiveHtmlRenderer());
 		}
+
+		renderer.ObjectRenderers.Replace<HeadingRenderer>(new SectionedHeadingRenderer());
 	}
 }

@@ -1,0 +1,80 @@
+@inherits RazorLayoutSlice<LayoutModel>
+<!DOCTYPE html>
+<html lang="en" data-accent-color="blue" data-content_root="./">
+@(await RenderPartialAsync(Elastic.Markdown.Slices.Layout._Head.Create(Model)))
+@(await RenderPartialAsync<Elastic.Markdown.Slices.Layout._Announcement>())
+<body>
+<div class="sy-head">
+	<div class="sy-head-blur"></div>
+	<div class="sy-head-inner sy-container mx-auto">
+		<a class="sy-head-brand" href="/index.html">
+			<img class="light-logo" src="/_static/logo-light.svg" alt="Elastic" height="28" loading="lazy">
+			<img class="dark-logo" src="/_static/logo-dark.svg" alt="Elastic" height="28" loading="lazy">
+			<strong>Elastic</strong>
+		</a>
+		@(await RenderPartialAsync<Elastic.Markdown.Slices.Layout._HeadNav>())
+	</div>
+</div>
+<div class="sy-page sy-container flex mx-auto">
+	@(await RenderPartialAsync(Elastic.Markdown.Slices.Layout._TocTree.Create(Model)))
+	@(await RenderPartialAsync(Elastic.Markdown.Slices.Layout._TableOfContents.Create(Model)))
+	<main class="sy-main w-full max-sm:max-w-full print:pt-6">
+		<div class="sy-breadcrumbs" role="navigation">
+			<div class="sy-breadcrumbs-inner flex items-center">
+				<div class="md:hidden mr-3">
+					<button class="js-menu" aria-label="Menu" type="button" aria-controls="lside" aria-expanded="false">
+						<i class="i-lucide menu"></i>
+					</button>
+				</div>
+				<ol class="flex-1" itemscope="" itemtype="https://schema.org/BreadcrumbList">
+					<li itemprop="itemListElement" itemscope="" itemtype="https://schema.org/ListItem">
+						<a itemprop="item" href="#">
+							<span itemprop="name">Elastic</span>
+						</a>
+						<span>/</span>
+						<meta itemprop="position" content="1">
+					</li>
+					<li itemprop="itemListElement" itemscope="" itemtype="https://schema.org/ListItem">
+						<strong itemprop="name">Elastic Docs v3</strong>
+						<meta itemprop="position" content="2">
+					</li>
+				</ol>
+				<div class="xl:hidden ml-1">
+					<button class="js-menu" aria-label="Show table of contents" type="button" aria-controls="rside" aria-expanded="false">
+						<i class="i-lucide outdent"></i>
+					</button>
+				</div>
+			</div>
+		</div>
+		<div class="flex flex-col break-words justify-between">
+			<div class="min-w-0 max-w-6xl px-6 pb-6 pt-8 xl:px-12">
+				<article class="yue" role="main">
+					@await RenderBodyAsync()
+				</article>
+				<button class="back-to-top" type="button" data-visible="true">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+						<path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+					</svg>
+					<span>Back to top</span>
+				</button>
+				<div class="navigation flex print:hidden">
+					<div class="navigation-next">
+						<a href="elastic/index.html">
+							<div class="page-info">
+								<span>Next</span>
+								<div class="title">Elastic content</div>
+							</div>
+							<i class="i-lucide chevron-right"></i>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</main>
+</div>
+@(await RenderPartialAsync<Elastic.Markdown.Slices.Layout._Footer>())
+@(await RenderPartialAsync<Elastic.Markdown.Slices.Layout._Scripts>())
+@await RenderSectionAsync("scripts")
+
+</body>
+</html>

@@ -29,7 +29,6 @@ app.Add("myst", async Task (CancellationToken ctx = default) =>
 
 app.Add("serve", () =>
 {
-	var generator = new MystSampleGenerator();
 	var builder = WebApplication.CreateSlimBuilder(args);
 
 	var app = builder.Build();
@@ -43,6 +42,7 @@ app.Add("serve", () =>
 
 	app.MapGet("/", async (CancellationToken ctx) =>
 	{
+		var generator = new MystSampleGenerator();
 		if (!generator.DocumentationSet.Map.TryGetValue("index.md", out var documentationFile)
 		    || documentationFile is not MarkdownFile markdown)
 			return Results.NotFound();
@@ -53,16 +53,24 @@ app.Add("serve", () =>
 	});
 	app.MapGet("{**slug}", async (string slug, CancellationToken ctx) =>
 	{
+		var generator = new MystSampleGenerator();
 		slug = slug.Replace(".html", ".md");
 		if (!generator.DocumentationSet.Map.TryGetValue(slug, out var documentationFile))
 			return Results.NotFound();
 
-		if (documentationFile is not MarkdownFile markdown)
-			return Results.NotFound();
-
-		_ = await markdown.ParseAsync(ctx);
-		var rendered = await generator.HtmlWriter.RenderLayout(markdown, ctx);
-		return Results.Content(rendered, "text/html");
+		switch (documentationFile)
+		{
+			case MarkdownFile markdown:
+			{
+				_ = await markdown.ParseAsync(ctx);
+				var rendered = await generator.HtmlWriter.RenderLayout(markdown, ctx);
+				return Results.Content(rendered, "text/html");
+			}
+			case ImageFile image:
+				return Results.File(image.SourceFile.FullName, "image/png");
+			default:
+				return Results.NotFound();
+		}
 	});
 
 	app.Run();

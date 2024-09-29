@@ -1,7 +1,10 @@
 using System.Text;
+using Elastic.Markdown.Templating;
 using Markdig;
+using Markdig.Extensions.Tables;
 using Markdig.Extensions.Yaml;
 using Markdig.Syntax;
+using Slugify;
 
 namespace Elastic.Markdown.DocSet;
 
@@ -29,18 +32,23 @@ public abstract class DocumentationFile
 	}
 }
 
+public class ImageFile(FileInfo sourceFile, DirectoryInfo sourcePath, DirectoryInfo outputPath)
+	: DocumentationFile(sourceFile, sourcePath, outputPath);
+
 public class StaticFile(FileInfo sourceFile, DirectoryInfo sourcePath, DirectoryInfo outputPath)
 	: DocumentationFile(sourceFile, sourcePath, outputPath);
 
 public class MarkdownFile(FileInfo sourceFile, DirectoryInfo sourcePath, DirectoryInfo outputPath)
 	: DocumentationFile(sourceFile, sourcePath, outputPath)
 {
+	private readonly SlugHelper _slugHelper = new();
 	public required MarkdownConverter MarkdownConverter { get; init; }
 	private YamlFrontMatterConverter YamlFrontMatterConverter { get; } = new();
 
 	public string? Title { get; private set; }
 
 	private MarkdownDocument? Document { get; set; }
+	public List<PageTocItem> TableOfContents { get; } = new();
 
 	public async Task<MarkdownDocument> ParseAsync(CancellationToken ctx)
 	{
@@ -51,6 +59,17 @@ public class MarkdownFile(FileInfo sourceFile, DirectoryInfo sourcePath, Directo
 			var frontMatter = YamlFrontMatterConverter.Deserialize(raw);
 			Title = frontMatter.Title;
 		}
+
+		var contents = Document
+			.Where(block => block is HeadingBlock { Level: 2 })
+			.Cast<HeadingBlock>()
+			.Select(h => h.Inline?.FirstChild?.ToString())
+			.Where(title => !string.IsNullOrWhiteSpace(title))
+			.Select(title => new PageTocItem { Heading = title!, Slug = _slugHelper.GenerateSlug(title) })
+			.ToList();
+		TableOfContents.Clear();
+		TableOfContents.AddRange(contents);
+
 
 		return Document;
 	}

@@ -19,6 +19,7 @@ public class DocumentationSet
 			.Select(f => new FileInfo(f))
 			.Select<FileInfo, DocumentationFile>(file => file.Extension switch
 			{
+				".png" => new ImageFile(file, SourcePath, OutputPath),
 				".md" => new MarkdownFile(file, SourcePath, OutputPath)
 				{
 					MarkdownConverter = MarkdownConverter
