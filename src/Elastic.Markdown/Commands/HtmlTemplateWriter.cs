@@ -36,6 +36,12 @@ public class HtmlTemplateWriter
 		return _navigation;
 	}
 
+	public async Task ReloadNavigation(MarkdownFile current, CancellationToken ctx)
+	{
+		_navigation = null;
+		_ = await RenderNavigation(current, ctx);
+	}
+
 	public async Task<string> RenderLayout(MarkdownFile markdown, CancellationToken ctx = default)
 	{
 		var html = await markdown.CreateHtmlAsync(ctx);
@@ -61,4 +67,5 @@ public class HtmlTemplateWriter
 		var rendered = await RenderLayout(markdown, ctx);
 		await File.WriteAllTextAsync(outputFile.FullName, rendered, ctx);
 	}
+
 }

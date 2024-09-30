@@ -1,5 +1,4 @@
 using Elastic.Markdown.DocSet;
-using Markdig.Syntax;
 
 namespace Elastic.Markdown.Commands;
 
@@ -22,12 +21,18 @@ public class MystSampleGenerator
 		HtmlWriter = new HtmlTemplateWriter(DocumentationSet);
 	}
 
+	public async Task ResolveDirectoryTree(CancellationToken ctx) =>
+		await DocumentationSet.Tree.Resolve(ctx);
+
+	public async Task ReloadNavigation(MarkdownFile current, CancellationToken ctx) =>
+		await HtmlWriter.ReloadNavigation(current, ctx);
+
 	public async Task Build(CancellationToken ctx)
 	{
 		DocumentationSet.ClearOutputDirectory();
 
 		Console.WriteLine("Resolving tree");
-		await DocumentationSet.Tree.Resolve(ctx);
+		await ResolveDirectoryTree(ctx);
 		Console.WriteLine("Resolved tree");
 
 		var handledItems = 0;
