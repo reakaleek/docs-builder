@@ -37,7 +37,7 @@ public class MystSampleGenerator
 
 	public async Task<string?> RenderLayout(MarkdownFile markdown, CancellationToken ctx)
 	{
-		await DocumentationSet.Tree.Resolve(ctx);
+		await DocumentationSet.Tree.Resolve(markdown, ctx);
 		return await HtmlWriter.RenderLayout(DocumentationSet, markdown, ctx);
 	}
 }

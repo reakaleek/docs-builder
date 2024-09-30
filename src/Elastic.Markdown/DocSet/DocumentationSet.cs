@@ -8,6 +8,9 @@ public class DocumentationGroup
 	public int Level { get; }
 	public string? FolderName { get; }
 
+	public bool Current { get; internal set; }
+	public MarkdownFile? CurrentFile { get; internal set; }
+
 	public DocumentationGroup(Dictionary<string, MarkdownFile[]> markdownFiles, int level, string folderName)
 	{
 		Level = level;
@@ -47,11 +50,17 @@ public class DocumentationGroup
 		Nested = groups.ToArray();
 	}
 
-	public async Task Resolve(CancellationToken ctx = default)
+	private bool HoldsCurrent(MarkdownFile current) =>
+		Files.Contains(current) || Nested.Any(n => n.HoldsCurrent(current));
+
+	public async Task Resolve(MarkdownFile markdown, CancellationToken ctx = default)
 	{
 		await (Index?.ParseAsync(ctx) ?? Task.CompletedTask);
 		foreach (var f in Files) await f.ParseAsync(ctx);
-		foreach (var n in Nested) await n.Resolve(ctx);
+		foreach (var n in Nested) await n.Resolve(markdown, ctx);
+
+		Current = HoldsCurrent(markdown);
+		CurrentFile = markdown;
 	}
 }
 

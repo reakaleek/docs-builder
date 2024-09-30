@@ -22,14 +22,11 @@ public class HtmlTemplateWriter
 	public ILoggerFactory LoggerFactory { get; }
 	public ServiceProvider ServiceProvider { get; }
 
-	public async Task<string> RenderLayout(
-		DocumentationSet documentationSet,
-		MarkdownFile markdown,
-		CancellationToken ctx = default)
+	public async Task<string> RenderLayout(DocumentationSet documentationSet, MarkdownFile markdown, CancellationToken ctx = default)
 	{
 		var html = markdown.CreateHtml();
 
-		await documentationSet.Tree.Resolve(ctx);
+		await documentationSet.Tree.Resolve(markdown, ctx);
 		var slice = Slices.Index.Create(new MyModel
 		{
 			Title = markdown.Title ?? "[TITLE NOT SET]",
