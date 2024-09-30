@@ -82,7 +82,7 @@ public class LiveDocumentationService(LiveDocumentationHolder liveDocumentation,
 		if (e.ChangeType != WatcherChangeTypes.Changed)
 			return;
 
-		if (e.FullPath.EndsWith(".md"))
+		if (e.FullPath.EndsWith("index.md"))
 			Reload();
 
 		Logger.LogInformation($"Changed: {e.FullPath}");
