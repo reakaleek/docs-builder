@@ -7,13 +7,13 @@
 }
 @foreach (var g in Model.SubTree.Nested)
 {
-	var current = g.Current ? "current" : string.Empty;
-	var expand = g.Current ? "_expand" : string.Empty;
-<li class="toctree-l@(g.Level) @current"><a class="reference internal" href="@g.Index?.Url">@g.Index?.Title</a><ul>@await RenderPartialAsync(Elastic.Markdown.Slices.Layout._TocTreeNav.Create(new TreeItemModel
+	var current = g.Current || g.Index == g.CurrentFile ? "current" : string.Empty;
+	var currentFile = g.Index == g.CurrentFile ? "current" : string.Empty;
+<li class="toctree-l@(g.Level) @current"><a class="reference internal @currentFile" href="@g.Index?.Url">@g.Index?.Title</a>@if (@g.Files.Length > 0 || g.Nested.Length > 0) {<ul>@await RenderPartialAsync(Elastic.Markdown.Slices.Layout._TocTreeNav.Create(new TreeItemModel
 		{
 			Level = g.Level,
 			Index = g.Index,
 			SubTree = g
-		}))</ul>
+		}))</ul>}
 </li>
 }
