@@ -27,6 +27,15 @@ fi
 
 docker build --platform="${OS_TYPE}/${ARCHITECTURE}" -f Dockerfile -t docs-builder-${ARCHITECTURE}:latest .
 echo "Dockerfile build"
-docker run -v "${PWD}/docs/:/app/docs/" -v "${PWD}/.artifacts/:/app/.artifacts/" \
+
+if test -d "../markitpy-poc/docs/source/"; then
+  echo "Auto mounting markitpy-poc docs"
+  docker run -v "${PWD}/../markitpy-poc/docs/source/:/app/markitpy-poc/docs/source/" -v "${PWD}/docs/:/app/docs/" -v "${PWD}/.artifacts/:/app/.artifacts/" \
     -p 8080:8080 \
     --entrypoint "./docs-builder" "docs-builder-${ARCHITECTURE}:latest" "$@"
+else
+  docker run -v "${PWD}/docs/:/app/docs/" -v "${PWD}/.artifacts/:/app/.artifacts/" \
+    -p 8080:8080 \
+    --entrypoint "./docs-builder" "docs-builder-${ARCHITECTURE}:latest" "$@"
+fi
+

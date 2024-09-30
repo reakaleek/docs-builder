@@ -45,7 +45,6 @@ public class LiveDocumentationService(LiveDocumentationHolder liveDocumentation,
 		                       | NotifyFilters.CreationTime
 		                       | NotifyFilters.DirectoryName
 		                       | NotifyFilters.FileName
-		                       | NotifyFilters.LastAccess
 		                       | NotifyFilters.LastWrite
 		                       | NotifyFilters.Security
 		                       | NotifyFilters.Size;
