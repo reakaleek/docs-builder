@@ -8,9 +8,9 @@ public class MystSampleGenerator
 	public DirectoryInfo SourcePath { get; } = new (Path.Combine(Paths.Root.FullName, "docs/source"));
 	public DirectoryInfo OutputPath { get; } = new (Path.Combine(Paths.Root.FullName, ".artifacts/docs/html"));
 
-	public DocumentationSet DocumentationSet { get; set; }
+	public DocumentationSet DocumentationSet { get; }
 
-	public HtmlTemplateWriter HtmlWriter { get; } = new ();
+	public HtmlTemplateWriter HtmlWriter { get; }
 
 	public MarkdownConverter MarkdownConverter { get; } = new();
 
@@ -19,6 +19,7 @@ public class MystSampleGenerator
 		SourcePath = path != null ? new DirectoryInfo(path) : SourcePath;
 		OutputPath = output != null ? new DirectoryInfo(output) : OutputPath;
 		DocumentationSet = new DocumentationSet(SourcePath, OutputPath, MarkdownConverter);
+		HtmlWriter = new HtmlTemplateWriter(DocumentationSet);
 	}
 
 	public async Task Build(CancellationToken ctx)
@@ -36,7 +37,7 @@ public class MystSampleGenerator
 			if (file is MarkdownFile markdown)
 			{
 				await markdown.ParseAsync(token);
-				await HtmlWriter.WriteAsync(DocumentationSet, file.OutputFile, markdown, token);
+				await HtmlWriter.WriteAsync(file.OutputFile, markdown, token);
 			}
 			else
 			{
@@ -49,11 +50,9 @@ public class MystSampleGenerator
 		});
 	}
 
-	private string? _navigation;
 	public async Task<string?> RenderLayout(MarkdownFile markdown, CancellationToken ctx)
 	{
 		await DocumentationSet.Tree.Resolve(ctx);
-		_navigation ??= await HtmlWriter.RenderNavigation(DocumentationSet, markdown, ctx);
-		return await HtmlWriter.RenderLayout(DocumentationSet, markdown, _navigation, ctx);
+		return await HtmlWriter.RenderLayout(markdown, ctx);
 	}
 }

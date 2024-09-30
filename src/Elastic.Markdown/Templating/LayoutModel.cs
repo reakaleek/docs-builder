@@ -18,7 +18,7 @@ public class PageTocItem
 	public required string Slug { get; init; }
 }
 
-public class Navigationmodel
+public class NavigationModel
 {
 	public required DocumentationGroup Tree { get; init; }
 	public required MarkdownFile CurrentDocument { get; init; }
