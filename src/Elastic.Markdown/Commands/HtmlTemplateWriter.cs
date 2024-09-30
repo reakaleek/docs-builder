@@ -24,7 +24,7 @@ public class HtmlTemplateWriter
 
 	public async Task<string> RenderLayout(DocumentationSet documentationSet, MarkdownFile markdown, CancellationToken ctx = default)
 	{
-		var html = markdown.CreateHtml();
+		var html = await markdown.CreateHtmlAsync(ctx);
 
 		await documentationSet.Tree.Resolve(markdown, ctx);
 		var slice = Slices.Index.Create(new MyModel

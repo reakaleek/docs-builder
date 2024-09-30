@@ -1,10 +1,16 @@
+using Markdig.Helpers;
+using Markdig.Syntax;
+using Markdig.Syntax.Inlines;
+
 namespace Elastic.Markdown.DocSet;
 
 public class DocumentationGroup
 {
 	public MarkdownFile? Index { get; }
 	public MarkdownFile[] Files { get; }
+	public OrderedList<MarkdownFile> FilesInOrder { get; set; }
 	public DocumentationGroup[] Nested { get; }
+	public OrderedList<DocumentationGroup> GroupsInOrder { get; set; }
 	public int Level { get; }
 	public string? FolderName { get; }
 
@@ -25,6 +31,8 @@ public class DocumentationGroup
 		Files = files
 			.Where(file => file.FileName != "index.md")
 			.ToArray();
+
+		FilesInOrder = new OrderedList<MarkdownFile>(Files);
 
 		Index = files.FirstOrDefault(f => f.FileName == "index.md");
 
@@ -48,6 +56,7 @@ public class DocumentationGroup
 
 		}
 		Nested = groups.ToArray();
+		GroupsInOrder = new OrderedList<DocumentationGroup>(Nested);
 	}
 
 	private bool HoldsCurrent(MarkdownFile current) =>
@@ -55,12 +64,47 @@ public class DocumentationGroup
 
 	public async Task Resolve(MarkdownFile markdown, CancellationToken ctx = default)
 	{
+		CurrentFile = markdown;
+
 		await (Index?.ParseAsync(ctx) ?? Task.CompletedTask);
 		foreach (var f in Files) await f.ParseAsync(ctx);
 		foreach (var n in Nested) await n.Resolve(markdown, ctx);
 
 		Current = HoldsCurrent(markdown);
-		CurrentFile = markdown;
+
+		if (Index?.TocTree == null)
+			return;
+
+		var tree = Index.TocTree;
+		var fileList = new OrderedList<MarkdownFile>();
+		var groupList = new OrderedList<DocumentationGroup>();
+
+		foreach (var link in tree)
+		{
+			var file = Files.FirstOrDefault(f => f.RelativePath.EndsWith(link.Link));
+			if (file != null)
+			{
+				file.TocTitle = link.Title;
+				fileList.Add(file);
+			}
+			else
+			{
+
+			}
+
+			var group = Nested.FirstOrDefault(f => f.Index != null && f.Index.RelativePath.EndsWith(link.Link));
+			if (group != null)
+			{
+				groupList.Add(group);
+				if (group.Index != null && !string.IsNullOrEmpty(link.Title))
+					group.Index.TocTitle = link.Title;
+			}
+
+			//TODO LOG ERROR
+		}
+
+		FilesInOrder = fileList;
+		GroupsInOrder = groupList;
 	}
 }
 

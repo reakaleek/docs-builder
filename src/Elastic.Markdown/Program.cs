@@ -47,7 +47,7 @@ app.Add("serve", () =>
 		    || documentationFile is not MarkdownFile markdown)
 			return Results.NotFound();
 
-		_ = await markdown.ParseAsync(ctx);
+		await markdown.ParseAsync(ctx);
 		var rendered = await generator.RenderLayout(markdown, ctx);
 		return Results.Content(rendered, "text/html");
 	});
@@ -62,7 +62,7 @@ app.Add("serve", () =>
 		{
 			case MarkdownFile markdown:
 			{
-				_ = await markdown.ParseAsync(ctx);
+				await markdown.ParseAsync(ctx);
 				var rendered = await generator.RenderLayout(markdown, ctx);
 				return Results.Content(rendered, "text/html");
 			}

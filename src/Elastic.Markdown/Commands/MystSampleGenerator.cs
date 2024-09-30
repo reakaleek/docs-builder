@@ -25,7 +25,7 @@ public class MystSampleGenerator
 		{
 			if (file is MarkdownFile markdown)
 			{
-				_ = await markdown.ParseAsync(ctx);
+				await markdown.ParseAsync(ctx);
 				await HtmlWriter.WriteAsync(DocumentationSet, file.OutputFile, markdown, ctx);
 			}
 			else
