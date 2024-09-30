@@ -1,17 +1,17 @@
 @inherits RazorSlice<TreeItemModel>
 @foreach (var file in Model.SubTree.FilesInOrder)
 {
-	var current = file == Model.SubTree.CurrentFile ? " current" : string.Empty;
+	var current = file == Model.CurrentDocument ? " current" : string.Empty;
 <li class="toctree-l@(Model.SubTree.Level + 1)@current"><a class="@(current.Trim()) reference internal" href="@file.Url">@file.TocTitle</a></li>
 }
 @foreach (var g in Model.SubTree.GroupsInOrder)
 {
-	var current = g.Current || g.Index == g.CurrentFile ? " current" : string.Empty;
-	var currentFile = g.Index == g.CurrentFile ? " current" : string.Empty;
+	var current = g.HoldsCurrent(Model.CurrentDocument) ? " current" : string.Empty;
+	var currentFile = g.Index == Model.CurrentDocument ? " current" : string.Empty;
 <li class="toctree-l@(g.Level)@current"><a class="reference internal@(currentFile)" href="@g.Index?.Url">@g.Index?.TocTitle</a>@if (@g.FilesInOrder.Count > 0 || g.GroupsInOrder.Count > 0) {<ul class="@(current.Trim())">@await RenderPartialAsync(Elastic.Markdown.Slices.Layout._TocTreeNav.Create(new TreeItemModel
 		{
 			Level = g.Level,
-			Index = g.Index,
+			CurrentDocument = Model.CurrentDocument,
 			SubTree = g
 		}))</ul>
 }

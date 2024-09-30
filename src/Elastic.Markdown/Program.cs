@@ -9,25 +9,26 @@ using Microsoft.Extensions.FileProviders;
 var app = ConsoleApp.Create();
 app.UseFilter<CommandTimings>();
 
-app.Add("generate", async Task (int? count = null, string? path = null, CancellationToken ctx = default) =>
+app.Add("example-generator", async Task (int? count = null, string? path = null, CancellationToken ctx = default) =>
 {
 	var generator = new ExampleGenerator(count, path);
 	await generator.Build(ctx);
 });
 
-app.Add("convert", async Task (string? path = null, string? output = null, CancellationToken ctx = default) =>
+app.Add("example-converter", async Task (string? path = null, string? output = null, CancellationToken ctx = default) =>
 {
 	var generator = new DocSetConverter(path, output);
 	await generator.Build(ctx);
 });
 
-app.Add("myst", async Task (CancellationToken ctx = default) =>
+app.Add("generate", async Task (string? path = null, string? output = null, CancellationToken ctx = default) =>
 {
-	var generator = new MystSampleGenerator();
+	var generator = new MystSampleGenerator(path, output);
+	Console.WriteLine("Fetched documentation set");
 	await generator.Build(ctx);
 });
 
-app.Add("serve", () =>
+app.Add("serve", (string? path = null, string? output = null) =>
 {
 	var builder = WebApplication.CreateSlimBuilder(args);
 
@@ -42,7 +43,7 @@ app.Add("serve", () =>
 
 	app.MapGet("/", async (CancellationToken ctx) =>
 	{
-		var generator = new MystSampleGenerator();
+		var generator = new MystSampleGenerator(path, output);
 		if (!generator.DocumentationSet.FlatMappedFiles.TryGetValue("index.md", out var documentationFile)
 		    || documentationFile is not MarkdownFile markdown)
 			return Results.NotFound();
@@ -53,7 +54,7 @@ app.Add("serve", () =>
 	});
 	app.MapGet("{**slug}", async (string slug, CancellationToken ctx) =>
 	{
-		var generator = new MystSampleGenerator();
+		var generator = new MystSampleGenerator(path, output);
 		slug = slug.Replace(".html", ".md");
 		if (!generator.DocumentationSet.FlatMappedFiles.TryGetValue(slug, out var documentationFile))
 			return Results.NotFound();

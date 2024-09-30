@@ -13,7 +13,6 @@ namespace Elastic.Markdown.DocSet;
 
 public abstract class DocumentationFile
 {
-	public Encoding Encoding { get; }
 	public FileInfo SourceFile { get; }
 	public FileInfo OutputFile { get; }
 	public string RelativePath { get; }
@@ -23,16 +22,8 @@ public abstract class DocumentationFile
 		SourceFile = sourceFile;
 		RelativePath = Path.GetRelativePath(sourcePath.FullName, sourceFile.FullName);
 		OutputFile  = new FileInfo(Path.Combine(outputPath.FullName, RelativePath.Replace(".md", ".html")));
-		Encoding = GetEncoding();
 	}
 
-	private Encoding GetEncoding()
-	{
-		using var sr = new StreamReader(SourceFile.FullName, true);
-		while (sr.Peek() >= 0) sr.Read();
-
-		return sr.CurrentEncoding;
-	}
 }
 
 public class ImageFile(FileInfo sourceFile, DirectoryInfo sourcePath, DirectoryInfo outputPath)
@@ -64,7 +55,6 @@ public class MarkdownFile : DocumentationFile
 		set => _tocTitle = value;
 	}
 
-	private MarkdownDocument? Document { get; set; }
 	public List<PageTocItem> TableOfContents { get; } = new();
 	public IReadOnlyList<string> ParentFolders { get; }
 	public string FileName { get; }
@@ -72,7 +62,7 @@ public class MarkdownFile : DocumentationFile
 
 	public async Task ParseAsync(CancellationToken ctx)
 	{
-		var document = await MarkdownConverter.ParseAsync(SourceFile, ctx);;
+		var document = await MarkdownConverter.ParseAsync(SourceFile, ctx);
 		if (document.FirstOrDefault() is YamlFrontMatterBlock yaml)
 		{
 			var raw = string.Join(Environment.NewLine, yaml.Lines.Lines);

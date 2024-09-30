@@ -5,17 +5,15 @@ using Markdig.Syntax;
 
 namespace Elastic.Markdown.DocSet;
 
-public class MarkdownConverter(MarkdownPipeline? pipeline = null)
+public class MarkdownConverter()
 {
-	public MarkdownPipeline Pipeline { get; } =
-		pipeline ??
+	public MarkdownPipeline Pipeline =>
 		new MarkdownPipelineBuilder()
 			.EnableTrackTrivia()
 			.UseYamlFrontMatter()
 			.UseGridTables()
 			.UsePipeTables()
 			.UseDirectives()
-			//.UseGenericAttributes()
 			.Build();
 
 	public async Task<MarkdownDocument> ParseAsync(FileInfo path, CancellationToken ctx)

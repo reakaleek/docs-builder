@@ -1,4 +1,4 @@
-@inherits RazorSlice<LayoutModel>
+@inherits RazorSlice<Navigationmodel>
 <aside id="lside" class="sy-lside md:w-72 md:shrink-0 print:hidden">
 	<div class="sy-lside-inner md:sticky">
 		<div class="sy-scrollbar p-6">
@@ -9,8 +9,8 @@
 				<ul class="current">@await RenderPartialAsync(Elastic.Markdown.Slices.Layout._TocTreeNav.Create(new TreeItemModel
 					{
 						Level = Model.Tree.Level,
-						Index = Model.Tree.Index,
-						SubTree = Model.Tree
+						SubTree = Model.Tree,
+						CurrentDocument = Model.CurrentDocument
 					}))
 				</ul>
 			</div>

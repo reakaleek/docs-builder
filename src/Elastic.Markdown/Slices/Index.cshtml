@@ -1,11 +1,13 @@
-@inherits RazorSliceHttpResult<MyModel>
+@inherits RazorSliceHttpResult<MarkdownPageModel>
 @implements IUsesLayout<Elastic.Markdown.Slices._Layout, LayoutModel>
 @functions {
 	public LayoutModel LayoutModel => new()
 	{
 		Title = $"Elastic Documentation: {Model.Title}",
 		PageTocItems = Model.PageTocItems,
-		Tree = Model.Tree
+		Tree = Model.Tree,
+		CurrentDocument = Model.CurrentDocument,
+		Navigation = Model.Navigation
 	};
 }
 <section id="elastic-docs-v3">

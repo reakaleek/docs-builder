@@ -14,9 +14,6 @@ public class DocumentationGroup
 	public int Level { get; }
 	public string? FolderName { get; }
 
-	public bool Current { get; internal set; }
-	public MarkdownFile? CurrentFile { get; internal set; }
-
 	public DocumentationGroup(Dictionary<string, MarkdownFile[]> markdownFiles, int level, string folderName)
 	{
 		Level = level;
@@ -59,19 +56,21 @@ public class DocumentationGroup
 		GroupsInOrder = new OrderedList<DocumentationGroup>(Nested);
 	}
 
-	private bool HoldsCurrent(MarkdownFile current) =>
-		Files.Contains(current) || Nested.Any(n => n.HoldsCurrent(current));
+	public bool HoldsCurrent(MarkdownFile current) =>
+		Index == current || Files.Contains(current) || Nested.Any(n => n.HoldsCurrent(current));
 
-	public async Task Resolve(MarkdownFile markdown, CancellationToken ctx = default)
+	private bool _resolved;
+	public async Task Resolve(CancellationToken ctx = default)
 	{
-		CurrentFile = markdown;
+		if (_resolved) return;
+
+		await Parallel.ForEachAsync(Files, ctx, async (file, token) => await file.ParseAsync(token));
+		await Parallel.ForEachAsync(Nested, ctx, async (group, token) => await group.Resolve(token));
+
+		//foreach (var f in Files) await f.ParseAsync(ctx);
+		//foreach (var n in Nested) await n.Resolve(ctx);
 
 		await (Index?.ParseAsync(ctx) ?? Task.CompletedTask);
-		foreach (var f in Files) await f.ParseAsync(ctx);
-		foreach (var n in Nested) await n.Resolve(markdown, ctx);
-
-		Current = HoldsCurrent(markdown);
-
 		if (Index?.TocTree == null)
 			return;
 
@@ -87,10 +86,6 @@ public class DocumentationGroup
 				file.TocTitle = link.Title;
 				fileList.Add(file);
 			}
-			else
-			{
-
-			}
 
 			var group = Nested.FirstOrDefault(f => f.Index != null && f.Index.RelativePath.EndsWith(link.Link));
 			if (group != null)
@@ -99,12 +94,11 @@ public class DocumentationGroup
 				if (group.Index != null && !string.IsNullOrEmpty(link.Title))
 					group.Index.TocTitle = link.Title;
 			}
-
-			//TODO LOG ERROR
 		}
 
 		FilesInOrder = fileList;
 		GroupsInOrder = groupList;
+		_resolved = true;
 	}
 }
 
@@ -116,9 +110,9 @@ public class DocumentationSet
 
 	private MarkdownConverter MarkdownConverter { get; }
 
-	public DocumentationSet(string name, DirectoryInfo sourcePath, DirectoryInfo outputPath, MarkdownConverter markdownConverter)
+	public DocumentationSet(DirectoryInfo sourcePath, DirectoryInfo outputPath, MarkdownConverter markdownConverter)
 	{
-		Name = name;
+		Name = sourcePath.FullName;
 		SourcePath = sourcePath;
 		OutputPath = outputPath;
 		MarkdownConverter = markdownConverter;
@@ -147,6 +141,7 @@ public class DocumentationSet
 			})
 			.ToDictionary(k => k.Key, v => v.ToArray());
 
+		//Tree = new DocumentationGroup([], 0, "");
 		Tree = new DocumentationGroup(markdownFiles, 0, "");
 	}
 
