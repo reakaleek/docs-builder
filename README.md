@@ -50,7 +50,7 @@ If you have dotnet 8 installed you can use its CLI to publish a self-contained `
 binary. (On my M2 Pro mac the binary is currently 13mb)
 
 ```bash
-$ dotnet publish "src/Elastic.Markdown/Elastic.Markdown.csproj" -c Release -o .artifacts/publish \
+$ dotnet publish "src/docs-builder/docs-builder.csproj" -c Release -o .artifacts/publish \
     --self-contained true /p:PublishTrimmed=true /p:PublishSingleFile=false /p:PublishAot=true -a arm64
 ```
 

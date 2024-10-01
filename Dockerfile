@@ -14,15 +14,16 @@ ARG BUILDPLATFORM
 
 WORKDIR /src
 COPY ["src/Elastic.Markdown/Elastic.Markdown.csproj", "src/Elastic.Markdown/Elastic.Markdown.csproj"]
+COPY ["src/docs-builder/docs-builder.csproj", "src/docs-builder/docs-builder.csproj"]
 COPY ["docs/docs.csproj", "docs/docs.csproj"]
 COPY ["docs-builder.sln", "docs-builder.sln"]
 RUN dotnet restore "docs-builder.sln"
 COPY . .
 WORKDIR "/src"
-RUN dotnet build "src/Elastic.Markdown/Elastic.Markdown.csproj" -c Release -o /app/build -a $TARGETARCH
+RUN dotnet build "src/docs-builder/docs-builder.csproj" -c Release -o /app/build -a $TARGETARCH
 
 FROM build AS publish
-RUN dotnet publish "src/Elastic.Markdown/Elastic.Markdown.csproj" -c Release -o /app/publish \
+RUN dotnet publish "src/docs-builder/docs-builder.csproj" -c Release -o /app/publish \
     #--runtime alpine-x64 \
     --self-contained true \
     /p:PublishTrimmed=true \

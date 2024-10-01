@@ -15,7 +15,7 @@ public class SectionedHeadingRenderer : HtmlObjectRenderer<HeadingBlock>
 		"h3",
 		"h4",
 		"h5",
-		"h6",
+		"h6"
 	];
 
 	protected override void Write(HtmlRenderer renderer, HeadingBlock obj)

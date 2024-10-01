@@ -1,8 +1,8 @@
-@inherits RazorLayoutSlice<LayoutModel>
+@inherits RazorLayoutSlice<LayoutViewModel>
 <!DOCTYPE html>
 <html lang="en" data-accent-color="blue" data-content_root="./">
-@(await RenderPartialAsync(Elastic.Markdown.Slices.Layout._Head.Create(Model)))
-@(await RenderPartialAsync<Elastic.Markdown.Slices.Layout._Announcement>())
+@(await RenderPartialAsync(_Head.Create(Model)))
+@(await RenderPartialAsync<_Announcement>())
 <body>
 <div class="sy-head">
 	<div class="sy-head-blur"></div>
@@ -12,13 +12,13 @@
 			<img class="dark-logo" src="/_static/logo-dark.svg" alt="Elastic" height="28" loading="lazy">
 			<strong>Elastic</strong>
 		</a>
-		@(await RenderPartialAsync<Elastic.Markdown.Slices.Layout._HeadNav>())
+		@(await RenderPartialAsync<_HeadNav>())
 	</div>
 </div>
 <div class="sy-page sy-container flex mx-auto">
 	@(new HtmlString(Model.Navigation))
 	@*@(await RenderPartialAsync(Elastic.Markdown.Slices.Layout._TocTree.Create(Model)))*@
-	@(await RenderPartialAsync(Elastic.Markdown.Slices.Layout._TableOfContents.Create(Model)))
+	@(await RenderPartialAsync(_TableOfContents.Create(Model)))
 	<main class="sy-main w-full max-sm:max-w-full print:pt-6">
 		<div class="sy-breadcrumbs" role="navigation">
 			<div class="sy-breadcrumbs-inner flex items-center">
@@ -73,8 +73,8 @@
 		</div>
 	</main>
 </div>
-@(await RenderPartialAsync<Elastic.Markdown.Slices.Layout._Footer>())
-@(await RenderPartialAsync<Elastic.Markdown.Slices.Layout._Scripts>())
+@(await RenderPartialAsync<_Footer>())
+@(await RenderPartialAsync<_Scripts>())
 @await RenderSectionAsync("scripts")
 
 </body>

@@ -42,9 +42,7 @@ public class DirectiveMarkdownExtension : IMarkdownExtension
 			inlineParser.TryCreateEmphasisInlineList.Add((emphasisChar, delimiterCount) =>
 			{
 				if (delimiterCount == 2 && emphasisChar == ':')
-				{
 					return new Role();
-				}
 
 				return null;
 			});

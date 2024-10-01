@@ -4,7 +4,6 @@
 
 using Markdig.Parsers;
 using Markdig.Syntax;
-using Markdig.Syntax.Inlines;
 using static System.StringSplitOptions;
 
 namespace Elastic.Markdown.Myst.Directives;

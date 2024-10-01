@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -euo pipefail
+
 # guess OS_TYPE if not provided
 OS_TYPE=${OS_TYPE:-}
 if [ -z "$OS_TYPE" ]; then
@@ -16,6 +18,7 @@ if [ -z "$OS_TYPE" ]; then
   esac
 fi
 
+ARCHITECTURE=${ARCHITECTURE:-}
 # guess OS architecture if not provided
 if [ -z "$ARCHITECTURE" ]; then
   case $(uname -m) in

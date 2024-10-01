@@ -10,7 +10,7 @@ using RazorSlices;
 namespace Elastic.Markdown.Myst.Directives;
 
 /// <summary>
-/// A HTML renderer for a <see cref="DirectiveBlock"/>.
+/// An HTML renderer for a <see cref="DirectiveBlock"/>.
 /// </summary>
 /// <seealso cref="HtmlObjectRenderer{CustomContainer}" />
 public class DirectiveHtmlRenderer : HtmlObjectRenderer<DirectiveBlock>
@@ -83,7 +83,7 @@ public class DirectiveHtmlRenderer : HtmlObjectRenderer<DirectiveBlock>
 	{
 		var title = directiveBlock.Arguments;
 		var link = directiveBlock.DirectiveProperties.GetValueOrDefault("link");
-		var slice = Card.Create(new CardModel { Title = title, Link = link });
+		var slice = Card.Create(new CardViewModel { Title = title, Link = link });
 		RenderRazorSlice(slice, renderer, directiveBlock, implicitParagraph: false);
 	}
 
@@ -101,7 +101,7 @@ public class DirectiveHtmlRenderer : HtmlObjectRenderer<DirectiveBlock>
 			md = columns[2];
 			lg = columns[3];
 		}
-		var slice = Grid.Create(new GridModel
+		var slice = Grid.Create(new GridViewModel
 		{
 			BreakPointLg = lg, BreakPointMd = md, BreakPointSm = sm, BreakPointXs = xs
 		});
@@ -111,7 +111,7 @@ public class DirectiveHtmlRenderer : HtmlObjectRenderer<DirectiveBlock>
 	{
 		var title = directiveBlock.Arguments;
 		var link = directiveBlock.DirectiveProperties.GetValueOrDefault("link");
-		var slice = GridItemCard.Create(new GridItemCardModel { Title = title, Link = link });
+		var slice = GridItemCard.Create(new GridItemCardViewModel { Title = title, Link = link });
 		RenderRazorSlice(slice, renderer, directiveBlock);
 	}
 
@@ -123,7 +123,7 @@ public class DirectiveHtmlRenderer : HtmlObjectRenderer<DirectiveBlock>
 		if (!string.IsNullOrEmpty(directiveBlock.Arguments))
 			title += $" {directiveBlock.Arguments}";
 		var versionClass = directiveBlock.Info!.Replace("version", "");
-		var slice = Slices.Directives.Version.Create( new VersionModel
+		var slice = Slices.Directives.Version.Create( new VersionViewModel
 		{
 			Directive = admonition, Title = title, VersionClass = versionClass
 		});
@@ -140,7 +140,7 @@ public class DirectiveHtmlRenderer : HtmlObjectRenderer<DirectiveBlock>
 		if (!string.IsNullOrEmpty(directiveBlock.Arguments))
 			title += $" {directiveBlock.Arguments}";
 
-		var slice = Admonition.Create(new AdmonitionModel
+		var slice = Admonition.Create(new AdmonitionViewModel
 		{
 			Directive = admonition, Id = id, Classes = classes, Title = title
 		});
@@ -155,21 +155,21 @@ public class DirectiveHtmlRenderer : HtmlObjectRenderer<DirectiveBlock>
 		var caption = directiveBlock.DirectiveProperties.GetValueOrDefault("caption");
 		var id = directiveBlock.DirectiveProperties.GetValueOrDefault("name");
 
-		var slice = Code.Create(new CodeModel { Id = id, Language = language, Caption = caption });
+		var slice = Code.Create(new CodeViewModel { Id = id, Language = language, Caption = caption });
 		RenderRazorSlice(slice, renderer, directiveBlock);
 	}
 
 
 	private void WriteSideBar(HtmlRenderer renderer, DirectiveBlock directiveBlock)
 	{
-		var slice = SideBar.Create(new SideBarModel());
+		var slice = SideBar.Create(new SideBarViewModel());
 		RenderRazorSlice(slice, renderer, directiveBlock);
 	}
 
 	private int _seenTabSets;
 	private void WriteTabSet(HtmlRenderer renderer, DirectiveBlock directiveBlock)
 	{
-		var slice = TabSet.Create(new TabSetModel());
+		var slice = TabSet.Create(new TabSetViewModel());
 		RenderRazorSlice(slice, renderer, directiveBlock);
 		_seenTabSets++;
 	}
@@ -178,7 +178,7 @@ public class DirectiveHtmlRenderer : HtmlObjectRenderer<DirectiveBlock>
 	{
 		var title = directiveBlock.Arguments ?? "Unnamed Tab";
 		var index = directiveBlock.Parent!.IndexOf(directiveBlock);
-		var slice = TabItem.Create(new TabItemModel
+		var slice = TabItem.Create(new TabItemViewModel
 		{
 			Index = index, Title = title, TabSetIndex = _seenTabSets
 		});
