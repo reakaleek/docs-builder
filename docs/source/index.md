@@ -2,13 +2,9 @@
 title: Elastic Docs v3
 ---
 
-Elastic Docs v3 is built with [markitpy](https://github.com/elastic/markitpy)—a custom wrapper for the `sphinx-build`, `sphinx-autobuild`, and `sphinx-multiversion` command-line tools that provides:
+Elastic Docs v3 is built with
 
-* A simple CLI for building and auto-building content
-* Automatic installation of Sphinx, MyST-Parser, and other Sphinx and MyST extensions
-* New functionality, like partial builds
-
-Most importantly, markitpy allows contributors to **focus on content**, not complex Sphinx internals or documentation configuration.
+TODO ADD README for doc-builder
 
 :::{tip}
 On the right side of every page, there is an `Edit this page` link that you can use to see the markdown source for that page.
