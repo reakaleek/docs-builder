@@ -47,9 +47,8 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish app
-        working-directory: ./src/docs-builder
         run: |
-          dotnet publish \
+          dotnet publish src/docs-builder/docs-builder.csproj \ 
             /t:PublishContainer \
             -p DebugType=none \
             -p ContainerBaseImage=${{ env.BASE_IMAGE }} \
