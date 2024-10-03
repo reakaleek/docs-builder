@@ -47,7 +47,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish app
-        working-directory: ./src/ProfanityFilter.Action
+        working-directory: ./src/docs-builder
         run: |
           dotnet publish \
             /t:PublishContainer \
