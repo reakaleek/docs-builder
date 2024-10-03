@@ -1,4 +1,4 @@
-namespace Elastic.Markdown.Files;
+namespace Elastic.Markdown.IO;
 
 public abstract class DocumentationFile(FileInfo sourceFile, DirectoryInfo sourcePath)
 {

@@ -1,4 +1,4 @@
-namespace Elastic.Markdown.Files;
+namespace Elastic.Markdown.IO;
 
 public static class Paths
 {

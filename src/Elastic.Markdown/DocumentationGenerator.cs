@@ -1,41 +1,45 @@
-using Elastic.Markdown.Files;
+using Elastic.Markdown.IO;
 using Elastic.Markdown.Slices;
+using Microsoft.Extensions.Logging;
 
 namespace Elastic.Markdown;
 
 public class DocumentationGenerator
 {
+	private readonly ILogger _logger;
 	private HtmlWriter HtmlWriter { get; }
 
 	public DocumentationSet DocumentationSet { get; }
 
-	public DocumentationGenerator(DocumentationSet docSet)
+	public DocumentationGenerator(DocumentationSet docSet, ILoggerFactory logger)
 	{
+		_logger = logger.CreateLogger(nameof(DocumentationGenerator));
+
 		DocumentationSet = docSet;
 		HtmlWriter = new HtmlWriter(DocumentationSet);
 	}
 
-	public static DocumentationGenerator Create(string? path, string? output)
+	public static DocumentationGenerator Create(string? path, string? output, ILoggerFactory logger)
 	{
 		var sourcePath = path != null ? new DirectoryInfo(path) : null;
 		var outputPath = output != null ? new DirectoryInfo(output) : null;
 		var docSet = new DocumentationSet(sourcePath, outputPath);
-		return new DocumentationGenerator(docSet);
+		return new DocumentationGenerator(docSet, logger);
 	}
 
-	public async Task ResolveDirectoryTree(CancellationToken ctx) =>
+	public async Task ResolveDirectoryTree(Cancel ctx) =>
 		await DocumentationSet.Tree.Resolve(ctx);
 
-	public async Task ReloadNavigationAsync(MarkdownFile current, CancellationToken ctx) =>
+	public async Task ReloadNavigationAsync(MarkdownFile current, Cancel ctx) =>
 		await HtmlWriter.ReloadNavigation(current, ctx);
 
-	public async Task GenerateAll(CancellationToken ctx)
+	public async Task GenerateAll(Cancel ctx)
 	{
 		DocumentationSet.ClearOutputDirectory();
 
-		Console.WriteLine("Resolving tree");
+		_logger.LogInformation("Resolving tree");
 		await ResolveDirectoryTree(ctx);
-		Console.WriteLine("Resolved tree");
+		_logger.LogInformation("Resolved tree");
 
 		var handledItems = 0;
 		await Parallel.ForEachAsync(DocumentationSet.Files, ctx, async (file, token) =>
@@ -58,7 +62,7 @@ public class DocumentationGenerator
 		});
 	}
 
-	public async Task<string?> RenderLayout(MarkdownFile markdown, CancellationToken ctx)
+	public async Task<string?> RenderLayout(MarkdownFile markdown, Cancel ctx)
 	{
 		await DocumentationSet.Tree.Resolve(ctx);
 		return await HtmlWriter.RenderLayout(markdown, ctx);

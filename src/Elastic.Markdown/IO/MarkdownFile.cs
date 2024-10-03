@@ -7,7 +7,7 @@ using Markdig.Helpers;
 using Markdig.Syntax;
 using Slugify;
 
-namespace Elastic.Markdown.Files;
+namespace Elastic.Markdown.IO;
 
 public class MarkdownFile : DocumentationFile
 {
@@ -36,7 +36,7 @@ public class MarkdownFile : DocumentationFile
 	public string FileName { get; }
 	public string Url => $"/{RelativePath.Replace(".md", ".html")}";
 
-	public async Task ParseAsync(CancellationToken ctx)
+	public async Task ParseAsync(Cancel ctx)
 	{
 		var document = await MarkdownParser.ParseAsync(SourceFile, ctx);
 		if (document.FirstOrDefault() is YamlFrontMatterBlock yaml)
@@ -67,7 +67,7 @@ public class MarkdownFile : DocumentationFile
 
 	public OrderedList<TocTreeLink>? TocTree { get; private set; }
 
-	public async Task<string> CreateHtmlAsync(CancellationToken ctx)
+	public async Task<string> CreateHtmlAsync(Cancel ctx)
 	{
 		var document = await MarkdownParser.ParseAsync(SourceFile, ctx);
 		return document.ToHtml(MarkdownParser.Pipeline);

@@ -1,4 +1,4 @@
-using Elastic.Markdown.Files;
+using Elastic.Markdown.IO;
 
 namespace Elastic.Markdown.Slices;
 

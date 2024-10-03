@@ -1,21 +1,29 @@
 using ConsoleAppFramework;
-using Documentation.Builder;
-using Documentation.Builder.Http;
-using Elastic.Markdown;
+using Documentation.Builder.Cli;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+
+var services = new ServiceCollection();
+services.AddLogging(x =>
+{
+	x.ClearProviders();
+	x.SetMinimumLevel(LogLevel.Information);
+	x.AddSimpleConsole(c =>
+	{
+		c.SingleLine = true;
+		c.IncludeScopes = true;
+		c.UseUtcTimestamp = true;
+		c.TimestampFormat = "[yyyy-MM-ddTHH:mm:ss] ";
+	});
+});
+
+await using var serviceProvider = services.BuildServiceProvider();
+var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
+ConsoleApp.ServiceProvider = serviceProvider;
+ConsoleApp.Log = msg => logger.LogInformation(msg);
+ConsoleApp.LogError = msg => logger.LogError(msg);
 
 var app = ConsoleApp.Create();
-app.UseFilter<CommandTimings>();
+app.Add<Commands>();
 
-app.Add("generate", async Task (string? path = null, string? output = null, CancellationToken ctx = default) =>
-{
-	var generator = DocumentationGenerator.Create(path, output);
-	await generator.GenerateAll(ctx);
-});
-
-app.Add("serve", async Task (string? path = null, CancellationToken ctx = default) =>
-{
-	var host = new DocumentationWebHost(path, args);
-	await host.RunAsync(ctx);
-});
-
-app.Run(args);
+await app.RunAsync(args);

@@ -16,7 +16,7 @@ public class MarkdownParser
 			.UseDirectives()
 			.Build();
 
-	public async Task<MarkdownDocument> ParseAsync(FileInfo path, CancellationToken ctx)
+	public async Task<MarkdownDocument> ParseAsync(FileInfo path, Cancel ctx)
 	{
 		await using var streamReader = new Utf8StreamReader(path.FullName, fileOpenMode: FileOpenMode.Throughput);
 		var inputMarkdown = await streamReader.AsTextReader().ReadToEndAsync(ctx);

@@ -1,4 +1,4 @@
-using Elastic.Markdown.Files;
+using Elastic.Markdown.IO;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RazorSlices;
@@ -23,7 +23,7 @@ public class HtmlWriter
 
 	private string? _navigation;
 
-	private async Task<string> RenderNavigation(MarkdownFile markdown, CancellationToken ctx = default)
+	private async Task<string> RenderNavigation(MarkdownFile markdown, Cancel ctx = default)
 	{
 		if (_navigation is { Length: > 0 }) return _navigation;
 		var slice = Layout._TocTree.Create(new NavigationViewModel
@@ -35,13 +35,13 @@ public class HtmlWriter
 		return _navigation;
 	}
 
-	public async Task ReloadNavigation(MarkdownFile current, CancellationToken ctx)
+	public async Task ReloadNavigation(MarkdownFile current, Cancel ctx)
 	{
 		_navigation = null;
 		_ = await RenderNavigation(current, ctx);
 	}
 
-	public async Task<string> RenderLayout(MarkdownFile markdown, CancellationToken ctx = default)
+	public async Task<string> RenderLayout(MarkdownFile markdown, Cancel ctx = default)
 	{
 		var html = await markdown.CreateHtmlAsync(ctx);
 		await DocumentationSet.Tree.Resolve(ctx);
@@ -58,7 +58,7 @@ public class HtmlWriter
 		return await slice.RenderAsync(cancellationToken: ctx);
 	}
 
-	public async Task WriteAsync(FileInfo outputFile, MarkdownFile markdown, CancellationToken ctx = default)
+	public async Task WriteAsync(FileInfo outputFile, MarkdownFile markdown, Cancel ctx = default)
 	{
 		if (outputFile.Directory is { Exists: false })
 			outputFile.Directory.Create();

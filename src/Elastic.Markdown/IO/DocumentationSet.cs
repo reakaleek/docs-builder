@@ -1,6 +1,6 @@
 using Elastic.Markdown.Myst;
 
-namespace Elastic.Markdown.Files;
+namespace Elastic.Markdown.IO;
 
 public class DocumentationSet
 {

@@ -14,9 +14,9 @@ public class ReloadGeneratorService(
 	//debounce reload requests due to many file changes
 	private readonly Debouncer _debouncer = new(TimeSpan.FromMilliseconds(200));
 
-	public async Task StartAsync(CancellationToken cancellationToken)
+	public async Task StartAsync(Cancel ctx)
 	{
-		await ReloadableGenerator.ReloadAsync(cancellationToken);
+		await ReloadableGenerator.ReloadAsync(ctx);
 
 		var watcher = new FileSystemWatcher(ReloadableGenerator.Generator.DocumentationSet.SourcePath.FullName);
 

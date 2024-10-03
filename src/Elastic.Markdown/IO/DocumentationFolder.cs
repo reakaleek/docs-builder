@@ -1,6 +1,6 @@
 using Markdig.Helpers;
 
-namespace Elastic.Markdown.Files;
+namespace Elastic.Markdown.IO;
 
 public class DocumentationFolder
 {
@@ -59,7 +59,7 @@ public class DocumentationFolder
 		Index == current || Files.Contains(current) || Nested.Any(n => n.HoldsCurrent(current));
 
 	private bool _resolved;
-	public async Task Resolve(CancellationToken ctx = default)
+	public async Task Resolve(Cancel ctx = default)
 	{
 		if (_resolved) return;
 
