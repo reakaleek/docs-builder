@@ -1,0 +1,15 @@
+name: 'Documentation Builder'
+description: 'Build and validate documentation in your repository'
+
+branding:
+  icon: 'filter'
+  color: 'red'
+
+inputs:
+  source:
+    description: 'The relative location of the documentation'
+    required: false
+
+runs:
+  using: 'docker'
+  image: 'docker://ghcr.io/mpdreamz/docs-builder:edge'

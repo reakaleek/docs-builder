@@ -3,5 +3,10 @@
     <TargetFramework>net8.0</TargetFramework>
     <IsPackable>False</IsPackable>
   </PropertyGroup>
+  <ItemGroup>
+    <Content Include="..\action.yml">
+      <Link>action.yml</Link>
+    </Content>
+  </ItemGroup>
 
 </Project>
