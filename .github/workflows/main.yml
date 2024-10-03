@@ -35,10 +35,6 @@ jobs:
       - name: build
         run: ./build.sh
         
-        # ensure publish works before doing publish container
-      - name: publish AOT binary
-        run: ./build.sh publish
-        
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -48,7 +44,7 @@ jobs:
 
       - name: Publish app
         run: |
-          dotnet publish src/docs-builder/docs-builder.csproj \ 
+          dotnet publish "src/docs-builder/docs-builder.csproj" \
             /t:PublishContainer \
             -p DebugType=none \
             -p ContainerBaseImage=${{ env.BASE_IMAGE }} \
