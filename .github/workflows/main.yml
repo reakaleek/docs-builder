@@ -1,0 +1,59 @@
+name: PreRelease
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+env:
+  NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+  IMAGE_NAME: mpdreamz/docs-builder
+  BASE_IMAGE: mcr.microsoft.com/dotnet/nightly/runtime-deps:8.0-jammy-chiseled-aot
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      full-version: ${{ steps.bootstrap.outputs.full-version }}
+      major-version: ${{ steps.bootstrap.outputs.major-version }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bootstrap Action Workspace
+        id: bootstrap
+        uses: ./.github/actions/bootstrap
+        
+      - name: build
+        run: ./build.sh
+        
+        # ensure publish works before doing publish container
+      - name: publish AOT binary
+        run: ./build.sh publish
+        
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish app
+        working-directory: ./src/ProfanityFilter.Action
+        run: |
+          dotnet publish \
+            /t:PublishContainer \
+            -p DebugType=none \
+            -p ContainerBaseImage=${{ env.BASE_IMAGE }} \
+            -p ContainerRegistry=ghcr.io \
+            -p ContainerImageTags='"edge;${{ steps.bootstrap.outputs.full-version }}"' \
+            -p ContainerRepository=${{ env.IMAGE_NAME }} \
+            -bl      
