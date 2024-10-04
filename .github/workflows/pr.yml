@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build documentation
-        uses: Mpdreamz/docset-builder@0.2.0
+        uses: Mpdreamz/docset-builder@main
   
   build:
     runs-on: ubuntu-latest

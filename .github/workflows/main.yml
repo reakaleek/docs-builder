@@ -77,4 +77,3 @@ jobs:
             -p ContainerRegistry=ghcr.io \
             -p ContainerImageTags='"edge;${{ steps.bootstrap.outputs.full-version }}"' \
             -p ContainerRepository=${{ env.IMAGE_NAME }} \
-            -bl      
