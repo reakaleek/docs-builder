@@ -3,6 +3,10 @@ using Documentation.Builder.Cli;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+
+foreach (var arg in args)
+	Console.WriteLine(arg);
+
 var services = new ServiceCollection();
 services.AddLogging(x =>
 {
