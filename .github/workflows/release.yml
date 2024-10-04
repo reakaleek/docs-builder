@@ -42,6 +42,7 @@ jobs:
           dotnet publish "src/docs-builder/docs-builder.csproj" \
             /t:PublishContainer \
             -p DebugType=none \
+            -p ContainerUser=root \
             -p ContainerBaseImage=${{ env.BASE_IMAGE }} \
             -p ContainerRegistry=ghcr.io \
             -p ContainerImageTags='"latest;${{ steps.bootstrap.outputs.full-version }}"' \
