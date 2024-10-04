@@ -17,6 +17,10 @@ public class DocumentationGenerator
 
 		DocumentationSet = docSet;
 		HtmlWriter = new HtmlWriter(DocumentationSet);
+
+		_logger.LogInformation($"Created documentation set for: {DocumentationSet.Name}");
+		_logger.LogInformation($"Source directory: {DocumentationSet.SourcePath} Exists: {DocumentationSet.SourcePath.Exists}");
+		_logger.LogInformation($"Output directory: {DocumentationSet.OutputPath} Exists: {DocumentationSet.OutputPath.Exists}");
 	}
 
 	public static DocumentationGenerator Create(string? path, string? output, ILoggerFactory logger)

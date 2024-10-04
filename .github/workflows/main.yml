@@ -15,6 +15,33 @@ env:
   BASE_IMAGE: mcr.microsoft.com/dotnet/nightly/runtime-deps:8.0-jammy-chiseled-aot
 
 jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    outputs:
+      full-version: ${{ steps.bootstrap.outputs.full-version }}
+      major-version: ${{ steps.bootstrap.outputs.major-version }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bootstrap Action Workspace
+        id: bootstrap
+        uses: ./.github/actions/bootstrap
+        
+      - name: build
+        run: ./build.sh publish
+        
+      - name: generate
+        run: .artifacts/bin/docs-builder/release/docs-builder
+      
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          publish_branch: gh-pages
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .artifacts/docs/html
+  
+  
   build:
     runs-on: ubuntu-latest
     outputs:
