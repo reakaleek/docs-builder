@@ -18,32 +18,32 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      pages: write
+      id-token: write
     outputs:
       full-version: ${{ steps.bootstrap.outputs.full-version }}
       major-version: ${{ steps.bootstrap.outputs.major-version }}
+    needs: [build]
 
+    environment:
+      name: github-pages
+      url: ${{steps.deployment.outputs.page_url}}
     steps:
       - uses: actions/checkout@v4
-
-      - name: Bootstrap Action Workspace
-        id: bootstrap
-        uses: ./.github/actions/bootstrap
-        
-      - name: build
-        run: ./build.sh publish
-        
-      - name: generate
-        run: .artifacts/bin/docs-builder/release/docs-builder
-      
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v5.0.0
+      - name: Build documentation
+        uses: Mpdreamz/docset-builder@main
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3.0.1
         with:
-          publish_branch: gh-pages
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: .artifacts/docs/html
-  
-  
+          path: .artifacts/docs/html
+          
+      - name: Deploy artifact
+        id: deployment
+        uses: actions/deploy-pages@v4.0.5 
+        
   build:
     runs-on: ubuntu-latest
     outputs:
@@ -56,9 +56,6 @@ jobs:
       - name: Bootstrap Action Workspace
         id: bootstrap
         uses: ./.github/actions/bootstrap
-        
-      - name: build
-        run: ./build.sh
         
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
