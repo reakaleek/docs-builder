@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - "*.*.*"
 
 permissions:
   contents: read
@@ -13,6 +15,7 @@ env:
   NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
   IMAGE_NAME: mpdreamz/docs-builder
   BASE_IMAGE: mcr.microsoft.com/dotnet/nightly/runtime-deps:8.0-jammy-chiseled-aot
+  DOCKER_TAG: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags') && 'latest;edge' || 'edge' }}
 
 jobs:
   deploy:
@@ -72,5 +75,5 @@ jobs:
             -p ContainerUser=1001:1001 \
             -p ContainerBaseImage=${{ env.BASE_IMAGE }} \
             -p ContainerRegistry=ghcr.io \
-            -p ContainerImageTags='"edge;${{ steps.bootstrap.outputs.full-version }}"' \
+            -p ContainerImageTags='"${{ env.DOCKER_TAG }};${{ steps.bootstrap.outputs.full-version }}"' \
             -p ContainerRepository=${{ env.IMAGE_NAME }} \
