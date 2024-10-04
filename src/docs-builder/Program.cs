@@ -3,9 +3,7 @@ using Documentation.Builder.Cli;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-
-foreach (var arg in args)
-	Console.WriteLine(arg);
+var arguments = Arguments.Filter(args);
 
 var services = new ServiceCollection();
 services.AddLogging(x =>
@@ -24,10 +22,11 @@ services.AddLogging(x =>
 await using var serviceProvider = services.BuildServiceProvider();
 var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
 ConsoleApp.ServiceProvider = serviceProvider;
-ConsoleApp.Log = msg => logger.LogInformation(msg);
+if (!arguments.IsHelp)
+	ConsoleApp.Log = msg => logger.LogInformation(msg);
 ConsoleApp.LogError = msg => logger.LogError(msg);
 
 var app = ConsoleApp.Create();
 app.Add<Commands>();
 
-await app.RunAsync(args);
+await app.RunAsync(arguments.Args);

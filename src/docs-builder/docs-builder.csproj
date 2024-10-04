@@ -17,7 +17,6 @@
     <!-- attempt fix for: https://github.com/dotnet/sdk-container-builds/issues/559 
         Fixed in upcomming .NET 9
      -->
-    <ContainerAppCommand Include="" />
   </PropertyGroup>
 
   <ItemGroup>
