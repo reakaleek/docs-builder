@@ -43,7 +43,7 @@ jobs:
           dotnet publish "src/docs-builder/docs-builder.csproj" \
             /t:PublishContainer \
             -p DebugType=none \
-            -p ContainerUser=1000:1000 \
+            -p ContainerUser=1001:1001 \
             -p ContainerBaseImage=${{ env.BASE_IMAGE }} \
             -p ContainerRegistry=ghcr.io \
             -p ContainerImageTags='"edge;${{ steps.bootstrap.outputs.full-version }}"' \
