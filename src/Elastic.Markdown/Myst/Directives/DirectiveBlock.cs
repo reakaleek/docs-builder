@@ -7,34 +7,22 @@ using Markdig.Syntax;
 
 namespace Elastic.Markdown.Myst.Directives;
 
-public class TocTreeLink
-{
-	public required string Link { get; init; }
-	public string? Title { get; set; }
-}
-
-public class TocTreeBlock(DirectiveBlockParser blockParser, Dictionary<string, string> directiveProperties)
-	: DirectiveBlock(blockParser, directiveProperties)
-{
-	public OrderedList<TocTreeLink> Links { get; } = new();
-}
-
 /// <summary>
 /// A block custom container.
 /// </summary>
 /// <seealso cref="ContainerBlock" />
 /// <seealso cref="IFencedBlock" />
-public class DirectiveBlock : ContainerBlock, IFencedBlock
+public abstract class DirectiveBlock : ContainerBlock, IFencedBlock
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="DirectiveBlock"/> class.
 	/// </summary>
 	/// <param name="blockParser">The parser used to create this block.</param>
-	/// <param name="directiveProperties"></param>
-	public DirectiveBlock(DirectiveBlockParser blockParser, Dictionary<string, string> directiveProperties) : base(blockParser) =>
-	    DirectiveProperties = directiveProperties;
+	/// <param name="properties"></param>
+	public DirectiveBlock(DirectiveBlockParser blockParser, Dictionary<string, string> properties) : base(blockParser) =>
+	    Properties = properties;
 
-    public IReadOnlyDictionary<string, string> DirectiveProperties { get; }
+    public IReadOnlyDictionary<string, string> Properties { get; }
 
     /// <inheritdoc />
     public char FencedChar { get; set; }
@@ -71,5 +59,24 @@ public class DirectiveBlock : ContainerBlock, IFencedBlock
 
     /// <inheritdoc />
     public int ClosingFencedCharCount { get; set; }
+
+    /// <summary>
+    /// Allows blocks to finalize setting properties once fully parsed
+    /// </summary>
+    public abstract void FinalizeAndValidate();
+
+	protected void ParseBool(string key, Action<bool> setter)
+	{
+		var value = Properties.GetValueOrDefault(key);
+		if (string.IsNullOrEmpty(value))
+		{
+			setter(Properties.ContainsKey(key));
+			return;
+		}
+
+		if (bool.TryParse(value, out var result))
+			setter(result);
+		//todo invalidate
+	}
 
 }

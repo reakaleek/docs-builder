@@ -11,12 +11,11 @@ Here is a block-level image from the top-level static folder. The image directiv
 :width: 250px
 ```
 
-Here is the same image used inline 
-![Elasticsearch](/_static/img/observability.png){w=30px}
-. Myst's `attr-inline` extension allows adding attributes to inline directives. Here we used `w=30px` to make the image fit.
+Here is the same image used inline ![Elasticsearch](/_static/img/observability.png){width=30px}. Myst's `attr-inline` extension allows adding attributes to inline directives.
+Here we used `w=30px` to make the image fit.
 
 This is also inline:
-![Elasticsearch](/_static/img/observability.png){w=200px align=center}
+![Elasticsearch](/_static/img/observability.png){width=200px align=center}
 But we used `{w=200px align=center}`
 
 ## Local image

@@ -1,3 +1,4 @@
+using System.IO.Abstractions;
 using Elastic.Markdown.Myst;
 using Elastic.Markdown.Myst.Directives;
 using Elastic.Markdown.Slices;
@@ -14,15 +15,15 @@ public class MarkdownFile : DocumentationFile
 	private readonly SlugHelper _slugHelper = new();
 	private string? _tocTitle;
 
-	public MarkdownFile(FileInfo sourceFile, DirectoryInfo sourcePath, MarkdownParser parser)
-		: base(sourceFile, sourcePath)
+	public MarkdownFile(IFileInfo sourceFile, IDirectoryInfo rootPath, MarkdownParser parser)
+		: base(sourceFile, rootPath)
 	{
 		ParentFolders = RelativePath.Split(Path.DirectorySeparatorChar).SkipLast(1).ToArray();
 		FileName = sourceFile.Name;
 		MarkdownParser = parser;
 	}
 
-	public MarkdownParser MarkdownParser { get; }
+	private MarkdownParser MarkdownParser { get; }
 	private FrontMatterParser FrontMatterParser { get; } = new();
 	public string? Title { get; private set; }
 	public string? TocTitle
@@ -36,7 +37,9 @@ public class MarkdownFile : DocumentationFile
 	public string FileName { get; }
 	public string Url => $"/{RelativePath.Replace(".md", ".html")}";
 
-	public async Task ParseAsync(Cancel ctx)
+	public async Task ParseAsync(Cancel ctx) => await ParseFullAsync(ctx);
+
+	public async Task<MarkdownDocument> ParseFullAsync(Cancel ctx)
 	{
 		var document = await MarkdownParser.ParseAsync(SourceFile, ctx);
 		if (document.FirstOrDefault() is YamlFrontMatterBlock yaml)
@@ -63,6 +66,7 @@ public class MarkdownFile : DocumentationFile
 			.ToList();
 		TableOfContents.Clear();
 		TableOfContents.AddRange(contents);
+		return document;
 	}
 
 	public OrderedList<TocTreeLink>? TocTree { get; private set; }

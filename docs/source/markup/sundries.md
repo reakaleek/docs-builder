@@ -12,7 +12,7 @@ Note that there should be no space between the enclosing markers and the text.
 
 ## Subscript & Superscript
 
-H{sub}`2`O, and 4{sup}`th` of July
+H~2~O, and 4^th^ of July
 
 ## Block attributes
 

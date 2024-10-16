@@ -4,10 +4,10 @@
 		<div class="sd-card-body docutils">
 			<div class="sd-card-title sd-font-weight-bold docutils">@(new HtmlString(Model.Title))</div>
 			[CONTENT]
-			@if (!string.IsNullOrEmpty(Model.Link))
-			{
-				<a class="sd-stretched-link sd-hide-link-text reference external" href="@Model.Link"><span>@Model.Link</span></a>
-			}
 		</div>
+		@if (!string.IsNullOrEmpty(Model.Link))
+		{
+		<a class="sd-stretched-link sd-hide-link-text reference external" href="@Model.Link"><span>@Model.Link</span></a>
+		}
 	</div>
 </div>

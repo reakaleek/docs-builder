@@ -1,3 +1,4 @@
+using System.IO.Abstractions;
 using Elastic.Markdown.IO;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -15,11 +16,11 @@ public class DocumentationWebHost
 	private readonly string _staticFilesDirectory =
 		Path.Combine(Paths.Root.FullName, "docs", "source", "_static_template");
 
-	public DocumentationWebHost(string? path, ILoggerFactory logger)
+	public DocumentationWebHost(string? path, ILoggerFactory logger, IFileSystem fileSystem)
 	{
 		var builder = WebApplication.CreateSlimBuilder();
-		var sourcePath = path != null ? new DirectoryInfo(path) : null;
-		builder.Services.AddSingleton<ReloadableGeneratorState>(_ => new ReloadableGeneratorState(sourcePath, null, logger));
+		var sourcePath = path != null ? fileSystem.DirectoryInfo.New(path) : null;
+		builder.Services.AddSingleton<ReloadableGeneratorState>(_ => new ReloadableGeneratorState(sourcePath, null, logger, fileSystem));
 		builder.Services.AddHostedService<ReloadGeneratorService>();
 		builder.Services.AddSingleton(logger);
 
@@ -62,7 +63,7 @@ public class DocumentationWebHost
 				return Results.Content(rendered, "text/html");
 			}
 			case ImageFile image:
-				return Results.File(image.SourceFile.FullName, "image/png");
+				return Results.File(image.SourceFile.FullName, image.MimeType);
 			default:
 				return Results.NotFound();
 		}

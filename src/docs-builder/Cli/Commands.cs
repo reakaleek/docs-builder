@@ -1,3 +1,4 @@
+using System.IO.Abstractions;
 using ConsoleAppFramework;
 using Documentation.Builder.Http;
 using Elastic.Markdown;
@@ -18,7 +19,7 @@ internal class Commands(ILoggerFactory logger)
 	[Command("serve")]
 	public async Task Serve(string? path = null, Cancel ctx = default)
 	{
-		var host = new DocumentationWebHost(path, logger);
+		var host = new DocumentationWebHost(path, logger, new FileSystem());
 		await host.RunAsync(ctx);
 	}
 
@@ -33,7 +34,7 @@ internal class Commands(ILoggerFactory logger)
 	[ConsoleAppFilter<CatchExceptionFilter>]
 	public async Task Generate(string? path = null, string? output = null, Cancel ctx = default)
 	{
-		var generator = DocumentationGenerator.Create(path, output, logger);
+		var generator = DocumentationGenerator.Create(path, output, logger, new FileSystem());
 		await generator.GenerateAll(ctx);
 	}
 

@@ -1,16 +1,21 @@
+using System.IO.Abstractions;
+
 namespace Elastic.Markdown.IO;
 
-public abstract class DocumentationFile(FileInfo sourceFile, DirectoryInfo sourcePath)
+public abstract class DocumentationFile(IFileInfo sourceFile, IDirectoryInfo rootPath)
 {
-	public FileInfo SourceFile { get; } = sourceFile;
-	public string RelativePath { get; } = Path.GetRelativePath(sourcePath.FullName, sourceFile.FullName);
+	public IFileInfo SourceFile { get; } = sourceFile;
+	public string RelativePath { get; } = Path.GetRelativePath(rootPath.FullName, sourceFile.FullName);
 
-	public FileInfo OutputFile(DirectoryInfo outputPath) =>
+	public FileInfo OutputFile(IDirectoryInfo outputPath) =>
 		new(Path.Combine(outputPath.FullName, RelativePath.Replace(".md", ".html")));
 }
 
-public class ImageFile(FileInfo sourceFile, DirectoryInfo sourcePath)
-	: DocumentationFile(sourceFile, sourcePath);
+public class ImageFile(IFileInfo sourceFile, IDirectoryInfo rootPath, string mimeType = "image/png")
+	: DocumentationFile(sourceFile, rootPath)
+{
+	public string MimeType { get; } = mimeType;
+}
 
-public class StaticFile(FileInfo sourceFile, DirectoryInfo sourcePath)
-	: DocumentationFile(sourceFile, sourcePath);
+public class StaticFile(IFileInfo sourceFile, IDirectoryInfo rootPath)
+	: DocumentationFile(sourceFile, rootPath);

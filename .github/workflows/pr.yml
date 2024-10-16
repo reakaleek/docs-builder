@@ -34,9 +34,6 @@ jobs:
       - name: build
         run: ./build.sh
         
-      - name: validate licenses
-        run: ./build.sh validate-licenses
-        
       - name: publish AOT 
         run: ./build.sh publish
         

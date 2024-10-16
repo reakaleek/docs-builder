@@ -1,3 +1,4 @@
+using System.IO.Abstractions;
 using Elastic.Markdown.IO;
 using Elastic.Markdown.Slices;
 using Microsoft.Extensions.Logging;
@@ -6,29 +7,31 @@ namespace Elastic.Markdown;
 
 public class DocumentationGenerator
 {
+	private readonly IFileSystem _fileSystem;
 	private readonly ILogger _logger;
 	private HtmlWriter HtmlWriter { get; }
 
 	public DocumentationSet DocumentationSet { get; }
 
-	public DocumentationGenerator(DocumentationSet docSet, ILoggerFactory logger)
+	public DocumentationGenerator(DocumentationSet docSet, ILoggerFactory logger, IFileSystem fileSystem)
 	{
+		_fileSystem = fileSystem;
 		_logger = logger.CreateLogger(nameof(DocumentationGenerator));
 
 		DocumentationSet = docSet;
 		HtmlWriter = new HtmlWriter(DocumentationSet);
 
 		_logger.LogInformation($"Created documentation set for: {DocumentationSet.Name}");
-		_logger.LogInformation($"Source directory: {DocumentationSet.SourcePath} Exists: {DocumentationSet.SourcePath.Exists}");
-		_logger.LogInformation($"Output directory: {DocumentationSet.OutputPath} Exists: {DocumentationSet.OutputPath.Exists}");
+		_logger.LogInformation($"Source directory: {docSet.SourcePath} Exists: {docSet.SourcePath.Exists}");
+		_logger.LogInformation($"Output directory: {docSet.OutputPath} Exists: {docSet.OutputPath.Exists}");
 	}
 
-	public static DocumentationGenerator Create(string? path, string? output, ILoggerFactory logger)
+	public static DocumentationGenerator Create(string? path, string? output, ILoggerFactory logger, IFileSystem fileSystem)
 	{
-		var sourcePath = path != null ? new DirectoryInfo(path) : null;
-		var outputPath = output != null ? new DirectoryInfo(output) : null;
-		var docSet = new DocumentationSet(sourcePath, outputPath);
-		return new DocumentationGenerator(docSet, logger);
+		var sourcePath = path != null ? fileSystem.DirectoryInfo.New(path) : null;
+		var outputPath = output != null ? fileSystem.DirectoryInfo.New(output) : null;
+		var docSet = new DocumentationSet(sourcePath, outputPath, fileSystem);
+		return new DocumentationGenerator(docSet, logger, fileSystem);
 	}
 
 	public async Task ResolveDirectoryTree(Cancel ctx) =>
@@ -62,7 +65,7 @@ public class DocumentationGenerator
 				File.Copy(file.SourceFile.FullName, outputFile.FullName, true);
 			}
 			if (item % 1_000 == 0)
-				Console.WriteLine($"Handled {handledItems} files");
+				_logger.LogInformation($"Handled {handledItems} files");
 		});
 	}
 
