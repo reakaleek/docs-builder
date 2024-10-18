@@ -10,6 +10,29 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Elastic.Markdown.Tests.Inline;
 
+public abstract class LeafTest<TDirective>([LanguageInjection("markdown")]string content) : InlineTest(content)
+	where TDirective : LeafInline
+{
+	protected TDirective? Block { get; private set; }
+
+	public override async Task InitializeAsync()
+	{
+		await base.InitializeAsync();
+		Block = Document
+			.Where(block => block is ParagraphBlock)
+			.Cast<ParagraphBlock>()
+			.FirstOrDefault()?
+			.Inline?
+			.Where(block => block is TDirective)
+			.Cast<TDirective>()
+			.FirstOrDefault();
+	}
+
+	[Fact]
+	public void BlockIsNotNull() => Block.Should().NotBeNull();
+
+}
+
 public abstract class InlineTest<TDirective>([LanguageInjection("markdown")]string content) : InlineTest(content)
 	where TDirective : ContainerInline
 {
@@ -61,7 +84,7 @@ public abstract class InlineTest : IAsyncLifetime
 	public virtual async Task InitializeAsync()
 	{
 		Document = await File.ParseFullAsync(default);
-		Html = await File.CreateHtmlAsync(default);
+		Html = await File.CreateHtmlAsync(File.YamlFrontMatter, default);
 	}
 
 	public Task DisposeAsync() => Task.CompletedTask;

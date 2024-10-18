@@ -43,7 +43,7 @@ public class HtmlWriter
 
 	public async Task<string> RenderLayout(MarkdownFile markdown, Cancel ctx = default)
 	{
-		var html = await markdown.CreateHtmlAsync(ctx);
+		var html = await markdown.CreateHtmlAsync(markdown.YamlFrontMatter, ctx);
 		await DocumentationSet.Tree.Resolve(ctx);
 		var navigationHtml = await RenderNavigation(markdown, ctx);
 		var slice = Index.Create(new IndexViewModel

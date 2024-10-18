@@ -56,7 +56,7 @@ public abstract class DirectiveTest : IAsyncLifetime
 	public virtual async Task InitializeAsync()
 	{
 		Document = await File.ParseFullAsync(default);
-		Html = await File.CreateHtmlAsync(default);
+		Html = await File.CreateHtmlAsync(File.YamlFrontMatter, default);
 	}
 
 	public Task DisposeAsync() => Task.CompletedTask;

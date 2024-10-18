@@ -25,6 +25,7 @@ public class MarkdownFile : DocumentationFile
 
 	private MarkdownParser MarkdownParser { get; }
 	private FrontMatterParser FrontMatterParser { get; } = new();
+	public YamlFrontMatter? YamlFrontMatter { get; private set; }
 	public string? Title { get; private set; }
 	public string? TocTitle
 	{
@@ -41,12 +42,12 @@ public class MarkdownFile : DocumentationFile
 
 	public async Task<MarkdownDocument> ParseFullAsync(Cancel ctx)
 	{
-		var document = await MarkdownParser.ParseAsync(SourceFile, ctx);
+		var document = await MarkdownParser.QuickParseAsync(SourceFile, ctx);
 		if (document.FirstOrDefault() is YamlFrontMatterBlock yaml)
 		{
 			var raw = string.Join(Environment.NewLine, yaml.Lines.Lines);
-			var frontMatter = FrontMatterParser.Deserialize(raw);
-			Title = frontMatter.Title;
+			YamlFrontMatter = FrontMatterParser.Deserialize(raw);
+			Title = YamlFrontMatter.Title;
 		}
 
 		if (SourceFile.Name == "index.md")
@@ -71,9 +72,9 @@ public class MarkdownFile : DocumentationFile
 
 	public OrderedList<TocTreeLink>? TocTree { get; private set; }
 
-	public async Task<string> CreateHtmlAsync(Cancel ctx)
+	public async Task<string> CreateHtmlAsync(YamlFrontMatter? matter, Cancel ctx)
 	{
-		var document = await MarkdownParser.ParseAsync(SourceFile, ctx);
+		var document = await MarkdownParser.ParseAsync(SourceFile, matter, ctx);
 		return document.ToHtml(MarkdownParser.Pipeline);
 	}
 }

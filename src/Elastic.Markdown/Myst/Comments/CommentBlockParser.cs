@@ -1,14 +1,11 @@
 using System.Diagnostics;
-using Markdig;
 using Markdig.Helpers;
 using Markdig.Parsers;
-using Markdig.Parsers.Inlines;
 using Markdig.Renderers;
 using Markdig.Renderers.Html;
 using Markdig.Syntax;
-using Slugify;
 
-namespace Elastic.Markdown.Myst;
+namespace Elastic.Markdown.Myst.Comments;
 
 public class CommentRenderer : HtmlObjectRenderer<CommentBlock>
 {
@@ -135,7 +132,7 @@ public class CommentBlockParser : BlockParser
 				}
 			}
 
-			// Setup the source end position of this element
+			// Set up the source end position of this element
 			headingBlock.Span.End = processor.Line.End;
 
 			// We expect a single line, so don't continue

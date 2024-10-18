@@ -10,6 +10,8 @@ public partial class YamlFrontMatterStaticContext;
 public class YamlFrontMatter
 {
 	public string? Title { get; set; }
+	[YamlMember(Alias = "sub")]
+	public Dictionary<string, string>? Properties { get; set; }
 }
 
 public class FrontMatterParser
