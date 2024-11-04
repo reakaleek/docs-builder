@@ -7,19 +7,21 @@ namespace Elastic.Markdown;
 
 public class DocumentationGenerator
 {
-	private readonly IFileSystem _fileSystem;
+	private readonly IFileSystem _readFileSystem;
 	private readonly ILogger _logger;
+	private readonly IFileSystem _writeFileSystem;
 	private HtmlWriter HtmlWriter { get; }
 
 	public DocumentationSet DocumentationSet { get; }
 
-	public DocumentationGenerator(DocumentationSet docSet, ILoggerFactory logger, IFileSystem fileSystem)
+	public DocumentationGenerator(DocumentationSet docSet, ILoggerFactory logger, IFileSystem readFileSystem, IFileSystem? writeFileSystem = null)
 	{
-		_fileSystem = fileSystem;
+		_readFileSystem = readFileSystem;
+		_writeFileSystem = writeFileSystem ?? readFileSystem;
 		_logger = logger.CreateLogger(nameof(DocumentationGenerator));
 
 		DocumentationSet = docSet;
-		HtmlWriter = new HtmlWriter(DocumentationSet);
+		HtmlWriter = new HtmlWriter(DocumentationSet, _writeFileSystem);
 
 		_logger.LogInformation($"Created documentation set for: {DocumentationSet.Name}");
 		_logger.LogInformation($"Source directory: {docSet.SourcePath} Exists: {docSet.SourcePath.Exists}");
@@ -52,7 +54,7 @@ public class DocumentationGenerator
 		await Parallel.ForEachAsync(DocumentationSet.Files, ctx, async (file, token) =>
 		{
 			var item = Interlocked.Increment(ref handledItems);
-			var outputFile = file.OutputFile(DocumentationSet.OutputPath);
+			var outputFile = OutputFile(file.RelativePath);
 			if (file is MarkdownFile markdown)
 			{
 				await markdown.ParseAsync(token);
@@ -62,11 +64,30 @@ public class DocumentationGenerator
 			{
 				if (outputFile.Directory is { Exists: false })
 					outputFile.Directory.Create();
-				File.Copy(file.SourceFile.FullName, outputFile.FullName, true);
+				await CopyFileFsAware(file, outputFile, ctx);
 			}
 			if (item % 1_000 == 0)
 				_logger.LogInformation($"Handled {handledItems} files");
 		});
+
+		IFileInfo OutputFile(string relativePath)
+		{
+			var outputFile = _writeFileSystem.FileInfo.New(Path.Combine(DocumentationSet.OutputPath.FullName, relativePath));
+			return outputFile;
+		}
+	}
+
+	private async Task CopyFileFsAware(DocumentationFile file, IFileInfo outputFile, Cancel ctx)
+	{
+		// fast path, normal case.
+		if (_readFileSystem == _writeFileSystem)
+			_readFileSystem.File.Copy(file.SourceFile.FullName, outputFile.FullName, true);
+		//slower when we are mocking the write filesystem
+		else
+		{
+			var bytes = await file.SourceFile.FileSystem.File.ReadAllBytesAsync(file.SourceFile.FullName, ctx);
+			await outputFile.FileSystem.File.WriteAllBytesAsync(outputFile.FullName, bytes, ctx);
+		}
 	}
 
 	public async Task<string?> RenderLayout(MarkdownFile markdown, Cancel ctx)

@@ -1,3 +1,4 @@
+using System.IO.Abstractions;
 using Elastic.Markdown.IO;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -7,8 +8,11 @@ namespace Elastic.Markdown.Slices;
 
 public class HtmlWriter
 {
-	public HtmlWriter(DocumentationSet documentationSet)
+	private readonly IFileSystem _writeFileSystem;
+
+	public HtmlWriter(DocumentationSet documentationSet, IFileSystem writeFileSystem)
 	{
+		_writeFileSystem = writeFileSystem;
 		var services = new ServiceCollection();
 		services.AddLogging();
 
@@ -58,13 +62,14 @@ public class HtmlWriter
 		return await slice.RenderAsync(cancellationToken: ctx);
 	}
 
-	public async Task WriteAsync(FileInfo outputFile, MarkdownFile markdown, Cancel ctx = default)
+	public async Task WriteAsync(IFileInfo outputFile, MarkdownFile markdown, Cancel ctx = default)
 	{
 		if (outputFile.Directory is { Exists: false })
 			outputFile.Directory.Create();
 
 		var rendered = await RenderLayout(markdown, ctx);
-		await File.WriteAllTextAsync(outputFile.FullName, rendered, ctx);
+		var path = Path.ChangeExtension(outputFile.FullName, ".html");
+		await _writeFileSystem.File.WriteAllTextAsync(path, rendered, ctx);
 	}
 
 }

@@ -9,7 +9,7 @@ namespace Elastic.Markdown.Tests;
 public class OutputDirectoryTests
 {
 	[Fact]
-	public async Task Test1()
+	public async Task CreatesDefaultOutputDirectory()
 	{
 		var logger = NullLoggerFactory.Instance;
 		var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>

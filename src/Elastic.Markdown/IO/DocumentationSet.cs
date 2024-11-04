@@ -11,6 +11,8 @@ public class DocumentationSet
 
 	private MarkdownParser MarkdownParser { get; } = new();
 
+	public DocumentationSet(IFileSystem fileSystem) : this(null, null, fileSystem) { }
+
 	public DocumentationSet(IDirectoryInfo? sourcePath, IDirectoryInfo? outputPath, IFileSystem fileSystem)
 	{
 		SourcePath = sourcePath ?? fileSystem.DirectoryInfo.New(Path.Combine(Paths.Root.FullName, "docs/source"));
