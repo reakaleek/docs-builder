@@ -44,8 +44,16 @@ internal class Commands(ILoggerFactory logger, ICoreService githubActionsService
 	)
 	{
 		pathPrefix ??= githubActionsService.GetInput("prefix");
-		var generator = DocumentationGenerator.Create(path, output, logger, new FileSystem(), pathPrefix);
-		await generator.GenerateAll(force ?? false, ctx);
+		var fileSystem = new FileSystem();
+		var context = new BuildContext
+		{
+			UrlPathPrefix = pathPrefix,
+			Force = force ?? false,
+			ReadFileSystem = fileSystem,
+			WriteFileSystem = fileSystem
+		};
+		var generator = DocumentationGenerator.Create(path, output, context, logger);
+		await generator.GenerateAll(ctx);
 	}
 
 	/// <summary>

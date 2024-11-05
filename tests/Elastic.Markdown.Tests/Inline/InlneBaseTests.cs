@@ -74,7 +74,8 @@ public abstract class InlineTest : IAsyncLifetime
 
 		var file = fileSystem.FileInfo.New("docs/source/index.md");
 		var root = fileSystem.DirectoryInfo.New(Paths.Root.FullName);
-		var parser = new MarkdownParser(root, fileSystem);
+		var context = new BuildContext { ReadFileSystem = fileSystem, WriteFileSystem = fileSystem };
+		var parser = new MarkdownParser(root, context);
 
 		File = new MarkdownFile(file, root, parser, null);
 		Html = default!; //assigned later

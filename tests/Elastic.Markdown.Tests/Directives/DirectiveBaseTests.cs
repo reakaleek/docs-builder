@@ -47,7 +47,8 @@ public abstract class DirectiveTest : IAsyncLifetime
 
 		var file = FileSystem.FileInfo.New("docs/source/index.md");
 		var root = FileSystem.DirectoryInfo.New(Paths.Root.FullName);
-		var parser = new MarkdownParser(root, FileSystem);
+		var context = new BuildContext { ReadFileSystem = FileSystem, WriteFileSystem = FileSystem };
+		var parser = new MarkdownParser(root, context);
 
 		File = new MarkdownFile(file, root, parser, null);
 		Html = default!; //assigned later

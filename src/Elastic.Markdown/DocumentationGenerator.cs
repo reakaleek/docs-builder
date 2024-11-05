@@ -25,14 +25,20 @@ public class DocumentationGenerator
 	private HtmlWriter HtmlWriter { get; }
 
 	public DocumentationSet DocumentationSet { get; }
+	public BuildContext Context { get; }
 
-	public DocumentationGenerator(DocumentationSet docSet, ILoggerFactory logger, IFileSystem readFileSystem, IFileSystem? writeFileSystem = null)
+	public DocumentationGenerator(
+		DocumentationSet docSet,
+		BuildContext context,
+		ILoggerFactory logger
+	)
 	{
-		_readFileSystem = readFileSystem;
-		_writeFileSystem = writeFileSystem ?? readFileSystem;
+		_readFileSystem = context.ReadFileSystem;
+		_writeFileSystem = context.WriteFileSystem;
 		_logger = logger.CreateLogger(nameof(DocumentationGenerator));
 
 		DocumentationSet = docSet;
+		Context = context;
 		HtmlWriter = new HtmlWriter(DocumentationSet, _writeFileSystem);
 
 		_logger.LogInformation($"Created documentation set for: {DocumentationSet.Name}");
@@ -40,12 +46,17 @@ public class DocumentationGenerator
 		_logger.LogInformation($"Output directory: {docSet.OutputPath} Exists: {docSet.OutputPath.Exists}");
 	}
 
-	public static DocumentationGenerator Create(string? path, string? output, ILoggerFactory logger, IFileSystem fileSystem, string? pathPrefix = null)
+	public static DocumentationGenerator Create(
+		string? path,
+		string? output,
+		BuildContext context,
+		ILoggerFactory logger
+	)
 	{
-		var sourcePath = path != null ? fileSystem.DirectoryInfo.New(path) : null;
-		var outputPath = output != null ? fileSystem.DirectoryInfo.New(output) : null;
-		var docSet = new DocumentationSet(sourcePath, outputPath, fileSystem, pathPrefix);
-		return new DocumentationGenerator(docSet, logger, fileSystem);
+		var sourcePath = path != null ? context.ReadFileSystem.DirectoryInfo.New(path) : null;
+		var outputPath = output != null ? context.WriteFileSystem.DirectoryInfo.New(output) : null;
+		var docSet = new DocumentationSet(sourcePath, outputPath, context);
+		return new DocumentationGenerator(docSet, context, logger);
 	}
 
 	public OutputState? OutputState
@@ -66,9 +77,9 @@ public class DocumentationGenerator
 	public async Task ResolveDirectoryTree(Cancel ctx) =>
 		await DocumentationSet.Tree.Resolve(ctx);
 
-	public async Task GenerateAll(bool force, Cancel ctx)
+	public async Task GenerateAll(Cancel ctx)
 	{
-		if (force || OutputState == null)
+		if (Context.Force || OutputState == null)
 			DocumentationSet.ClearOutputDirectory();
 
 		_logger.LogInformation($"Last write source: {DocumentationSet.LastWrite}, output observed: {OutputState?.LastSeenChanges}");

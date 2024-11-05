@@ -1,4 +1,5 @@
 using System.IO.Abstractions;
+using Elastic.Markdown;
 using Elastic.Markdown.IO;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -20,7 +21,8 @@ public class DocumentationWebHost
 	{
 		var builder = WebApplication.CreateSlimBuilder();
 		var sourcePath = path != null ? fileSystem.DirectoryInfo.New(path) : null;
-		builder.Services.AddSingleton<ReloadableGeneratorState>(_ => new ReloadableGeneratorState(sourcePath, null, logger, fileSystem));
+		var context = new BuildContext { ReadFileSystem = fileSystem, WriteFileSystem = fileSystem };
+		builder.Services.AddSingleton<ReloadableGeneratorState>(_ => new ReloadableGeneratorState(sourcePath, null, context, logger));
 		builder.Services.AddHostedService<ReloadGeneratorService>();
 		builder.Services.AddSingleton(logger);
 

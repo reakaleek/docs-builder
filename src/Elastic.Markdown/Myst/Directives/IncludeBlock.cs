@@ -5,7 +5,9 @@ namespace Elastic.Markdown.Myst.Directives;
 public class IncludeBlock(DirectiveBlockParser parser, Dictionary<string, string> properties, MystMarkdownParserContext context)
 	: DirectiveBlock(parser, properties)
 {
-	public IFileSystem FileSystem { get; } = context.Parser.FileSystem;
+	public BuildContext Build { get; } = context.Build;
+
+	public IFileSystem FileSystem { get; } = context.Build.ReadFileSystem;
 
 	public IDirectoryInfo DocumentationSourcePath { get; } = context.Parser.SourcePath;
 

@@ -21,9 +21,13 @@ public class NavigationTests
 		var set = new DocumentationSet(readFs);
 
 		set.Files.Should().HaveCountGreaterThan(10);
-		var generator = new DocumentationGenerator(set, logger, readFs, writeFs);
+		var context = new BuildContext
+		{
+			Force = false, UrlPathPrefix = null, ReadFileSystem = readFs, WriteFileSystem = writeFs
+		};
+		var generator = new DocumentationGenerator(set, context, logger);
 
-		await generator.GenerateAll(true, default);
+		await generator.GenerateAll(default);
 
 		writeFs.Directory.Exists(".artifacts/docs/html").Should().BeTrue();
 		readFs.Directory.Exists(".artifacts/docs/html").Should().BeFalse();

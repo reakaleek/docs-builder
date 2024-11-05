@@ -16,23 +16,27 @@ public class DocumentationSet
 
 	private MarkdownParser MarkdownParser { get; }
 
-	public DocumentationSet(IFileSystem fileSystem) : this(null, null, fileSystem) { }
-
-	public DocumentationSet(IDirectoryInfo? sourcePath, IDirectoryInfo? outputPath, IFileSystem fileSystem, string? pathPrefix = null)
+	public DocumentationSet(IFileSystem fileSystem) : this(null, null, new BuildContext
 	{
-		SourcePath = sourcePath ?? fileSystem.DirectoryInfo.New(Path.Combine(Paths.Root.FullName, "docs/source"));
-		OutputPath = outputPath ?? fileSystem.DirectoryInfo.New(Path.Combine(Paths.Root.FullName, ".artifacts/docs/html"));
+		ReadFileSystem = fileSystem,
+		WriteFileSystem =  fileSystem
+	}) { }
+
+	public DocumentationSet(IDirectoryInfo? sourcePath, IDirectoryInfo? outputPath, BuildContext context)
+	{
+		SourcePath = sourcePath ?? context.ReadFileSystem.DirectoryInfo.New(Path.Combine(Paths.Root.FullName, "docs/source"));
+		OutputPath = outputPath ?? context.WriteFileSystem.DirectoryInfo.New(Path.Combine(Paths.Root.FullName, ".artifacts/docs/html"));
 		Name = SourcePath.FullName;
-		MarkdownParser = new MarkdownParser(SourcePath, fileSystem);
+		MarkdownParser = new MarkdownParser(SourcePath, context);
 		OutputStateFile = OutputPath.FileSystem.FileInfo.New(Path.Combine(OutputPath.FullName, ".doc.state"));
 
-		Files = fileSystem.Directory.EnumerateFiles(SourcePath.FullName, "*.*", SearchOption.AllDirectories)
-			.Select(f => fileSystem.FileInfo.New(f))
+		Files = context.ReadFileSystem.Directory.EnumerateFiles(SourcePath.FullName, "*.*", SearchOption.AllDirectories)
+			.Select(f => context.ReadFileSystem.FileInfo.New(f))
 			.Select<IFileInfo, DocumentationFile>(file => file.Extension switch
 			{
 				".svg" => new ImageFile(file, SourcePath, "image/svg+xml"),
 				".png" => new ImageFile(file, SourcePath),
-				".md" => new MarkdownFile(file, SourcePath, MarkdownParser, pathPrefix),
+				".md" => new MarkdownFile(file, SourcePath, MarkdownParser, context.UrlPathPrefix),
 				_ => new StaticFile(file, SourcePath)
 			})
 			.ToList();

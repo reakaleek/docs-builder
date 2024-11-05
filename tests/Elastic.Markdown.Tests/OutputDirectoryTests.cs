@@ -19,10 +19,11 @@ public class OutputDirectoryTests
 		{
 			CurrentDirectory = Paths.Root.FullName
 		});
-		var set = new DocumentationSet(null, null, fileSystem);
-		var generator = new DocumentationGenerator(set, logger, fileSystem);
+		var context = new BuildContext { ReadFileSystem = fileSystem, WriteFileSystem = fileSystem };
+		var set = new DocumentationSet(null, null, context);
+		var generator = new DocumentationGenerator(set, context, logger);
 
-		await generator.GenerateAll(true, default);
+		await generator.GenerateAll(default);
 
 		fileSystem.Directory.Exists(".artifacts").Should().BeTrue();
 
