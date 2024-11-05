@@ -39,6 +39,10 @@ public class DirectiveBlockParser : FencedBlockParserBase<DirectiveBlock>
 	    _admonitionData = new Dictionary<string, string>();
 	    var info = processor.Line.AsSpan();
 
+		if (processor.Context is not ParserContext context)
+			throw new Exception("Expected parser context to be of type ParserContext");
+
+
 	    if (info.EndsWith("{toctree}"))
 		    return new TocTreeBlock(this, _admonitionData);
 
@@ -67,30 +71,22 @@ public class DirectiveBlockParser : FencedBlockParserBase<DirectiveBlock>
 		    return new DropdownBlock(this, _admonitionData);
 
 	    if (info.IndexOf("{image}") > 0)
-		    return new ImageBlock(this, _admonitionData);
+		    return new ImageBlock(this, _admonitionData, context);
 
 	    if (info.IndexOf("{figure}") > 0)
-		    return new FigureBlock(this, _admonitionData);
+		    return new FigureBlock(this, _admonitionData, context);
 
 	    if (info.IndexOf("{figure-md}") > 0)
-		    return new FigureBlock(this, _admonitionData);
+		    return new FigureBlock(this, _admonitionData, context);
 
 	    if (info.IndexOf("{mermaid}") > 0)
 		    return new MermaidBlock(this, _admonitionData);
 
 	    if (info.IndexOf("{include}") > 0)
-	    {
-		    if (processor.Context is MystMarkdownParserContext context)
-				return new IncludeBlock(this, _admonitionData, context);
-		    //todo emit error
-	    }
+			return new IncludeBlock(this, _admonitionData, context);
 
 	    if (info.IndexOf("{literalinclude}") > 0)
-	    {
-		    if (processor.Context is MystMarkdownParserContext context)
-				return new LiteralIncludeBlock(this, _admonitionData, context);
-		    //todo emit error
-	    }
+			return new LiteralIncludeBlock(this, _admonitionData, context);
 
 	    foreach (var admonition in _admonitions)
 	    {

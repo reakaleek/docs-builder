@@ -15,16 +15,16 @@ public class MarkdownFile : DocumentationFile
 	private readonly SlugHelper _slugHelper = new();
 	private string? _tocTitle;
 
-	public MarkdownFile(IFileInfo sourceFile, IDirectoryInfo rootPath, MarkdownParser parser, string? urlPath)
+	public MarkdownFile(IFileInfo sourceFile, IDirectoryInfo rootPath, MarkdownParser parser, BuildContext context)
 		: base(sourceFile, rootPath)
 	{
 		ParentFolders = RelativePath.Split(Path.DirectorySeparatorChar).SkipLast(1).ToArray();
 		FileName = sourceFile.Name;
-		UrlPath = string.IsNullOrWhiteSpace(urlPath) ? "" : $"/{urlPath.Trim('/')}";
+		UrlPathPrefix = context.UrlPathPrefix;
 		MarkdownParser = parser;
 	}
 
-	public string UrlPath { get; }
+	public string? UrlPathPrefix { get; }
 	private MarkdownParser MarkdownParser { get; }
 	private FrontMatterParser FrontMatterParser { get; } = new();
 	public YamlFrontMatter? YamlFrontMatter { get; private set; }
@@ -38,7 +38,7 @@ public class MarkdownFile : DocumentationFile
 	public List<PageTocItem> TableOfContents { get; } = new();
 	public IReadOnlyList<string> ParentFolders { get; }
 	public string FileName { get; }
-	public string Url => $"{UrlPath}/{RelativePath.Replace(".md", ".html")}";
+	public string Url => $"{UrlPathPrefix}/{RelativePath.Replace(".md", ".html")}";
 
 	public async Task ParseAsync(Cancel ctx) => await ParseFullAsync(ctx);
 

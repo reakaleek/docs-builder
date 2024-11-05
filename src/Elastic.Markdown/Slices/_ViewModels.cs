@@ -10,7 +10,7 @@ public class IndexViewModel
 	public required IReadOnlyCollection<PageTocItem> PageTocItems { get; init; }
 	public required MarkdownFile CurrentDocument { get; init; }
 	public required string Navigation { get; init; }
-	public required string UrlPath { get; init; }
+	public required string? UrlPathPrefix { get; init; }
 }
 
 public class LayoutViewModel
@@ -20,19 +20,19 @@ public class LayoutViewModel
 	public required DocumentationFolder Tree { get; init; }
 	public required MarkdownFile CurrentDocument { get; init; }
 	public required string Navigation { get; set; }
-	public required string UrlPath { get; set; }
+	public required string? UrlPathPrefix { get; set; }
 
 
 	public string Static(string path)
 	{
 		path = $"_static/{path.TrimStart('/')}";
-		return $"{UrlPath}/{path}";
+		return $"{UrlPathPrefix}/{path}";
 	}
 
 	public string Link(string path)
 	{
 		path = path.TrimStart('/');
-		return $"{UrlPath}/{path}";
+		return $"{UrlPathPrefix}/{path}";
 	}
 }
 

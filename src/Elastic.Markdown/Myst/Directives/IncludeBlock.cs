@@ -2,7 +2,7 @@ using System.IO.Abstractions;
 
 namespace Elastic.Markdown.Myst.Directives;
 
-public class IncludeBlock(DirectiveBlockParser parser, Dictionary<string, string> properties, MystMarkdownParserContext context)
+public class IncludeBlock(DirectiveBlockParser parser, Dictionary<string, string> properties, ParserContext context)
 	: DirectiveBlock(parser, properties)
 {
 	public BuildContext Build { get; } = context.Build;
@@ -43,5 +43,5 @@ public class IncludeBlock(DirectiveBlockParser parser, Dictionary<string, string
 }
 
 
-public class LiteralIncludeBlock(DirectiveBlockParser parser, Dictionary<string, string> properties, MystMarkdownParserContext context)
+public class LiteralIncludeBlock(DirectiveBlockParser parser, Dictionary<string, string> properties, ParserContext context)
 	: IncludeBlock(parser, properties, context);

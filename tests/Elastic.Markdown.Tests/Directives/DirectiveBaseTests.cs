@@ -50,7 +50,7 @@ public abstract class DirectiveTest : IAsyncLifetime
 		var context = new BuildContext { ReadFileSystem = FileSystem, WriteFileSystem = FileSystem };
 		var parser = new MarkdownParser(root, context);
 
-		File = new MarkdownFile(file, root, parser, null);
+		File = new MarkdownFile(file, root, parser, context);
 		Html = default!; //assigned later
 		Document = default!;
 	}

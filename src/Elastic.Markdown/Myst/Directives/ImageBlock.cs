@@ -1,8 +1,9 @@
 namespace Elastic.Markdown.Myst.Directives;
 
-public class ImageBlock(DirectiveBlockParser parser, Dictionary<string, string> properties)
+public class ImageBlock(DirectiveBlockParser parser, Dictionary<string, string> properties, ParserContext context)
 	: DirectiveBlock(parser, properties)
 {
+	public BuildContext Build { get; } = context.Build;
 
 	/// <summary>
 	/// Alternate text: a short description of the image, displayed by applications that cannot display images,
@@ -50,12 +51,11 @@ public class ImageBlock(DirectiveBlockParser parser, Dictionary<string, string> 
 	/// </summary>
 	public string? CrossReferenceName  { get; private set; }
 
-	public string? ImageUrl { get; private set; }
-
+	public string ImageUrl { get; private set; } = default!;
 
 	public override void FinalizeAndValidate()
 	{
-		ImageUrl = Arguments; //todo validate
+		ImageUrl = Arguments ?? string.Empty; //todo validate
 		Classes = Properties.GetValueOrDefault("class");
 		CrossReferenceName = Properties.GetValueOrDefault("name");
 		Alt = Properties.GetValueOrDefault("alt");
@@ -68,5 +68,5 @@ public class ImageBlock(DirectiveBlockParser parser, Dictionary<string, string> 
 }
 
 
-public class FigureBlock(DirectiveBlockParser parser, Dictionary<string, string> properties)
-	: ImageBlock(parser, properties);
+public class FigureBlock(DirectiveBlockParser parser, Dictionary<string, string> properties, ParserContext context)
+	: ImageBlock(parser, properties, context);

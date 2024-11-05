@@ -10,9 +10,9 @@ using Markdig.Syntax;
 namespace Elastic.Markdown.Myst;
 
 
-public class MystMarkdownParserContext : MarkdownParserContext
+public class ParserContext : MarkdownParserContext
 {
-	public MystMarkdownParserContext(MarkdownParser markdownParser,
+	public ParserContext(MarkdownParser markdownParser,
 		IFileInfo path,
 		YamlFrontMatter? frontMatter,
 		BuildContext context)
@@ -58,13 +58,13 @@ public class MarkdownParser(IDirectoryInfo sourcePath, BuildContext context)
 	// TODO only scan for yaml front matter and toc information
 	public Task<MarkdownDocument> QuickParseAsync(IFileInfo path, Cancel ctx)
 	{
-		var context = new MystMarkdownParserContext(this, path, null, Context);
+		var context = new ParserContext(this, path, null, Context);
 		return ParseAsync(path, context, ctx);
 	}
 
 	public Task<MarkdownDocument> ParseAsync(IFileInfo path, YamlFrontMatter? matter, Cancel ctx)
 	{
-		var context = new MystMarkdownParserContext(this, path, matter, Context);
+		var context = new ParserContext(this, path, matter, Context);
 		return ParseAsync(path, context, ctx);
 	}
 

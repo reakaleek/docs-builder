@@ -12,20 +12,20 @@ namespace Elastic.Markdown.Myst.Directives;
 /// </summary>
 /// <seealso cref="ContainerBlock" />
 /// <seealso cref="IFencedBlock" />
-public abstract class DirectiveBlock : ContainerBlock, IFencedBlock
+/// <remarks>
+/// Initializes a new instance of the <see cref="DirectiveBlock"/> class.
+/// </remarks>
+/// <param name="parser">The parser used to create this block.</param>
+/// <param name="properties"></param>
+/// <param name="context"></param>
+public abstract class DirectiveBlock(DirectiveBlockParser parser, Dictionary<string, string> properties)
+	: ContainerBlock(parser), IFencedBlock
 {
-	/// <summary>
-	/// Initializes a new instance of the <see cref="DirectiveBlock"/> class.
-	/// </summary>
-	/// <param name="parser">The parser used to create this block.</param>
-	/// <param name="properties"></param>
-	public DirectiveBlock(DirectiveBlockParser parser, Dictionary<string, string> properties) : base(parser) =>
-	    Properties = properties;
 
-    public IReadOnlyDictionary<string, string> Properties { get; }
+	public IReadOnlyDictionary<string, string> Properties { get; } = properties;
 
-    /// <inheritdoc />
-    public char FencedChar { get; set; }
+	/// <inheritdoc />
+	public char FencedChar { get; set; }
 
     /// <inheritdoc />
     public int OpeningFencedCharCount { get; set; }

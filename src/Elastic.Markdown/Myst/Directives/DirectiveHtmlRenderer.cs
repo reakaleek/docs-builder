@@ -91,6 +91,9 @@ public class DirectiveHtmlRenderer : HtmlObjectRenderer<DirectiveBlock>
 
 	private void WriteImage(HtmlRenderer renderer, ImageBlock block)
 	{
+		var imageUrl = block.ImageUrl.StartsWith("/_static") || block.ImageUrl.StartsWith("_static")
+			? $"{block.Build.UrlPathPrefix}/{block.ImageUrl}"
+			: block.ImageUrl;
 		var slice = Image.Create(new ImageViewModel
 		{
 			Classes = block.Classes,
@@ -101,13 +104,16 @@ public class DirectiveHtmlRenderer : HtmlObjectRenderer<DirectiveBlock>
 			Scale = block.Scale,
 			Target = block.Target,
 			Width = block.Width,
-			ImageUrl = block.ImageUrl,
+			ImageUrl = imageUrl,
 		});
 		RenderRazorSlice(slice, renderer, block);
 	}
 
 	private void WriteFigure(HtmlRenderer renderer, ImageBlock block)
 	{
+		var imageUrl = block.ImageUrl.StartsWith("/_static") || block.ImageUrl.StartsWith("_static")
+			? $"{block.Build.UrlPathPrefix}/{block.ImageUrl}"
+			: block.ImageUrl;
 		var slice = Slices.Directives.Figure.Create(new ImageViewModel
 		{
 			Classes = block.Classes,
@@ -118,7 +124,7 @@ public class DirectiveHtmlRenderer : HtmlObjectRenderer<DirectiveBlock>
 			Scale = block.Scale,
 			Target = block.Target,
 			Width = block.Width,
-			ImageUrl = block.ImageUrl,
+			ImageUrl = imageUrl,
 		});
 		RenderRazorSlice(slice, renderer, block);
 	}

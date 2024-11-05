@@ -77,7 +77,7 @@ public abstract class InlineTest : IAsyncLifetime
 		var context = new BuildContext { ReadFileSystem = fileSystem, WriteFileSystem = fileSystem };
 		var parser = new MarkdownParser(root, context);
 
-		File = new MarkdownFile(file, root, parser, null);
+		File = new MarkdownFile(file, root, parser, context);
 		Html = default!; //assigned later
 		Document = default!;
 	}

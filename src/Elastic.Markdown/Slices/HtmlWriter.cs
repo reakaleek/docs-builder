@@ -48,7 +48,7 @@ public class HtmlWriter
 			Tree = DocumentationSet.Tree,
 			CurrentDocument = markdown,
 			Navigation = navigationHtml,
-			UrlPath = markdown.UrlPath
+			UrlPathPrefix = markdown.UrlPathPrefix
 		});
 		return await slice.RenderAsync(cancellationToken: ctx);
 	}

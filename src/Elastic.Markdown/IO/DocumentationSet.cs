@@ -36,7 +36,7 @@ public class DocumentationSet
 			{
 				".svg" => new ImageFile(file, SourcePath, "image/svg+xml"),
 				".png" => new ImageFile(file, SourcePath),
-				".md" => new MarkdownFile(file, SourcePath, MarkdownParser, context.UrlPathPrefix),
+				".md" => new MarkdownFile(file, SourcePath, MarkdownParser, context),
 				_ => new StaticFile(file, SourcePath)
 			})
 			.ToList();
