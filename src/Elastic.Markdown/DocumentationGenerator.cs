@@ -39,9 +39,6 @@ public class DocumentationGenerator
 	public async Task ResolveDirectoryTree(Cancel ctx) =>
 		await DocumentationSet.Tree.Resolve(ctx);
 
-	public async Task ReloadNavigationAsync(MarkdownFile current, Cancel ctx) =>
-		await HtmlWriter.ReloadNavigation(current, ctx);
-
 	public async Task GenerateAll(Cancel ctx)
 	{
 		DocumentationSet.ClearOutputDirectory();

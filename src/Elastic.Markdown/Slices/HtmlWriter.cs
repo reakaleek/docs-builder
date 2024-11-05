@@ -25,24 +25,14 @@ public class HtmlWriter
 	public ILoggerFactory LoggerFactory { get; }
 	public ServiceProvider ServiceProvider { get; }
 
-	private string? _navigation;
-
 	private async Task<string> RenderNavigation(MarkdownFile markdown, Cancel ctx = default)
 	{
-		if (_navigation is { Length: > 0 }) return _navigation;
 		var slice = Layout._TocTree.Create(new NavigationViewModel
 		{
 			Tree = DocumentationSet.Tree,
 			CurrentDocument = markdown
 		});
-		_navigation ??= await slice.RenderAsync(cancellationToken: ctx);
-		return _navigation;
-	}
-
-	public async Task ReloadNavigation(MarkdownFile current, Cancel ctx)
-	{
-		_navigation = null;
-		_ = await RenderNavigation(current, ctx);
+		return await slice.RenderAsync(cancellationToken: ctx);
 	}
 
 	public async Task<string> RenderLayout(MarkdownFile markdown, Cancel ctx = default)

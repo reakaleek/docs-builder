@@ -57,7 +57,6 @@ public class DocumentationWebHost
 		{
 			case MarkdownFile markdown:
 			{
-				await holder.ReloadNavigationAsync(markdown, ctx);
 				await markdown.ParseAsync(ctx);
 				var rendered = await generator.RenderLayout(markdown, ctx);
 				return Results.Content(rendered, "text/html");

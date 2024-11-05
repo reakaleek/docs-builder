@@ -24,7 +24,4 @@ public class ReloadableGeneratorState(IDirectoryInfo? sourcePath, IDirectoryInfo
 		await generator.ResolveDirectoryTree(ctx);
 		Interlocked.Exchange(ref _generator, generator);
 	}
-
-	public async Task ReloadNavigationAsync(MarkdownFile current, CancellationToken ctx) =>
-		await Generator.ReloadNavigationAsync(current, ctx);
 }
