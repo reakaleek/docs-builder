@@ -49,7 +49,7 @@ public abstract class DirectiveTest : IAsyncLifetime
 		var root = FileSystem.DirectoryInfo.New(Paths.Root.FullName);
 		var parser = new MarkdownParser(root, FileSystem);
 
-		File = new MarkdownFile(file, root, parser);
+		File = new MarkdownFile(file, root, parser, null);
 		Html = default!; //assigned later
 		Document = default!;
 	}

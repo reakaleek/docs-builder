@@ -32,7 +32,7 @@ internal class Commands(ILoggerFactory logger)
 	[Command("generate")]
 	[ConsoleAppFilter<StopwatchFilter>]
 	[ConsoleAppFilter<CatchExceptionFilter>]
-	public async Task Generate(string? path = null, string? output = null, Cancel ctx = default)
+	public async Task Generate(string? path = null, string? output = null, string? pathPrefix = null, Cancel ctx = default)
 	{
 		var generator = DocumentationGenerator.Create(path, output, logger, new FileSystem());
 		await generator.GenerateAll(ctx);
@@ -43,10 +43,11 @@ internal class Commands(ILoggerFactory logger)
 	/// </summary>
 	/// <param name="path"> -p, Defaults to the`{pwd}/docs` folder</param>
 	/// <param name="output"> -o, Defaults to `.artifacts/html` </param>
+	/// <param name="pathPrefix"> Specifies the path prefix for urls </param>
 	/// <param name="ctx"></param>
 	[Command("")]
 	[ConsoleAppFilter<StopwatchFilter>]
 	[ConsoleAppFilter<CatchExceptionFilter>]
-	public async Task GenerateDefault(string? path = null, string? output = null, Cancel ctx = default) =>
-		await Generate(path, output, ctx);
+	public async Task GenerateDefault(string? path = null, string? output = null, string? pathPrefix = null, Cancel ctx = default) =>
+		await Generate(path, output, pathPrefix, ctx);
 }

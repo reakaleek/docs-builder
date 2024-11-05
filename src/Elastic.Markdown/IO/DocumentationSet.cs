@@ -13,7 +13,7 @@ public class DocumentationSet
 
 	public DocumentationSet(IFileSystem fileSystem) : this(null, null, fileSystem) { }
 
-	public DocumentationSet(IDirectoryInfo? sourcePath, IDirectoryInfo? outputPath, IFileSystem fileSystem)
+	public DocumentationSet(IDirectoryInfo? sourcePath, IDirectoryInfo? outputPath, IFileSystem fileSystem, string? pathPrefix = null)
 	{
 		SourcePath = sourcePath ?? fileSystem.DirectoryInfo.New(Path.Combine(Paths.Root.FullName, "docs/source"));
 		OutputPath = outputPath ?? fileSystem.DirectoryInfo.New(Path.Combine(Paths.Root.FullName, ".artifacts/docs/html"));
@@ -26,7 +26,7 @@ public class DocumentationSet
 			{
 				".svg" => new ImageFile(file, SourcePath, "image/svg+xml"),
 				".png" => new ImageFile(file, SourcePath),
-				".md" => new MarkdownFile(file, SourcePath, MarkdownParser),
+				".md" => new MarkdownFile(file, SourcePath, MarkdownParser, pathPrefix),
 				_ => new StaticFile(file, SourcePath)
 			})
 			.ToList();
