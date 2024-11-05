@@ -22,7 +22,7 @@ public class OutputDirectoryTests
 		var set = new DocumentationSet(null, null, fileSystem);
 		var generator = new DocumentationGenerator(set, logger, fileSystem);
 
-		await generator.GenerateAll(default);
+		await generator.GenerateAll(true, default);
 
 		fileSystem.Directory.Exists(".artifacts").Should().BeTrue();
 

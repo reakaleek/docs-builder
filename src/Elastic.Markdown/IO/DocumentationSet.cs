@@ -1,4 +1,6 @@
+using System.Globalization;
 using System.IO.Abstractions;
+using System.Text.Json;
 using Elastic.Markdown.Myst;
 
 namespace Elastic.Markdown.IO;
@@ -8,6 +10,9 @@ public class DocumentationSet
 	public string Name { get; }
 	public IDirectoryInfo SourcePath { get; }
 	public IDirectoryInfo OutputPath { get; }
+	public DateTimeOffset LastWrite { get; }
+	public IFileInfo OutputStateFile { get; }
+
 
 	private MarkdownParser MarkdownParser { get; }
 
@@ -19,6 +24,7 @@ public class DocumentationSet
 		OutputPath = outputPath ?? fileSystem.DirectoryInfo.New(Path.Combine(Paths.Root.FullName, ".artifacts/docs/html"));
 		Name = SourcePath.FullName;
 		MarkdownParser = new MarkdownParser(SourcePath, fileSystem);
+		OutputStateFile = OutputPath.FileSystem.FileInfo.New(Path.Combine(OutputPath.FullName, ".doc.state"));
 
 		Files = fileSystem.Directory.EnumerateFiles(SourcePath.FullName, "*.*", SearchOption.AllDirectories)
 			.Select(f => fileSystem.FileInfo.New(f))
@@ -30,6 +36,8 @@ public class DocumentationSet
 				_ => new StaticFile(file, SourcePath)
 			})
 			.ToList();
+
+		LastWrite = Files.Max(f => f.SourceFile.LastWriteTimeUtc);
 
 		FlatMappedFiles = Files.ToDictionary(file => file.RelativePath, file => file);
 

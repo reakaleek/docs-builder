@@ -1,9 +1,21 @@
 using System.IO.Abstractions;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Elastic.Markdown.IO;
 using Elastic.Markdown.Slices;
 using Microsoft.Extensions.Logging;
 
 namespace Elastic.Markdown;
+
+[JsonSourceGenerationOptions(WriteIndented = true)]
+[JsonSerializable(typeof(OutputState))]
+internal partial class SourceGenerationContext : JsonSerializerContext
+{
+}
+public class OutputState
+{
+	public DateTimeOffset LastSeenChanges { get; set; }
+}
 
 public class DocumentationGenerator
 {
@@ -36,20 +48,50 @@ public class DocumentationGenerator
 		return new DocumentationGenerator(docSet, logger, fileSystem);
 	}
 
+	public OutputState? OutputState
+	{
+		get
+		{
+			var stateFile = DocumentationSet.OutputStateFile;
+			stateFile.Refresh();
+			if (!stateFile.Exists) return null;
+			var contents = stateFile.FileSystem.File.ReadAllText(stateFile.FullName);
+			return JsonSerializer.Deserialize(contents, SourceGenerationContext.Default.OutputState);
+
+
+		}
+	}
+
+
 	public async Task ResolveDirectoryTree(Cancel ctx) =>
 		await DocumentationSet.Tree.Resolve(ctx);
 
-	public async Task GenerateAll(Cancel ctx)
+	public async Task GenerateAll(bool force, Cancel ctx)
 	{
-		DocumentationSet.ClearOutputDirectory();
+		if (force || OutputState == null)
+			DocumentationSet.ClearOutputDirectory();
+
+		_logger.LogInformation($"Last write source: {DocumentationSet.LastWrite}, output observed: {OutputState?.LastSeenChanges}");
+		var outputSeenChanges = OutputState?.LastSeenChanges ?? DateTimeOffset.MinValue;
+		if (DocumentationSet.LastWrite > outputSeenChanges && OutputState != null)
+			_logger.LogInformation($"Using incremental build picking up changes since: {OutputState.LastSeenChanges}");
+		else if (DocumentationSet.LastWrite <= outputSeenChanges && OutputState != null)
+		{
+			_logger.LogInformation($"No changes in source since last observed write {OutputState.LastSeenChanges} "
+			                       + "Pass --force to force a full regeneration");
+			return;
+		}
 
 		_logger.LogInformation("Resolving tree");
 		await ResolveDirectoryTree(ctx);
 		_logger.LogInformation("Resolved tree");
 
+
 		var handledItems = 0;
 		await Parallel.ForEachAsync(DocumentationSet.Files, ctx, async (file, token) =>
 		{
+			if (file.SourceFile.LastWriteTimeUtc <= outputSeenChanges)
+				return;
 			var item = Interlocked.Increment(ref handledItems);
 			var outputFile = OutputFile(file.RelativePath);
 			if (file is MarkdownFile markdown)
@@ -72,6 +114,13 @@ public class DocumentationGenerator
 			var outputFile = _writeFileSystem.FileInfo.New(Path.Combine(DocumentationSet.OutputPath.FullName, relativePath));
 			return outputFile;
 		}
+
+		var stateFile = DocumentationSet.OutputStateFile;
+		_logger.LogInformation($"Writing documentation state {DocumentationSet.LastWrite} to {stateFile.FullName}");
+		var state = new OutputState { LastSeenChanges = DocumentationSet.LastWrite };
+		var bytes = JsonSerializer.SerializeToUtf8Bytes(state, SourceGenerationContext.Default.OutputState);
+		await DocumentationSet.OutputPath.FileSystem.File.WriteAllBytesAsync(stateFile.FullName, bytes, ctx);
+
 	}
 
 	private async Task CopyFileFsAware(DocumentationFile file, IFileInfo outputFile, Cancel ctx)

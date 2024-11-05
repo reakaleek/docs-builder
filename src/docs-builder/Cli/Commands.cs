@@ -29,15 +29,23 @@ internal class Commands(ILoggerFactory logger, ICoreService githubActionsService
 	/// </summary>
 	/// <param name="path"> -p, Defaults to the`{pwd}/docs` folder</param>
 	/// <param name="output"> -o, Defaults to `.artifacts/html` </param>
+	/// <param name="pathPrefix"> Specifies the path prefix for urls </param>
+	/// <param name="force"> Force a full rebuild of the destination folder</param>
 	/// <param name="ctx"></param>
 	[Command("generate")]
 	[ConsoleAppFilter<StopwatchFilter>]
 	[ConsoleAppFilter<CatchExceptionFilter>]
-	public async Task Generate(string? path = null, string? output = null, string? pathPrefix = null, Cancel ctx = default)
+	public async Task Generate(
+		string? path = null,
+		string? output = null,
+		string? pathPrefix = null,
+		bool? force = null,
+		Cancel ctx = default
+	)
 	{
 		pathPrefix ??= githubActionsService.GetInput("prefix");
 		var generator = DocumentationGenerator.Create(path, output, logger, new FileSystem(), pathPrefix);
-		await generator.GenerateAll(ctx);
+		await generator.GenerateAll(force ?? false, ctx);
 	}
 
 	/// <summary>
@@ -46,10 +54,17 @@ internal class Commands(ILoggerFactory logger, ICoreService githubActionsService
 	/// <param name="path"> -p, Defaults to the`{pwd}/docs` folder</param>
 	/// <param name="output"> -o, Defaults to `.artifacts/html` </param>
 	/// <param name="pathPrefix"> Specifies the path prefix for urls </param>
+	/// <param name="force"> Force a full rebuild of the destination folder</param>
 	/// <param name="ctx"></param>
 	[Command("")]
 	[ConsoleAppFilter<StopwatchFilter>]
 	[ConsoleAppFilter<CatchExceptionFilter>]
-	public async Task GenerateDefault(string? path = null, string? output = null, string? pathPrefix = null, Cancel ctx = default) =>
-		await Generate(path, output, pathPrefix, ctx);
+	public async Task GenerateDefault(
+		string? path = null,
+		string? output = null,
+		string? pathPrefix = null,
+		bool? force = null,
+		Cancel ctx = default
+	) =>
+		await Generate(path, output, pathPrefix, force, ctx);
 }

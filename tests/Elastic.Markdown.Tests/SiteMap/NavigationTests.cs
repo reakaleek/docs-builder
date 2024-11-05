@@ -23,7 +23,7 @@ public class NavigationTests
 		set.Files.Should().HaveCountGreaterThan(10);
 		var generator = new DocumentationGenerator(set, logger, readFs, writeFs);
 
-		await generator.GenerateAll(default);
+		await generator.GenerateAll(true, default);
 
 		writeFs.Directory.Exists(".artifacts/docs/html").Should().BeTrue();
 		readFs.Directory.Exists(".artifacts/docs/html").Should().BeFalse();
