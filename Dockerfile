@@ -16,6 +16,9 @@ WORKDIR /src
 COPY ["src/Elastic.Markdown/Elastic.Markdown.csproj", "src/Elastic.Markdown/Elastic.Markdown.csproj"]
 COPY ["src/docs-builder/docs-builder.csproj", "src/docs-builder/docs-builder.csproj"]
 COPY ["docs/docs.csproj", "docs/docs.csproj"]
+COPY "build/build.csproj" "build/build.csproj"
+COPY ".github/.github.csproj" ".github/.github.csproj"
+COPY "tests/Elastic.Markdown.Tests/Elastic.Markdown.Tests.csproj" "tests/Elastic.Markdown.Tests/Elastic.Markdown.Tests.csproj"
 COPY ["docs-builder.sln", "docs-builder.sln"]
 RUN dotnet restore "docs-builder.sln"
 COPY . .
@@ -44,6 +47,8 @@ RUN adduser --disabled-password \
 USER dotnetuser
 WORKDIR /app
 
+COPY NOTICE.txt .
+COPY LICENSE.txt .
 COPY --from=publish /app/publish .
 CMD chmod +x docs-builder
 
