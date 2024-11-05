@@ -1,4 +1,5 @@
 using System.IO.Abstractions;
+using Actions.Core.Services;
 using ConsoleAppFramework;
 using Documentation.Builder.Http;
 using Elastic.Markdown;
@@ -6,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Documentation.Builder.Cli;
 
-internal class Commands(ILoggerFactory logger)
+internal class Commands(ILoggerFactory logger, ICoreService githubActionsService)
 {
 	/// <summary>
 	///	Continuously serve a documentation folder at http://localhost:5000.
@@ -34,6 +35,7 @@ internal class Commands(ILoggerFactory logger)
 	[ConsoleAppFilter<CatchExceptionFilter>]
 	public async Task Generate(string? path = null, string? output = null, string? pathPrefix = null, Cancel ctx = default)
 	{
+		pathPrefix ??= githubActionsService.GetInput("prefix");
 		var generator = DocumentationGenerator.Create(path, output, logger, new FileSystem());
 		await generator.GenerateAll(ctx);
 	}

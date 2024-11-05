@@ -1,3 +1,4 @@
+using Actions.Core.Extensions;
 using ConsoleAppFramework;
 using Documentation.Builder.Cli;
 using Microsoft.Extensions.DependencyInjection;
@@ -6,6 +7,7 @@ using Microsoft.Extensions.Logging;
 var arguments = Arguments.Filter(args);
 
 var services = new ServiceCollection();
+services.AddGitHubActionsCore();
 services.AddLogging(x =>
 {
 	x.ClearProviders();

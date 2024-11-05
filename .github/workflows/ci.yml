@@ -38,6 +38,8 @@ jobs:
         uses: actions/configure-pages@v5.0.0
       - name: Build documentation
         uses: Mpdreamz/docset-builder@main
+        with:
+          prefix: "docset-builder"
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3.0.1
         with:

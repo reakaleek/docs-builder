@@ -6,7 +6,7 @@ branding:
   color: 'red'
 
 inputs:
-  source:
+  prefix:
     description: 'The relative location of the documentation'
     required: false
 
