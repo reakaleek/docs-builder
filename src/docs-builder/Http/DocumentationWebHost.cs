@@ -14,7 +14,7 @@ public class DocumentationWebHost
 	private readonly WebApplication _webApplication;
 
 	private readonly string _staticFilesDirectory =
-		Path.Combine(Paths.Root.FullName, "docs", "source", "_static_template");
+		Path.Combine(Paths.Root.FullName, "docs", "source", "_static");
 
 	public DocumentationWebHost(string? path, ILoggerFactory logger, IFileSystem fileSystem)
 	{
