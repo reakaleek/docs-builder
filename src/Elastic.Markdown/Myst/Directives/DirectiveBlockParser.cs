@@ -86,7 +86,11 @@ public class DirectiveBlockParser : FencedBlockParserBase<DirectiveBlock>
 	    }
 
 	    if (info.IndexOf("{literalinclude}") > 0)
-		    return new LiteralIncludeBlock(this, _admonitionData);
+	    {
+		    if (processor.Context is MystMarkdownParserContext context)
+				return new LiteralIncludeBlock(this, _admonitionData, context);
+		    //todo emit error
+	    }
 
 	    foreach (var admonition in _admonitions)
 	    {

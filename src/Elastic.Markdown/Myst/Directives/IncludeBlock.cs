@@ -15,7 +15,7 @@ public class IncludeBlock(DirectiveBlockParser parser, Dictionary<string, string
 
 	public string? IncludePath { get; private set; }
 
-	public string? Literal { get; private set; }
+	public bool Literal { get; private set; }
 
 	public bool Found { get; private set; }
 
@@ -24,7 +24,7 @@ public class IncludeBlock(DirectiveBlockParser parser, Dictionary<string, string
 	public override void FinalizeAndValidate()
 	{
 		var includePath = Arguments; //todo validate
-		Literal = Properties.GetValueOrDefault("literal");
+		Literal = bool.TryParse(Properties.GetValueOrDefault("literal"), out var b) && b;
 		if (includePath is null)
 		{
 			//TODO emit empty error
@@ -41,5 +41,5 @@ public class IncludeBlock(DirectiveBlockParser parser, Dictionary<string, string
 }
 
 
-public class LiteralIncludeBlock(DirectiveBlockParser parser, Dictionary<string, string> properties)
-	: ImageBlock(parser, properties);
+public class LiteralIncludeBlock(DirectiveBlockParser parser, Dictionary<string, string> properties, MystMarkdownParserContext context)
+	: IncludeBlock(parser, properties, context);

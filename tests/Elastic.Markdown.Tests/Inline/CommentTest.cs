@@ -3,10 +3,10 @@ using FluentAssertions;
 namespace Elastic.Markdown.Tests.Inline;
 
 public class CommentTest() : InlineTest(
-	"""
-	% comment
-	not a comment
-	"""
+"""
+% comment
+not a comment
+"""
 )
 {
 

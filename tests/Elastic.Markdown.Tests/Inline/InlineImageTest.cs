@@ -4,9 +4,9 @@ using Markdig.Syntax.Inlines;
 namespace Elastic.Markdown.Tests.Inline;
 
 public class InlineImageTest() : InlineTest<LinkInline>(
-	"""
-	![Elasticsearch](/_static/img/observability.png){w=350px align=center}
-	"""
+"""
+![Elasticsearch](/_static/img/observability.png){w=350px align=center}
+"""
 )
 {
 	[Fact]

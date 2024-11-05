@@ -69,8 +69,14 @@ public class DirectiveHtmlRenderer : HtmlObjectRenderer<DirectiveBlock>
 			case GridItemCardBlock gridItemCard:
 				WriteGridItemCard(renderer, gridItemCard);
 				return;
+			case LiteralIncludeBlock literalIncludeBlock:
+				WriteLiteralIncludeBlock(renderer, literalIncludeBlock);
+				return;
 			case IncludeBlock includeBlock:
-				WriteIncludeBlock(renderer, includeBlock);
+				if (includeBlock.Literal)
+					WriteLiteralIncludeBlock(renderer, includeBlock);
+				else
+					WriteIncludeBlock(renderer, includeBlock);
 				return;
 			default:
 				// if (!string.IsNullOrEmpty(directiveBlock.Info) && !directiveBlock.Info.StartsWith('{'))
@@ -213,6 +219,15 @@ public class DirectiveHtmlRenderer : HtmlObjectRenderer<DirectiveBlock>
 		RenderRazorSlice(slice, renderer, block);
 	}
 
+	private void WriteLiteralIncludeBlock(HtmlRenderer renderer, IncludeBlock block)
+	{
+		if (!block.Found || block.IncludePath is null)
+			return;
+
+		var file = block.FileSystem.FileInfo.New(block.IncludePath);
+		var html = block.FileSystem.File.ReadAllText(file.FullName);
+		renderer.Write(html);
+	}
 
 	private void WriteIncludeBlock(HtmlRenderer renderer, IncludeBlock block)
 	{
