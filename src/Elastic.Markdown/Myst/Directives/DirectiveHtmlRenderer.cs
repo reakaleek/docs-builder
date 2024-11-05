@@ -231,8 +231,18 @@ public class DirectiveHtmlRenderer : HtmlObjectRenderer<DirectiveBlock>
 			return;
 
 		var file = block.FileSystem.FileInfo.New(block.IncludePath);
-		var html = block.FileSystem.File.ReadAllText(file.FullName);
-		renderer.Write(html);
+		var content = block.FileSystem.File.ReadAllText(file.FullName);
+		if (string.IsNullOrEmpty(block.Language))
+			renderer.Write(content);
+		else
+		{
+			var slice = Code.Create(new CodeViewModel
+			{
+				CrossReferenceName = null, Language = block.Language, Caption = null
+			});
+			RenderRazorSlice(slice, renderer, content);
+		}
+
 	}
 
 	private void WriteIncludeBlock(HtmlRenderer renderer, IncludeBlock block)
@@ -247,6 +257,15 @@ public class DirectiveHtmlRenderer : HtmlObjectRenderer<DirectiveBlock>
 		renderer.Write(html);
 		//var slice = Include.Create(new IncludeViewModel { Html = html });
 		//RenderRazorSlice(slice, renderer, block);
+	}
+
+	private static void RenderRazorSlice<T>(RazorSlice<T> slice, HtmlRenderer renderer, string contents)
+	{
+		var html = slice.RenderAsync().GetAwaiter().GetResult();
+		var blocks = html.Split("[CONTENT]", 2, StringSplitOptions.RemoveEmptyEntries);
+		renderer.Write(blocks[0]);
+		renderer.Write(contents);
+		renderer.Write(blocks[1]);
 	}
 
 	private static void RenderRazorSlice<T>(RazorSlice<T> slice, HtmlRenderer renderer, DirectiveBlock obj)

@@ -17,7 +17,9 @@ public class IncludeBlock(DirectiveBlockParser parser, Dictionary<string, string
 
 	public string? IncludePath { get; private set; }
 
-	public bool Literal { get; private set; }
+	public bool Literal { get; protected set; }
+
+	public string? Language { get; private set; }
 
 	public bool Found { get; private set; }
 
@@ -26,16 +28,25 @@ public class IncludeBlock(DirectiveBlockParser parser, Dictionary<string, string
 	public override void FinalizeAndValidate()
 	{
 		var includePath = Arguments; //todo validate
-		Literal = bool.TryParse(Properties.GetValueOrDefault("literal"), out var b) && b;
+		Literal |= bool.TryParse(Properties.GetValueOrDefault("literal"), out var b) && b;
+		Language = Properties.GetValueOrDefault("language");
 		if (includePath is null)
 		{
 			//TODO emit empty error
 		}
 		else
 		{
-			IncludePath = Path.Combine(IncludeFromPath.Directory!.FullName, includePath);
+			var includeFrom = IncludeFromPath.Directory!.FullName;
+			if (includePath.StartsWith('/'))
+				includeFrom = DocumentationSourcePath.FullName;
+
+			IncludePath = Path.Combine(includeFrom, includePath.TrimStart('/'));
 			if (FileSystem.File.Exists(IncludePath))
 				Found = true;
+			else
+			{
+				//TODO emit error
+			}
 		}
 
 
@@ -43,5 +54,8 @@ public class IncludeBlock(DirectiveBlockParser parser, Dictionary<string, string
 }
 
 
-public class LiteralIncludeBlock(DirectiveBlockParser parser, Dictionary<string, string> properties, ParserContext context)
-	: IncludeBlock(parser, properties, context);
+public class LiteralIncludeBlock : IncludeBlock
+{
+	public LiteralIncludeBlock(DirectiveBlockParser parser, Dictionary<string, string> properties, ParserContext context)
+		: base(parser, properties, context) => Literal = true;
+}
