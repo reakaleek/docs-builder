@@ -57,7 +57,8 @@ public class HtmlWriter
 			PageTocItems = markdown.TableOfContents,
 			Tree = DocumentationSet.Tree,
 			CurrentDocument = markdown,
-			Navigation = navigationHtml
+			Navigation = navigationHtml,
+			UrlPath = markdown.UrlPath
 		});
 		return await slice.RenderAsync(cancellationToken: ctx);
 	}

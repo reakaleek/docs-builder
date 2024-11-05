@@ -74,7 +74,7 @@
 	</main>
 </div>
 @(await RenderPartialAsync<_Footer>())
-@(await RenderPartialAsync<_Scripts>())
+@(await RenderPartialAsync(_Scripts.Create(Model)))
 @await RenderSectionAsync("scripts")
 
 </body>
