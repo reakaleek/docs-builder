@@ -10,4 +10,13 @@
 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="../../build/nuget-icon.png" Pack="True" Link="nuget-icon.png" PackagePath="nuget-icon.png" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../license.txt" Pack="True" PackagePath="license.txt" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
+  </ItemGroup>
 </Project>
