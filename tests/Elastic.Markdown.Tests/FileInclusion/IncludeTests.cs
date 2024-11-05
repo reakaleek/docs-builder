@@ -1,12 +1,8 @@
-using System.IO.Abstractions;
-using System.IO.Abstractions.TestingHelpers;
-using Elastic.Markdown.IO;
 using Elastic.Markdown.Myst.Directives;
 using Elastic.Markdown.Tests.Directives;
 using FluentAssertions;
-using Microsoft.Extensions.Logging.Abstractions;
 
-namespace Elastic.Markdown.Tests.SiteMap;
+namespace Elastic.Markdown.Tests.FileInclusion;
 
 
 public class IncludeTests() : DirectiveTest<IncludeBlock>(
