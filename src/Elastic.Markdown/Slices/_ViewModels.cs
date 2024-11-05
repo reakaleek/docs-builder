@@ -25,8 +25,8 @@ public class LayoutViewModel
 
 	public string Static(string path)
 	{
-		path = $"/_static/{path.TrimStart('/')}";
-		return string.IsNullOrWhiteSpace(UrlPath) ? path : $"{UrlPath}/{path}";
+		path = $"_static/{path.TrimStart('/')}";
+		return $"{UrlPath}/{path}";
 	}
 }
 
