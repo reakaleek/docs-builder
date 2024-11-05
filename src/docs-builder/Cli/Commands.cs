@@ -36,7 +36,7 @@ internal class Commands(ILoggerFactory logger, ICoreService githubActionsService
 	public async Task Generate(string? path = null, string? output = null, string? pathPrefix = null, Cancel ctx = default)
 	{
 		pathPrefix ??= githubActionsService.GetInput("prefix");
-		var generator = DocumentationGenerator.Create(path, output, logger, new FileSystem());
+		var generator = DocumentationGenerator.Create(path, output, logger, new FileSystem(), pathPrefix);
 		await generator.GenerateAll(ctx);
 	}
 

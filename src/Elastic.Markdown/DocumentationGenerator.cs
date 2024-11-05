@@ -28,11 +28,11 @@ public class DocumentationGenerator
 		_logger.LogInformation($"Output directory: {docSet.OutputPath} Exists: {docSet.OutputPath.Exists}");
 	}
 
-	public static DocumentationGenerator Create(string? path, string? output, ILoggerFactory logger, IFileSystem fileSystem)
+	public static DocumentationGenerator Create(string? path, string? output, ILoggerFactory logger, IFileSystem fileSystem, string? pathPrefix = null)
 	{
 		var sourcePath = path != null ? fileSystem.DirectoryInfo.New(path) : null;
 		var outputPath = output != null ? fileSystem.DirectoryInfo.New(output) : null;
-		var docSet = new DocumentationSet(sourcePath, outputPath, fileSystem);
+		var docSet = new DocumentationSet(sourcePath, outputPath, fileSystem, pathPrefix);
 		return new DocumentationGenerator(docSet, logger, fileSystem);
 	}
 
