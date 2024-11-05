@@ -8,8 +8,8 @@
 	<div class="sy-head-blur"></div>
 	<div class="sy-head-inner sy-container mx-auto">
 		<a class="sy-head-brand" href="/index.html">
-			<img class="light-logo" src="/_static/logo-light.svg" alt="Elastic" height="28" loading="lazy">
-			<img class="dark-logo" src="/_static/logo-dark.svg" alt="Elastic" height="28" loading="lazy">
+			<img class="light-logo" src="@Model.Static("logo-light.svg")" alt="Elastic" height="28" loading="lazy">
+			<img class="dark-logo" src="@Model.Static("logo-dark.svg")" alt="Elastic" height="28" loading="lazy">
 			<strong>Elastic</strong>
 		</a>
 		@(await RenderPartialAsync<_HeadNav>())

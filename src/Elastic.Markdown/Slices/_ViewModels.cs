@@ -28,6 +28,12 @@ public class LayoutViewModel
 		path = $"_static/{path.TrimStart('/')}";
 		return $"{UrlPath}/{path}";
 	}
+
+	public string Link(string path)
+	{
+		path = path.TrimStart('/');
+		return $"{UrlPath}/{path}";
+	}
 }
 
 public class PageTocItem
