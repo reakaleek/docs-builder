@@ -32,11 +32,12 @@ public abstract class DirectiveTest : IAsyncLifetime
 	protected MarkdownFile File { get; }
 	protected string Html { get; private set; }
 	protected MarkdownDocument Document { get; private set; }
+	protected MockFileSystem FileSystem { get; }
 
 	protected DirectiveTest([LanguageInjection("markdown")]string content)
 	{
 		var logger = NullLoggerFactory.Instance;
-		var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+		FileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
 		{
 			{ "docs/source/index.md", new MockFileData(content) }
 		}, new MockFileSystemOptions
@@ -44,9 +45,9 @@ public abstract class DirectiveTest : IAsyncLifetime
 			CurrentDirectory = Paths.Root.FullName
 		});
 
-		var file = fileSystem.FileInfo.New("docs/source/index.md");
-		var root = fileSystem.DirectoryInfo.New(Paths.Root.FullName);
-		var parser = new MarkdownParser();
+		var file = FileSystem.FileInfo.New("docs/source/index.md");
+		var root = FileSystem.DirectoryInfo.New(Paths.Root.FullName);
+		var parser = new MarkdownParser(root, FileSystem);
 
 		File = new MarkdownFile(file, root, parser);
 		Html = default!; //assigned later

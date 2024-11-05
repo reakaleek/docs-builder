@@ -1,7 +1,7 @@
 namespace Elastic.Markdown.Myst.Directives;
 
-public class MermaidBlock(DirectiveBlockParser blockParser, Dictionary<string, string> properties)
-	: DirectiveBlock(blockParser, properties)
+public class MermaidBlock(DirectiveBlockParser parser, Dictionary<string, string> properties)
+	: DirectiveBlock(parser, properties)
 {
 	public override void FinalizeAndValidate()
 	{

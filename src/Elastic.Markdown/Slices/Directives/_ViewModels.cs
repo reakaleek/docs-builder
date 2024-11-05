@@ -53,6 +53,11 @@ public class GridItemCardViewModel
 	public required string? Link { get; init; }
 }
 
+public class IncludeViewModel
+{
+	public required string Html { get; init; }
+}
+
 public class ImageViewModel
 {
 	public required string? CrossReferenceName { get; init; }

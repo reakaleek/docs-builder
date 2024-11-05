@@ -1,7 +1,7 @@
 namespace Elastic.Markdown.Myst.Directives;
 
-public class AdmonitionBlock(DirectiveBlockParser blockParser, string admonition, Dictionary<string, string> properties)
-	: DirectiveBlock(blockParser, properties)
+public class AdmonitionBlock(DirectiveBlockParser parser, string admonition, Dictionary<string, string> properties)
+	: DirectiveBlock(parser, properties)
 {
 	public string Admonition => admonition == "admonition" ? Classes?.Trim() ?? "note" : admonition;
 	public string? Classes { get; protected set; }
@@ -31,8 +31,8 @@ public class AdmonitionBlock(DirectiveBlockParser blockParser, string admonition
 }
 
 
-public class DropdownBlock(DirectiveBlockParser blockParser, Dictionary<string, string> properties)
-	: AdmonitionBlock(blockParser, "admonition", properties)
+public class DropdownBlock(DirectiveBlockParser parser, Dictionary<string, string> properties)
+	: AdmonitionBlock(parser, "admonition", properties)
 {
 	// ReSharper disable once RedundantOverriddenMember
 	public override void FinalizeAndValidate()

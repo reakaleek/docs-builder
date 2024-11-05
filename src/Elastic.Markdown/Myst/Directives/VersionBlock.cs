@@ -1,7 +1,7 @@
 namespace Elastic.Markdown.Myst.Directives;
 
-public class VersionBlock(DirectiveBlockParser blockParser, string directive, Dictionary<string, string> properties)
-	: DirectiveBlock(blockParser, properties)
+public class VersionBlock(DirectiveBlockParser parser, string directive, Dictionary<string, string> properties)
+	: DirectiveBlock(parser, properties)
 {
 	public string Directive => directive;
 	public string Class => directive.Replace("version", "");

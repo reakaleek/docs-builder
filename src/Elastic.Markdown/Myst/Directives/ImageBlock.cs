@@ -1,7 +1,7 @@
 namespace Elastic.Markdown.Myst.Directives;
 
-public class ImageBlock(DirectiveBlockParser blockParser, Dictionary<string, string> properties)
-	: DirectiveBlock(blockParser, properties)
+public class ImageBlock(DirectiveBlockParser parser, Dictionary<string, string> properties)
+	: DirectiveBlock(parser, properties)
 {
 
 	/// <summary>
@@ -68,5 +68,5 @@ public class ImageBlock(DirectiveBlockParser blockParser, Dictionary<string, str
 }
 
 
-public class FigureBlock(DirectiveBlockParser blockParser, Dictionary<string, string> properties)
-	: ImageBlock(blockParser, properties);
+public class FigureBlock(DirectiveBlockParser parser, Dictionary<string, string> properties)
+	: ImageBlock(parser, properties);

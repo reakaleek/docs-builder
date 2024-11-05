@@ -9,7 +9,7 @@ public class DocumentationSet
 	public IDirectoryInfo SourcePath { get; }
 	public IDirectoryInfo OutputPath { get; }
 
-	private MarkdownParser MarkdownParser { get; } = new();
+	private MarkdownParser MarkdownParser { get; }
 
 	public DocumentationSet(IFileSystem fileSystem) : this(null, null, fileSystem) { }
 
@@ -18,6 +18,7 @@ public class DocumentationSet
 		SourcePath = sourcePath ?? fileSystem.DirectoryInfo.New(Path.Combine(Paths.Root.FullName, "docs/source"));
 		OutputPath = outputPath ?? fileSystem.DirectoryInfo.New(Path.Combine(Paths.Root.FullName, ".artifacts/docs/html"));
 		Name = SourcePath.FullName;
+		MarkdownParser = new MarkdownParser(SourcePath, fileSystem);
 
 		Files = fileSystem.Directory.EnumerateFiles(SourcePath.FullName, "*.*", SearchOption.AllDirectories)
 			.Select(f => fileSystem.FileInfo.New(f))

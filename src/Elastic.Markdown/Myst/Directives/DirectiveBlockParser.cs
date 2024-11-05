@@ -78,6 +78,16 @@ public class DirectiveBlockParser : FencedBlockParserBase<DirectiveBlock>
 	    if (info.IndexOf("{mermaid}") > 0)
 		    return new MermaidBlock(this, _admonitionData);
 
+	    if (info.IndexOf("{include}") > 0)
+	    {
+		    if (processor.Context is MystMarkdownParserContext context)
+				return new IncludeBlock(this, _admonitionData, context);
+		    //todo emit error
+	    }
+
+	    if (info.IndexOf("{literalinclude}") > 0)
+		    return new LiteralIncludeBlock(this, _admonitionData);
+
 	    foreach (var admonition in _admonitions)
 	    {
 		    if (info.IndexOf($"{{{admonition}}}") > 0)

@@ -1,7 +1,7 @@
 namespace Elastic.Markdown.Myst.Directives;
 
-public class CodeBlock(DirectiveBlockParser blockParser, string directive, Dictionary<string, string> properties)
-	: DirectiveBlock(blockParser, properties)
+public class CodeBlock(DirectiveBlockParser parser, string directive, Dictionary<string, string> properties)
+	: DirectiveBlock(parser, properties)
 {
 	public string Directive => directive;
 	public string? Caption { get; private set; }

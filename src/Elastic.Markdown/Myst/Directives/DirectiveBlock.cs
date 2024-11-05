@@ -17,9 +17,9 @@ public abstract class DirectiveBlock : ContainerBlock, IFencedBlock
 	/// <summary>
 	/// Initializes a new instance of the <see cref="DirectiveBlock"/> class.
 	/// </summary>
-	/// <param name="blockParser">The parser used to create this block.</param>
+	/// <param name="parser">The parser used to create this block.</param>
 	/// <param name="properties"></param>
-	public DirectiveBlock(DirectiveBlockParser blockParser, Dictionary<string, string> properties) : base(blockParser) =>
+	public DirectiveBlock(DirectiveBlockParser parser, Dictionary<string, string> properties) : base(parser) =>
 	    Properties = properties;
 
     public IReadOnlyDictionary<string, string> Properties { get; }

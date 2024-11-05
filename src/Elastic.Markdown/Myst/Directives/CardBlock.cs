@@ -1,7 +1,7 @@
 namespace Elastic.Markdown.Myst.Directives;
 
-public class CardBlock(DirectiveBlockParser blockParser, Dictionary<string, string> properties)
-	: DirectiveBlock(blockParser, properties)
+public class CardBlock(DirectiveBlockParser parser, Dictionary<string, string> properties)
+	: DirectiveBlock(parser, properties)
 {
 	public string? Link { get; set; }
 

@@ -2,7 +2,9 @@
 // This file is licensed under the BSD-Clause 2 license.
 // See the license.txt file in the project root for more information.
 
+using Elastic.Markdown.Slices;
 using Elastic.Markdown.Slices.Directives;
+using Markdig;
 using Markdig.Extensions.Figures;
 using Markdig.Renderers;
 using Markdig.Renderers.Html;
@@ -66,6 +68,9 @@ public class DirectiveHtmlRenderer : HtmlObjectRenderer<DirectiveBlock>
 				return;
 			case GridItemCardBlock gridItemCard:
 				WriteGridItemCard(renderer, gridItemCard);
+				return;
+			case IncludeBlock includeBlock:
+				WriteIncludeBlock(renderer, includeBlock);
 				return;
 			default:
 				// if (!string.IsNullOrEmpty(directiveBlock.Info) && !directiveBlock.Info.StartsWith('{'))
@@ -206,6 +211,22 @@ public class DirectiveHtmlRenderer : HtmlObjectRenderer<DirectiveBlock>
 	{
 		var slice = TabItem.Create(new TabItemViewModel { Index = block.Index, Title = block.Title, TabSetIndex = block.TabSetIndex });
 		RenderRazorSlice(slice, renderer, block);
+	}
+
+
+	private void WriteIncludeBlock(HtmlRenderer renderer, IncludeBlock block)
+	{
+		if (!block.Found || block.IncludePath is null)
+			return;
+
+		//var markdown = block.FileSystem.File.ReadAllText(block.IncludePath);
+		var parser = new MarkdownParser(block.DocumentationSourcePath, block.FileSystem);
+		var file = block.FileSystem.FileInfo.New(block.IncludePath);
+		var document = parser.ParseAsync(file, block.FrontMatter, default).GetAwaiter().GetResult();
+		var html = document.ToHtml(parser.Pipeline);
+		renderer.Write(html);
+		//var slice = Include.Create(new IncludeViewModel { Html = html });
+		//RenderRazorSlice(slice, renderer, block);
 	}
 
 	private static void RenderRazorSlice<T>(RazorSlice<T> slice, HtmlRenderer renderer, DirectiveBlock obj)

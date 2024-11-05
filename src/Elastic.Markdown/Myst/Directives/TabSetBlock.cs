@@ -3,8 +3,8 @@ using System.Xml.Xsl;
 
 namespace Elastic.Markdown.Myst.Directives;
 
-public class TabSetBlock(DirectiveBlockParser blockParser, Dictionary<string, string> properties)
-	: DirectiveBlock(blockParser, properties)
+public class TabSetBlock(DirectiveBlockParser parser, Dictionary<string, string> properties)
+	: DirectiveBlock(parser, properties)
 {
 	public int Index { get; set; }
 	public override void FinalizeAndValidate() => Index = FindIndex();
@@ -18,8 +18,8 @@ public class TabSetBlock(DirectiveBlockParser blockParser, Dictionary<string, st
 		return _index;
 	}
 }
-public class TabItemBlock(DirectiveBlockParser blockParser, Dictionary<string, string> properties)
-	: DirectiveBlock(blockParser, properties)
+public class TabItemBlock(DirectiveBlockParser parser, Dictionary<string, string> properties)
+	: DirectiveBlock(parser, properties)
 {
 	public string Title { get; set; } = default!;
 	public int Index { get; set; }
@@ -49,8 +49,8 @@ public class GridCorners
 	public required int Right { get; init; }
 }
 
-public class GridBlock(DirectiveBlockParser blockParser, Dictionary<string, string> properties)
-	: DirectiveBlock(blockParser, properties)
+public class GridBlock(DirectiveBlockParser parser, Dictionary<string, string> properties)
+	: DirectiveBlock(parser, properties)
 {
 
 	public GridResponsive BreakPoint { get; set; } = new() { Xs = 1, Sm = 1, Md = 2, Lg = 3 };
@@ -118,16 +118,16 @@ public class GridBlock(DirectiveBlockParser blockParser, Dictionary<string, stri
 
 
 }
-public class GridItemCardBlock(DirectiveBlockParser blockParser, Dictionary<string, string> properties)
-	: DirectiveBlock(blockParser, properties)
+public class GridItemCardBlock(DirectiveBlockParser parser, Dictionary<string, string> properties)
+	: DirectiveBlock(parser, properties)
 {
 	public override void FinalizeAndValidate()
 	{
 	}
 }
 
-public class UnknownDirectiveBlock(DirectiveBlockParser blockParser, string directive, Dictionary<string, string> properties)
-	: DirectiveBlock(blockParser, properties)
+public class UnknownDirectiveBlock(DirectiveBlockParser parser, string directive, Dictionary<string, string> properties)
+	: DirectiveBlock(parser, properties)
 {
 	public string Directive => directive;
 

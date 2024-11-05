@@ -9,8 +9,19 @@ using Markdig.Syntax;
 
 namespace Elastic.Markdown.Myst;
 
-public class MarkdownParser
+
+public class MystMarkdownParserContext(MarkdownParser markdownParser, IFileInfo path, YamlFrontMatter? front) : MarkdownParserContext
 {
+	public MarkdownParser Parser { get; } = markdownParser;
+	public IFileInfo Path { get; } = path;
+	public YamlFrontMatter? FrontMatter { get; } = front;
+}
+
+public class MarkdownParser(IDirectoryInfo sourcePath, IFileSystem fileSystem)
+{
+	public IDirectoryInfo SourcePath { get; } = sourcePath;
+	public IFileSystem FileSystem { get; } = fileSystem;
+
 	public MarkdownPipeline Pipeline =>
 		new MarkdownPipelineBuilder()
 			.EnableTrackTrivia()
@@ -29,13 +40,13 @@ public class MarkdownParser
 	// TODO only scan for yaml front matter and toc information
 	public Task<MarkdownDocument> QuickParseAsync(IFileInfo path, Cancel ctx)
 	{
-		var context = new MarkdownParserContext();
+		var context = new MystMarkdownParserContext(this, path, null);
 		return ParseAsync(path, context, ctx);
 	}
 
 	public Task<MarkdownDocument> ParseAsync(IFileInfo path, YamlFrontMatter? matter, Cancel ctx)
 	{
-		var context = new MarkdownParserContext();
+		var context = new MystMarkdownParserContext(this, path, matter);
 		if (matter?.Properties is { } props)
 		{
 			foreach (var (key, value) in props)

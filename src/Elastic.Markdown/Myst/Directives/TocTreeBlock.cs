@@ -8,8 +8,8 @@ public class TocTreeLink
 	public string? Title { get; set; }
 }
 
-public class TocTreeBlock(DirectiveBlockParser blockParser, Dictionary<string, string> properties)
-	: DirectiveBlock(blockParser, properties)
+public class TocTreeBlock(DirectiveBlockParser parser, Dictionary<string, string> properties)
+	: DirectiveBlock(parser, properties)
 {
 	public OrderedList<TocTreeLink> Links { get; } = new();
 
