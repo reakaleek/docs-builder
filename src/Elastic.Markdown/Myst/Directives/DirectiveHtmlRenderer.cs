@@ -92,7 +92,7 @@ public class DirectiveHtmlRenderer : HtmlObjectRenderer<DirectiveBlock>
 	private void WriteImage(HtmlRenderer renderer, ImageBlock block)
 	{
 		var imageUrl = block.ImageUrl.StartsWith("/_static") || block.ImageUrl.StartsWith("_static")
-			? $"{block.Build.UrlPathPrefix}/{block.ImageUrl}"
+			? $"{block.Build.UrlPathPrefix}/{block.ImageUrl.TrimStart('/')}"
 			: block.ImageUrl;
 		var slice = Image.Create(new ImageViewModel
 		{
@@ -112,7 +112,7 @@ public class DirectiveHtmlRenderer : HtmlObjectRenderer<DirectiveBlock>
 	private void WriteFigure(HtmlRenderer renderer, ImageBlock block)
 	{
 		var imageUrl = block.ImageUrl.StartsWith("/_static") || block.ImageUrl.StartsWith("_static")
-			? $"{block.Build.UrlPathPrefix}/{block.ImageUrl}"
+			? $"{block.Build.UrlPathPrefix}/{block.ImageUrl.TrimStart('/')}"
 			: block.ImageUrl;
 		var slice = Slices.Directives.Figure.Create(new ImageViewModel
 		{
