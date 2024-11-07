@@ -20,6 +20,7 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    if: false
     permissions:
       pages: write
       id-token: write
