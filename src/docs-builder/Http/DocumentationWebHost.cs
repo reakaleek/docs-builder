@@ -2,7 +2,9 @@
 // Elasticsearch B.V licenses this file to you under the Apache 2.0 License.
 // See the LICENSE file in the project root for more information
 using System.IO.Abstractions;
+using Documentation.Builder.Diagnostics;
 using Elastic.Markdown;
+using Elastic.Markdown.Diagnostics;
 using Elastic.Markdown.IO;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -24,7 +26,12 @@ public class DocumentationWebHost
 	{
 		var builder = WebApplication.CreateSlimBuilder();
 		var sourcePath = path != null ? fileSystem.DirectoryInfo.New(path) : null;
-		var context = new BuildContext { ReadFileSystem = fileSystem, WriteFileSystem = fileSystem };
+		var context = new BuildContext
+		{
+			ReadFileSystem = fileSystem,
+			WriteFileSystem = fileSystem,
+			Collector = new ConsoleDiagnosticsCollector(logger)
+		};
 		builder.Services.AddSingleton<ReloadableGeneratorState>(_ => new ReloadableGeneratorState(sourcePath, null, context, logger));
 		builder.Services.AddHostedService<ReloadGeneratorService>();
 		builder.Services.AddSingleton(logger);

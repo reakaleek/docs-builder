@@ -4,8 +4,10 @@
 using System.IO.Abstractions;
 using Actions.Core.Services;
 using ConsoleAppFramework;
+using Documentation.Builder.Diagnostics;
 using Documentation.Builder.Http;
 using Elastic.Markdown;
+using Elastic.Markdown.Diagnostics;
 using Microsoft.Extensions.Logging;
 
 namespace Documentation.Builder.Cli;
@@ -38,7 +40,7 @@ internal class Commands(ILoggerFactory logger, ICoreService githubActionsService
 	[Command("generate")]
 	[ConsoleAppFilter<StopwatchFilter>]
 	[ConsoleAppFilter<CatchExceptionFilter>]
-	public async Task Generate(
+	public async Task<int> Generate(
 		string? path = null,
 		string? output = null,
 		string? pathPrefix = null,
@@ -53,10 +55,12 @@ internal class Commands(ILoggerFactory logger, ICoreService githubActionsService
 			UrlPathPrefix = pathPrefix,
 			Force = force ?? false,
 			ReadFileSystem = fileSystem,
-			WriteFileSystem = fileSystem
+			WriteFileSystem = fileSystem,
+			Collector = new ConsoleDiagnosticsCollector(logger)
 		};
 		var generator = DocumentationGenerator.Create(path, output, context, logger);
 		await generator.GenerateAll(ctx);
+		return context.Collector.Errors > 1 ? 1 : 0;
 	}
 
 	/// <summary>
@@ -70,7 +74,7 @@ internal class Commands(ILoggerFactory logger, ICoreService githubActionsService
 	[Command("")]
 	[ConsoleAppFilter<StopwatchFilter>]
 	[ConsoleAppFilter<CatchExceptionFilter>]
-	public async Task GenerateDefault(
+	public async Task<int> GenerateDefault(
 		string? path = null,
 		string? output = null,
 		string? pathPrefix = null,

@@ -2,6 +2,7 @@
 // Elasticsearch B.V licenses this file to you under the Apache 2.0 License.
 // See the LICENSE file in the project root for more information
 using System.IO.Abstractions.TestingHelpers;
+using Elastic.Markdown.Diagnostics;
 using Elastic.Markdown.IO;
 using Elastic.Markdown.Myst;
 using Elastic.Markdown.Myst.Directives;
@@ -50,7 +51,12 @@ public abstract class DirectiveTest : IAsyncLifetime
 
 		var file = FileSystem.FileInfo.New("docs/source/index.md");
 		var root = FileSystem.DirectoryInfo.New(Paths.Root.FullName);
-		var context = new BuildContext { ReadFileSystem = FileSystem, WriteFileSystem = FileSystem };
+		var context = new BuildContext
+		{
+			ReadFileSystem = FileSystem,
+			WriteFileSystem = FileSystem,
+			Collector = new DiagnosticsCollector(logger, [])
+		};
 		var parser = new MarkdownParser(root, context);
 
 		File = new MarkdownFile(file, root, parser, context);

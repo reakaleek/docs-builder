@@ -2,12 +2,16 @@
 // Elasticsearch B.V licenses this file to you under the Apache 2.0 License.
 // See the LICENSE file in the project root for more information
 using System.IO.Abstractions;
+using Elastic.Markdown.Diagnostics;
 
 namespace Elastic.Markdown;
 
 public record BuildContext
 {
-	private readonly string? _urlPathPrefix;
+	public required IFileSystem ReadFileSystem { get; init; }
+	public required IFileSystem WriteFileSystem { get; init; }
+	public required DiagnosticsCollector Collector { get; init; }
+
 	public bool Force { get; init; }
 
 	public string? UrlPathPrefix
@@ -16,6 +20,6 @@ public record BuildContext
 		init => _urlPathPrefix = value;
 	}
 
-	public required IFileSystem ReadFileSystem { get; init; }
-	public required IFileSystem WriteFileSystem { get; init; }
+	private readonly string? _urlPathPrefix;
+
 }

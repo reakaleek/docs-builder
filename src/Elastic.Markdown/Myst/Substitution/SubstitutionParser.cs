@@ -5,6 +5,7 @@ using System.Buffers;
 using System.Diagnostics;
 using System.Net.Mime;
 using System.Runtime.CompilerServices;
+using Elastic.Markdown.Diagnostics;
 using Markdig.Helpers;
 using Markdig.Parsers;
 using Markdig.Renderers;
@@ -153,6 +154,8 @@ public class SubstitutionParser : InlineParser
 			Column = column,
 			DelimiterCount = openSticks
 		};
+		if (!found)
+			processor.EmitError(line + 1, column + 3 , $"Substitution key {{{key}}} is undefined");
 
 		if (processor.TrackTrivia)
 		{

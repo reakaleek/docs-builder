@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
+using Elastic.Markdown.Diagnostics;
 using Elastic.Markdown.IO;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -20,14 +21,18 @@ public class NavigationTests
 		{
 			CurrentDirectory = Paths.Root.FullName
 		});
-
-		var set = new DocumentationSet(readFs);
-
-		set.Files.Should().HaveCountGreaterThan(10);
 		var context = new BuildContext
 		{
-			Force = false, UrlPathPrefix = null, ReadFileSystem = readFs, WriteFileSystem = writeFs
+			Force = false,
+			UrlPathPrefix = null,
+			ReadFileSystem = readFs,
+			WriteFileSystem = writeFs,
+			Collector = new DiagnosticsCollector(logger, [])
 		};
+
+		var set = new DocumentationSet(context);
+
+		set.Files.Should().HaveCountGreaterThan(10);
 		var generator = new DocumentationGenerator(set, context, logger);
 
 		await generator.GenerateAll(default);

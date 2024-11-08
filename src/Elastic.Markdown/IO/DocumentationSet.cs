@@ -4,6 +4,7 @@
 using System.Globalization;
 using System.IO.Abstractions;
 using System.Text.Json;
+using Elastic.Markdown.Diagnostics;
 using Elastic.Markdown.Myst;
 
 namespace Elastic.Markdown.IO;
@@ -19,11 +20,7 @@ public class DocumentationSet
 
 	private MarkdownParser MarkdownParser { get; }
 
-	public DocumentationSet(IFileSystem fileSystem) : this(null, null, new BuildContext
-	{
-		ReadFileSystem = fileSystem,
-		WriteFileSystem =  fileSystem
-	}) { }
+	public DocumentationSet(BuildContext context) : this(null, null, context) { }
 
 	public DocumentationSet(IDirectoryInfo? sourcePath, IDirectoryInfo? outputPath, BuildContext context)
 	{

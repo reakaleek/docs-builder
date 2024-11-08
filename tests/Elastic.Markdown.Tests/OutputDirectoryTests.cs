@@ -2,10 +2,10 @@
 // Elasticsearch B.V licenses this file to you under the Apache 2.0 License.
 // See the LICENSE file in the project root for more information
 using System.IO.Abstractions.TestingHelpers;
+using Elastic.Markdown.Diagnostics;
 using Elastic.Markdown.IO;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
-using Xunit;
 
 namespace Elastic.Markdown.Tests;
 
@@ -22,7 +22,12 @@ public class OutputDirectoryTests
 		{
 			CurrentDirectory = Paths.Root.FullName
 		});
-		var context = new BuildContext { ReadFileSystem = fileSystem, WriteFileSystem = fileSystem };
+		var context = new BuildContext
+		{
+			ReadFileSystem = fileSystem,
+			WriteFileSystem = fileSystem,
+			Collector = new DiagnosticsCollector(logger, [])
+		};
 		var set = new DocumentationSet(null, null, context);
 		var generator = new DocumentationGenerator(set, context, logger);
 

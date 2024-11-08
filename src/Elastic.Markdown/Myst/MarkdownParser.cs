@@ -12,32 +12,6 @@ using Markdig.Syntax;
 
 namespace Elastic.Markdown.Myst;
 
-
-public class ParserContext : MarkdownParserContext
-{
-	public ParserContext(MarkdownParser markdownParser,
-		IFileInfo path,
-		YamlFrontMatter? frontMatter,
-		BuildContext context)
-	{
-		Parser = markdownParser;
-		Path = path;
-		FrontMatter = frontMatter;
-		Build = context;
-
-		if (frontMatter?.Properties is { } props)
-		{
-			foreach (var (key, value) in props)
-				Properties[key] = value;
-		}
-	}
-
-	public MarkdownParser Parser { get; }
-	public IFileInfo Path { get; }
-	public YamlFrontMatter? FrontMatter { get; }
-	public BuildContext Build { get; }
-}
-
 public class MarkdownParser(IDirectoryInfo sourcePath, BuildContext context)
 {
 	public IDirectoryInfo SourcePath { get; } = sourcePath;
@@ -46,6 +20,7 @@ public class MarkdownParser(IDirectoryInfo sourcePath, BuildContext context)
 	public MarkdownPipeline Pipeline =>
 		new MarkdownPipelineBuilder()
 			.EnableTrackTrivia()
+			.UsePreciseSourceLocation()
 			.UseGenericAttributes()
 			.UseEmphasisExtras(EmphasisExtraOptions.Default)
 			.UseSoftlineBreakAsHardlineBreak()

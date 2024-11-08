@@ -2,6 +2,7 @@
 // Elasticsearch B.V licenses this file to you under the Apache 2.0 License.
 // See the LICENSE file in the project root for more information
 using System.IO.Abstractions;
+using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Elastic.Markdown.IO;
@@ -102,6 +103,9 @@ public class DocumentationGenerator
 
 
 		var handledItems = 0;
+
+		var collectTask =  Task.Run(async () => await Context.Collector.StartAsync(ctx), ctx);
+
 		await Parallel.ForEachAsync(DocumentationSet.Files, ctx, async (file, token) =>
 		{
 			if (file.SourceFile.LastWriteTimeUtc <= outputSeenChanges)
@@ -122,6 +126,13 @@ public class DocumentationGenerator
 			if (item % 1_000 == 0)
 				_logger.LogInformation($"Handled {handledItems} files");
 		});
+		Context.Collector.Channel.TryComplete();
+
+		await GenerateDocumentationState(ctx);
+
+		await collectTask;
+		await Context.Collector.StopAsync(ctx);
+
 
 		IFileInfo OutputFile(string relativePath)
 		{
@@ -129,12 +140,15 @@ public class DocumentationGenerator
 			return outputFile;
 		}
 
+	}
+
+	private async Task GenerateDocumentationState(Cancel ctx)
+	{
 		var stateFile = DocumentationSet.OutputStateFile;
 		_logger.LogInformation($"Writing documentation state {DocumentationSet.LastWrite} to {stateFile.FullName}");
 		var state = new OutputState { LastSeenChanges = DocumentationSet.LastWrite };
 		var bytes = JsonSerializer.SerializeToUtf8Bytes(state, SourceGenerationContext.Default.OutputState);
 		await DocumentationSet.OutputPath.FileSystem.File.WriteAllBytesAsync(stateFile.FullName, bytes, ctx);
-
 	}
 
 	private async Task CopyFileFsAware(DocumentationFile file, IFileInfo outputFile, Cancel ctx)
