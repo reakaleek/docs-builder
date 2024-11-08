@@ -131,6 +131,7 @@ public class DocumentationGenerator
 		await GenerateDocumentationState(ctx);
 
 		await collectTask;
+		await Context.Collector.Channel.Reader.Completion;
 		await Context.Collector.StopAsync(ctx);
 
 

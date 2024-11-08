@@ -56,7 +56,7 @@ internal class Commands(ILoggerFactory logger, ICoreService githubActionsService
 			Force = force ?? false,
 			ReadFileSystem = fileSystem,
 			WriteFileSystem = fileSystem,
-			Collector = new ConsoleDiagnosticsCollector(logger)
+			Collector = new ConsoleDiagnosticsCollector(logger, githubActionsService)
 		};
 		var generator = DocumentationGenerator.Create(path, output, context, logger);
 		await generator.GenerateAll(ctx);

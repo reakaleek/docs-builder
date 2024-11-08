@@ -155,7 +155,7 @@ public class SubstitutionParser : InlineParser
 			DelimiterCount = openSticks
 		};
 		if (!found)
-			processor.EmitError(line + 1, column + 3 , $"Substitution key {{{key}}} is undefined");
+			processor.EmitError(line + 1, column + 3, substitutionLeaf.Span.Length - 3, $"Substitution key {{{key}}} is undefined");
 
 		if (processor.TrackTrivia)
 		{

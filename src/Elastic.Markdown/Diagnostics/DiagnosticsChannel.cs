@@ -42,7 +42,8 @@ public readonly record struct Diagnostic
 {
 	public Severity Severity { get; init; }
 	public int Line { get; init; }
-	public int? Position { get; init; }
+	public int? Column { get; init; }
+	public int? Length { get; init; }
 	public string File { get; init; }
 	public string Message { get; init; }
 }
