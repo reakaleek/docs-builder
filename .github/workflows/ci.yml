@@ -42,7 +42,7 @@ jobs:
         id: pages
         uses: actions/configure-pages@v5.0.0
       - name: Build documentation
-        uses: "elastic/docs-builder@main"
+        uses: Mpdreamz/docset-builder@main
         with:
           prefix: ${{ steps.repo-basename.outputs.value }}
       - name: Upload artifact
