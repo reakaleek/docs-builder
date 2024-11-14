@@ -17,6 +17,7 @@ env:
 
 jobs:
   deploy:
+    if: ${{ github.repository != 'elastic/docs-builder' }}
     runs-on: ubuntu-latest
     permissions:
       pages: write
