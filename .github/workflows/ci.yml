@@ -32,9 +32,6 @@ jobs:
       name: github-pages
       url: ${{steps.deployment.outputs.page_url}}
     steps:
-      - id: repo-basename
-        shell: bash
-        run: 'echo "value=`basename ${{ github.repository }}`" >> $GITHUB_OUTPUT'
       - uses: actions/checkout@v4
       - name: Setup Pages
         id: pages
@@ -42,7 +39,7 @@ jobs:
       - name: Build documentation
         uses: Mpdreamz/docset-builder@main
         with:
-          prefix: ${{ steps.repo-basename.outputs.value }}
+          prefix: 'docset-builder'
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3.0.1
         with:
