@@ -13,7 +13,7 @@ permissions:
 
 env:
   NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
-  IMAGE_NAME: elastic/docs-builder
+  IMAGE_NAME: ${{ github.repository }}
   BASE_IMAGE: mcr.microsoft.com/dotnet/nightly/runtime-deps:8.0-jammy-chiseled-aot
   DOCKER_TAG: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags') && 'latest;edge' || 'edge' }}
 
