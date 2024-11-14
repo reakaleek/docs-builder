@@ -33,14 +33,19 @@ jobs:
       name: github-pages
       url: ${{steps.deployment.outputs.page_url}}
     steps:
+      - # Output setting example
+      - id: repo-basename
+        run: |
+          echo "value=`basename ${{ github.repository }}`" >> $GITHUB_OUTPUT
+      - shell: bash
       - uses: actions/checkout@v4
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5.0.0
       - name: Build documentation
-        uses: elastic/docs-builder@main
+        uses: ${{ github.repository }}@main
         with:
-          prefix: "docs-builder"
+          prefix: ${{ steps.repo-basename.outputs.value }}
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3.0.1
         with:
