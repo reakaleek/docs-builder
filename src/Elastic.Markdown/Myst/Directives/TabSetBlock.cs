@@ -1,8 +1,6 @@
 // Licensed to Elasticsearch B.V under one or more agreements.
 // Elasticsearch B.V licenses this file to you under the Apache 2.0 License.
 // See the LICENSE file in the project root for more information
-using System.Xml;
-using System.Xml.Xsl;
 
 namespace Elastic.Markdown.Myst.Directives;
 
@@ -26,17 +24,26 @@ public class TabSetBlock(DirectiveBlockParser parser, Dictionary<string, string>
 public class TabItemBlock(DirectiveBlockParser parser, Dictionary<string, string> properties)
 	: DirectiveBlock(parser, properties)
 {
-	public override string Directive => "tab-set-item";
+	public override string Directive => "tab-item";
 
-	public string Title { get; set; } = default!;
-	public int Index { get; set; }
-	public int TabSetIndex { get; set; }
+	public string Title { get; private set; } = default!;
+	public int Index { get; private set; }
+	public int TabSetIndex { get; private set; }
+
+	public string? SyncKey { get; private set; }
+	public bool Selected { get; private set; }
 
 	public override void FinalizeAndValidate(ParserContext context)
 	{
-		Title = Arguments ?? "Unnamed Tab";
+		if (string.IsNullOrWhiteSpace(Arguments))
+			EmitError(context, "{tab-item} requires an argument to name the tab.");
+
+		Title = Arguments ?? "{undefined}";
 		Index = Parent!.IndexOf(this);
 		TabSetIndex = Parent is TabSetBlock tb ? tb.FindIndex() : -1;
+
+		SyncKey = Prop("sync");
+		Selected = PropBool("selected");
 	}
 
 }
