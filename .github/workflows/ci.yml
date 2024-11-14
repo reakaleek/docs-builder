@@ -33,7 +33,6 @@ jobs:
       name: github-pages
       url: ${{steps.deployment.outputs.page_url}}
     steps:
-      - # Output setting example
       - id: repo-basename
         run: |
           echo "value=`basename ${{ github.repository }}`" >> $GITHUB_OUTPUT
