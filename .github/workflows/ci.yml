@@ -42,7 +42,7 @@ jobs:
         id: pages
         uses: actions/configure-pages@v5.0.0
       - name: Build documentation
-        uses: ${{ github.repository }}@main
+        uses: "elastic/docs-builder@main"
         with:
           prefix: ${{ steps.repo-basename.outputs.value }}
       - name: Upload artifact
