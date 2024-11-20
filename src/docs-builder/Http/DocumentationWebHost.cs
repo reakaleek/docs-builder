@@ -1,5 +1,10 @@
+// Licensed to Elasticsearch B.V under one or more agreements.
+// Elasticsearch B.V licenses this file to you under the Apache 2.0 License.
+// See the LICENSE file in the project root for more information
 using System.IO.Abstractions;
+using Documentation.Builder.Diagnostics;
 using Elastic.Markdown;
+using Elastic.Markdown.Diagnostics;
 using Elastic.Markdown.IO;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -21,10 +26,14 @@ public class DocumentationWebHost
 	{
 		var builder = WebApplication.CreateSlimBuilder();
 		var sourcePath = path != null ? fileSystem.DirectoryInfo.New(path) : null;
-		var context = new BuildContext { ReadFileSystem = fileSystem, WriteFileSystem = fileSystem };
+		var context = new BuildContext(fileSystem)
+		{
+			Collector = new ConsoleDiagnosticsCollector(logger)
+		};
 		builder.Services.AddSingleton<ReloadableGeneratorState>(_ => new ReloadableGeneratorState(sourcePath, null, context, logger));
 		builder.Services.AddHostedService<ReloadGeneratorService>();
 		builder.Services.AddSingleton(logger);
+		builder.Logging.SetMinimumLevel(LogLevel.Warning);
 
 		_webApplication = builder.Build();
 		SetUpRoutes();
@@ -41,11 +50,11 @@ public class DocumentationWebHost
 		});
 		_webApplication.UseRouting();
 
-		_webApplication.MapGet("/", async (ReloadableGeneratorState holder, Cancel ctx) =>
-			await ServeDocumentationFile(holder, "index.md", ctx));
+		_webApplication.MapGet("/", (ReloadableGeneratorState holder, Cancel ctx) =>
+			ServeDocumentationFile(holder, "index.md", ctx));
 
-		_webApplication.MapGet("{**slug}", async (string slug, ReloadableGeneratorState holder, Cancel ctx) =>
-			await ServeDocumentationFile(holder, slug, ctx));
+		_webApplication.MapGet("{**slug}", (string slug, ReloadableGeneratorState holder, Cancel ctx) =>
+			ServeDocumentationFile(holder, slug, ctx));
 	}
 
 	private static async Task<IResult> ServeDocumentationFile(ReloadableGeneratorState holder, string slug, Cancel ctx)
@@ -59,7 +68,7 @@ public class DocumentationWebHost
 		{
 			case MarkdownFile markdown:
 			{
-				await markdown.ParseAsync(ctx);
+				await markdown.ParseFullAsync(ctx);
 				var rendered = await generator.RenderLayout(markdown, ctx);
 				return Results.Content(rendered, "text/html");
 			}

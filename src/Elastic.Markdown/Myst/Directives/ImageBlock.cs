@@ -1,8 +1,13 @@
+// Licensed to Elasticsearch B.V under one or more agreements.
+// Elasticsearch B.V licenses this file to you under the Apache 2.0 License.
+// See the LICENSE file in the project root for more information
 namespace Elastic.Markdown.Myst.Directives;
 
 public class ImageBlock(DirectiveBlockParser parser, Dictionary<string, string> properties, ParserContext context)
 	: DirectiveBlock(parser, properties)
 {
+	public override string Directive => "image";
+
 	public BuildContext Build { get; } = context.Build;
 
 	/// <summary>
@@ -41,29 +46,55 @@ public class ImageBlock(DirectiveBlockParser parser, Dictionary<string, string> 
 	/// </summary>
 	public string? Target { get; set; }
 
-	/// <summary>
-	/// A space-separated list of CSS classes to add to the image.
-	/// </summary>
-	public string? Classes { get; protected set; }
+	public string? ImageUrl { get; private set; }
 
-	/// <summary>
-	/// A reference target for the admonition (see cross-referencing).
-	/// </summary>
-	public string? CrossReferenceName  { get; private set; }
+	public bool Found { get; private set; }
 
-	public string ImageUrl { get; private set; } = default!;
+	public string? Label { get; private set; }
 
-	public override void FinalizeAndValidate()
+	public override void FinalizeAndValidate(ParserContext context)
 	{
-		ImageUrl = Arguments ?? string.Empty; //todo validate
-		Classes = Properties.GetValueOrDefault("class");
-		CrossReferenceName = Properties.GetValueOrDefault("name");
-		Alt = Properties.GetValueOrDefault("alt");
-		Height = Properties.GetValueOrDefault("height");
-		Width = Properties.GetValueOrDefault("width");
-		Scale = Properties.GetValueOrDefault("scale");
-		Align = Properties.GetValueOrDefault("align");
-		Target = Properties.GetValueOrDefault("target");
+		Label = Prop("label", "name");
+		Alt = Prop("alt");
+		Align = Prop("align");
+
+		Height = Prop("height", "h");
+		Width = Prop("width", "w");
+
+		Scale = Prop("scale");
+		Target = Prop("target");
+
+		ExtractImageUrl(context);
+
+	}
+
+	private void ExtractImageUrl(ParserContext context)
+	{
+		var imageUrl = Arguments;
+		if (string.IsNullOrWhiteSpace(imageUrl))
+		{
+			EmitError(context , $"{Directive} requires an argument.");
+			return;
+		}
+
+		if (Uri.TryCreate(imageUrl, UriKind.Absolute, out var uri) && uri.Scheme.StartsWith("http"))
+		{
+			EmitWarning(context, $"{Directive} is using an external URI: {uri} ");
+			Found = true;
+			ImageUrl = imageUrl;
+			return;
+		}
+
+		var includeFrom = context.Path.Directory!.FullName;
+		if (imageUrl.StartsWith('/'))
+			includeFrom = context.Parser.SourcePath.FullName;
+
+		ImageUrl = imageUrl;
+		var imagePath = Path.Combine(includeFrom, imageUrl.TrimStart('/'));
+		if (context.Build.ReadFileSystem.File.Exists(imagePath))
+			Found = true;
+		else
+			EmitError(context, $"`{imageUrl}` does not exist. resolved to `{imagePath}");
 	}
 }
 

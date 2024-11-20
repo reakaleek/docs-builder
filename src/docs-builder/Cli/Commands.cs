@@ -1,8 +1,14 @@
+// Licensed to Elasticsearch B.V under one or more agreements.
+// Elasticsearch B.V licenses this file to you under the Apache 2.0 License.
+// See the LICENSE file in the project root for more information
 using System.IO.Abstractions;
 using Actions.Core.Services;
 using ConsoleAppFramework;
+using Documentation.Builder.Diagnostics;
 using Documentation.Builder.Http;
 using Elastic.Markdown;
+using Elastic.Markdown.Diagnostics;
+using Elastic.Markdown.IO;
 using Microsoft.Extensions.Logging;
 
 namespace Documentation.Builder.Cli;
@@ -35,7 +41,7 @@ internal class Commands(ILoggerFactory logger, ICoreService githubActionsService
 	[Command("generate")]
 	[ConsoleAppFilter<StopwatchFilter>]
 	[ConsoleAppFilter<CatchExceptionFilter>]
-	public async Task Generate(
+	public async Task<int> Generate(
 		string? path = null,
 		string? output = null,
 		string? pathPrefix = null,
@@ -45,15 +51,16 @@ internal class Commands(ILoggerFactory logger, ICoreService githubActionsService
 	{
 		pathPrefix ??= githubActionsService.GetInput("prefix");
 		var fileSystem = new FileSystem();
-		var context = new BuildContext
+		var context = new BuildContext(fileSystem, fileSystem, path, output)
 		{
 			UrlPathPrefix = pathPrefix,
 			Force = force ?? false,
-			ReadFileSystem = fileSystem,
-			WriteFileSystem = fileSystem
+			Collector = new ConsoleDiagnosticsCollector(logger, githubActionsService)
 		};
-		var generator = DocumentationGenerator.Create(path, output, context, logger);
+		var set = new DocumentationSet(context);
+		var generator = new DocumentationGenerator(set, logger);
 		await generator.GenerateAll(ctx);
+		return context.Collector.Errors > 1 ? 1 : 0;
 	}
 
 	/// <summary>
@@ -67,7 +74,7 @@ internal class Commands(ILoggerFactory logger, ICoreService githubActionsService
 	[Command("")]
 	[ConsoleAppFilter<StopwatchFilter>]
 	[ConsoleAppFilter<CatchExceptionFilter>]
-	public async Task GenerateDefault(
+	public async Task<int> GenerateDefault(
 		string? path = null,
 		string? output = null,
 		string? pathPrefix = null,

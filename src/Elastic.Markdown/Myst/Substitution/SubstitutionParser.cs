@@ -1,7 +1,11 @@
+// Licensed to Elasticsearch B.V under one or more agreements.
+// Elasticsearch B.V licenses this file to you under the Apache 2.0 License.
+// See the LICENSE file in the project root for more information
 using System.Buffers;
 using System.Diagnostics;
 using System.Net.Mime;
 using System.Runtime.CompilerServices;
+using Elastic.Markdown.Diagnostics;
 using Markdig.Helpers;
 using Markdig.Parsers;
 using Markdig.Renderers;
@@ -150,6 +154,8 @@ public class SubstitutionParser : InlineParser
 			Column = column,
 			DelimiterCount = openSticks
 		};
+		if (!found)
+			processor.EmitError(line + 1, column + 3, substitutionLeaf.Span.Length - 3, $"Substitution key {{{key}}} is undefined");
 
 		if (processor.TrackTrivia)
 		{

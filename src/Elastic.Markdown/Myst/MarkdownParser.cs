@@ -1,7 +1,13 @@
+// Licensed to Elasticsearch B.V under one or more agreements.
+// Elasticsearch B.V licenses this file to you under the Apache 2.0 License.
+// See the LICENSE file in the project root for more information
+
 using System.IO.Abstractions;
 using Cysharp.IO;
+using Elastic.Markdown.IO;
 using Elastic.Markdown.Myst.Comments;
 using Elastic.Markdown.Myst.Directives;
+using Elastic.Markdown.Myst.InlineParsers;
 using Elastic.Markdown.Myst.Substitution;
 using Markdig;
 using Markdig.Extensions.EmphasisExtras;
@@ -9,40 +15,29 @@ using Markdig.Syntax;
 
 namespace Elastic.Markdown.Myst;
 
-
-public class ParserContext : MarkdownParserContext
-{
-	public ParserContext(MarkdownParser markdownParser,
-		IFileInfo path,
-		YamlFrontMatter? frontMatter,
-		BuildContext context)
-	{
-		Parser = markdownParser;
-		Path = path;
-		FrontMatter = frontMatter;
-		Build = context;
-
-		if (frontMatter?.Properties is { } props)
-		{
-			foreach (var (key, value) in props)
-				Properties[key] = value;
-		}
-	}
-
-	public MarkdownParser Parser { get; }
-	public IFileInfo Path { get; }
-	public YamlFrontMatter? FrontMatter { get; }
-	public BuildContext Build { get; }
-}
-
-public class MarkdownParser(IDirectoryInfo sourcePath, BuildContext context)
+public class MarkdownParser(
+	IDirectoryInfo sourcePath,
+	BuildContext context,
+	Func<IFileInfo, MarkdownFile?>? getMarkdownFile,
+	ConfigurationFile configuration)
 {
 	public IDirectoryInfo SourcePath { get; } = sourcePath;
 	public BuildContext Context { get; } = context;
 
+	//TODO directive properties are stateful, rewrite this so we can cache builders
+	public MarkdownPipeline MinimalPipeline =>
+		new MarkdownPipelineBuilder()
+			.UseDiagnosticLinks()
+			.UseYamlFrontMatter()
+			.UseDirectives()
+			.UseSubstitution()
+			.Build();
+
 	public MarkdownPipeline Pipeline =>
 		new MarkdownPipelineBuilder()
 			.EnableTrackTrivia()
+			.UsePreciseSourceLocation()
+			.UseDiagnosticLinks()
 			.UseGenericAttributes()
 			.UseEmphasisExtras(EmphasisExtraOptions.Default)
 			.UseSoftlineBreakAsHardlineBreak()
@@ -52,36 +47,47 @@ public class MarkdownParser(IDirectoryInfo sourcePath, BuildContext context)
 			.UseGridTables()
 			.UsePipeTables()
 			.UseDirectives()
+			.DisableHtml()
 			.Build();
 
 
-	// TODO only scan for yaml front matter and toc information
-	public Task<MarkdownDocument> QuickParseAsync(IFileInfo path, Cancel ctx)
+	public Task<MarkdownDocument> MinimalParseAsync(IFileInfo path, Cancel ctx)
 	{
-		var context = new ParserContext(this, path, null, Context);
-		return ParseAsync(path, context, ctx);
+		var context = new ParserContext(this, path, null, Context, configuration)
+		{
+			SkipValidation = true,
+			GetMarkdownFile = getMarkdownFile
+		};
+		return ParseAsync(path, context, MinimalPipeline, ctx);
 	}
 
 	public Task<MarkdownDocument> ParseAsync(IFileInfo path, YamlFrontMatter? matter, Cancel ctx)
 	{
-		var context = new ParserContext(this, path, matter, Context);
-		return ParseAsync(path, context, ctx);
+		var context = new ParserContext(this, path, matter, Context, configuration)
+		{
+			GetMarkdownFile = getMarkdownFile
+		};
+		return ParseAsync(path, context, Pipeline, ctx);
 	}
 
-	private async Task<MarkdownDocument> ParseAsync(IFileInfo path, MarkdownParserContext context, Cancel ctx)
+	private async Task<MarkdownDocument> ParseAsync(
+		IFileInfo path,
+		MarkdownParserContext context,
+		MarkdownPipeline pipeline,
+		Cancel ctx)
 	{
 		if (path.FileSystem is FileSystem)
 		{
 			//real IO optimize through UTF8 stream reader.
 			await using var streamReader = new Utf8StreamReader(path.FullName, fileOpenMode: FileOpenMode.Throughput);
 			var inputMarkdown = await streamReader.AsTextReader().ReadToEndAsync(ctx);
-			var markdownDocument = Markdig.Markdown.Parse(inputMarkdown, Pipeline, context);
+			var markdownDocument = Markdig.Markdown.Parse(inputMarkdown, pipeline, context);
 			return markdownDocument;
 		}
 		else
 		{
 			var inputMarkdown = await path.FileSystem.File.ReadAllTextAsync(path.FullName, ctx);
-			var markdownDocument = Markdig.Markdown.Parse(inputMarkdown, Pipeline, context);
+			var markdownDocument = Markdig.Markdown.Parse(inputMarkdown, pipeline, context);
 			return markdownDocument;
 		}
 	}

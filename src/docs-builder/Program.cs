@@ -1,6 +1,11 @@
+// Licensed to Elasticsearch B.V under one or more agreements.
+// Elasticsearch B.V licenses this file to you under the Apache 2.0 License.
+// See the LICENSE file in the project root for more information
+
 using Actions.Core.Extensions;
 using ConsoleAppFramework;
 using Documentation.Builder.Cli;
+using Elastic.Markdown.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -17,9 +22,11 @@ services.AddLogging(x =>
 		c.SingleLine = true;
 		c.IncludeScopes = true;
 		c.UseUtcTimestamp = true;
-		c.TimestampFormat = "[yyyy-MM-ddTHH:mm:ss] ";
+		c.TimestampFormat = Environment.UserInteractive ? ":: " : "[yyyy-MM-ddTHH:mm:ss] ";
 	});
 });
+services.AddSingleton<DiagnosticsChannel>();
+services.AddSingleton<DiagnosticsCollector>();
 
 await using var serviceProvider = services.BuildServiceProvider();
 var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
@@ -31,4 +38,4 @@ ConsoleApp.LogError = msg => logger.LogError(msg);
 var app = ConsoleApp.Create();
 app.Add<Commands>();
 
-await app.RunAsync(arguments.Args);
+await app.RunAsync(arguments.Args).ConfigureAwait(false);

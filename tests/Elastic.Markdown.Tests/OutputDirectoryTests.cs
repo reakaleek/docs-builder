@@ -1,17 +1,21 @@
+// Licensed to Elasticsearch B.V under one or more agreements.
+// Elasticsearch B.V licenses this file to you under the Apache 2.0 License.
+// See the LICENSE file in the project root for more information
 using System.IO.Abstractions.TestingHelpers;
+using Elastic.Markdown.Diagnostics;
 using Elastic.Markdown.IO;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
-using Xunit;
+using Xunit.Abstractions;
 
 namespace Elastic.Markdown.Tests;
 
-public class OutputDirectoryTests
+public class OutputDirectoryTests(ITestOutputHelper output)
 {
 	[Fact]
 	public async Task CreatesDefaultOutputDirectory()
 	{
-		var logger = NullLoggerFactory.Instance;
+		var logger = new TestLoggerFactory(output);
 		var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
 		{
 			{ "docs/source/index.md", new MockFileData("test") }
@@ -19,9 +23,12 @@ public class OutputDirectoryTests
 		{
 			CurrentDirectory = Paths.Root.FullName
 		});
-		var context = new BuildContext { ReadFileSystem = fileSystem, WriteFileSystem = fileSystem };
-		var set = new DocumentationSet(null, null, context);
-		var generator = new DocumentationGenerator(set, context, logger);
+		var context = new BuildContext(fileSystem)
+		{
+			Collector = new DiagnosticsCollector(logger, [])
+		};
+		var set = new DocumentationSet(context);
+		var generator = new DocumentationGenerator(set, logger);
 
 		await generator.GenerateAll(default);
 

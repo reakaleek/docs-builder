@@ -1,7 +1,11 @@
+// Licensed to Elasticsearch B.V under one or more agreements.
+// Elasticsearch B.V licenses this file to you under the Apache 2.0 License.
+// See the LICENSE file in the project root for more information
 // Copyright (c) Alexandre Mutel. All rights reserved.
 // This file is licensed under the BSD-Clause 2 license.
 // See the license.txt file in the project root for more information.
 
+using Elastic.Markdown.Diagnostics;
 using Markdig.Helpers;
 using Markdig.Syntax;
 
@@ -21,8 +25,9 @@ namespace Elastic.Markdown.Myst.Directives;
 public abstract class DirectiveBlock(DirectiveBlockParser parser, Dictionary<string, string> properties)
 	: ContainerBlock(parser), IFencedBlock
 {
-
 	public IReadOnlyDictionary<string, string> Properties { get; } = properties;
+
+	public string? CrossReferenceName  { get; protected set; }
 
 	/// <inheritdoc />
 	public char FencedChar { get; set; }
@@ -63,20 +68,36 @@ public abstract class DirectiveBlock(DirectiveBlockParser parser, Dictionary<str
     /// <summary>
     /// Allows blocks to finalize setting properties once fully parsed
     /// </summary>
-    public abstract void FinalizeAndValidate();
+    /// <param name="context"></param>
+    public abstract void FinalizeAndValidate(ParserContext context);
 
-	protected void ParseBool(string key, Action<bool> setter)
+	protected bool PropBool(params string[] keys)
 	{
-		var value = Properties.GetValueOrDefault(key);
+		var value = Prop(keys);
 		if (string.IsNullOrEmpty(value))
+			return keys.Any(k => Properties.ContainsKey(k));
+
+		return bool.TryParse(value, out var result) && result;
+	}
+
+	protected string? Prop(params string[] keys)
+	{
+		foreach (var key in keys)
 		{
-			setter(Properties.ContainsKey(key));
-			return;
+			if (Properties.TryGetValue(key, out var value))
+				return value;
 		}
 
-		if (bool.TryParse(value, out var result))
-			setter(result);
-		//todo invalidate
+		return default;
 	}
+
+	public abstract string Directive { get; }
+
+	protected void EmitError(ParserContext context, string message) =>
+		context.EmitError(Line + 1, 1, Directive.Length + 4 , message);
+
+	protected void EmitWarning(ParserContext context, string message) =>
+		context.EmitWarning(Line + 1, 1, Directive.Length + 4 , message);
+
 
 }

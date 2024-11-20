@@ -1,3 +1,6 @@
+// Licensed to Elasticsearch B.V under one or more agreements.
+// Elasticsearch B.V licenses this file to you under the Apache 2.0 License.
+// See the LICENSE file in the project root for more information
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -18,15 +21,16 @@ public class ReloadGeneratorService(
 	{
 		await ReloadableGenerator.ReloadAsync(ctx);
 
-		var watcher = new FileSystemWatcher(ReloadableGenerator.Generator.DocumentationSet.SourcePath.FullName);
-
-		watcher.NotifyFilter = NotifyFilters.Attributes
-		                       | NotifyFilters.CreationTime
-		                       | NotifyFilters.DirectoryName
-		                       | NotifyFilters.FileName
-		                       | NotifyFilters.LastWrite
-		                       | NotifyFilters.Security
-		                       | NotifyFilters.Size;
+		var watcher = new FileSystemWatcher(ReloadableGenerator.Generator.DocumentationSet.SourcePath.FullName)
+		{
+			NotifyFilter = NotifyFilters.Attributes
+							   | NotifyFilters.CreationTime
+							   | NotifyFilters.DirectoryName
+							   | NotifyFilters.FileName
+							   | NotifyFilters.LastWrite
+							   | NotifyFilters.Security
+							   | NotifyFilters.Size
+		};
 
 		watcher.Changed += OnChanged;
 		watcher.Created += OnCreated;
@@ -34,7 +38,8 @@ public class ReloadGeneratorService(
 		watcher.Renamed += OnRenamed;
 		watcher.Error += OnError;
 
-		watcher.Filter = "*.md";
+		watcher.Filters.Add("*.md");
+		watcher.Filters.Add("docset.yml");
 		watcher.IncludeSubdirectories = true;
 		watcher.EnableRaisingEvents = true;
 		_watcher = watcher;
@@ -59,7 +64,7 @@ public class ReloadGeneratorService(
 		if (e.ChangeType != WatcherChangeTypes.Changed)
 			return;
 
-		if (e.FullPath.EndsWith("index.md"))
+		if (e.FullPath.EndsWith("docset.yml"))
 			Reload();
 
 		Logger.LogInformation($"Changed: {e.FullPath}");
