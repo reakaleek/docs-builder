@@ -77,10 +77,10 @@ public class DiagnosticsCollector(ILoggerFactory loggerFactory, IReadOnlyCollect
 
 	public DiagnosticsChannel Channel { get; } = new();
 
-	private long _errors;
-	private long _warnings;
-	public long Warnings => _warnings;
-	public long Errors => _errors;
+	private int _errors;
+	private int _warnings;
+	public int Warnings => _warnings;
+	public int Errors => _errors;
 
 	private Task? _started;
 
