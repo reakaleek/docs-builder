@@ -9,7 +9,25 @@ This repository is host to:
 * `elastic/docs-builder@main` Github Action to build and validate a repositories documentation
 
 
-### Docs Builder
+## Command line interface
+
+```
+$ docs-builder --help
+Usage: [command] [options...] [-h|--help] [--version]
+
+Converts a source markdown folder or file to an output folder
+
+Options:
+  -p|--path <string?>        Defaults to the`{pwd}/docs` folder (Default: null)
+  -o|--output <string?>      Defaults to `.artifacts/html` (Default: null)
+  --path-prefix <string?>    Specifies the path prefix for urls (Default: null)
+  --force <bool?>            Force a full rebuild of the destination folder (Default: null)
+
+Commands:
+  generate    Converts a source markdown folder or file to an output folder
+  serve       Continuously serve a documentation folder at http://localhost:5000.
+	File systems changes will be reflected without having to restart the server.
+```
 
 In the near term native code will be published by CI for the following platforms
 
@@ -51,7 +69,67 @@ docker run -v "./.git:/app/.git" -v "./docs:/app/docs" -v "./.artifacts:/app/.ar
 Each page is compiled on demand as you browse http://localhost:8080 and is never cached so changes to files and 
 navigation will always be reflected upon refresh.
 
-# Run without docker
+Note the docker image is `linux-x86` and will be somewhat slower to invoke on OSX due to virtualization.
+
+
+## Github Action
+
+The `docs-builder` tool is available as github action. 
+
+Since it runs from a precompiled distroless image `~25mb` it's able to execute snappy. (no need to wait for building the tool itself)
+
+
+```yaml
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build documentation
+        uses: elastic/docs-builder@main
+```
+
+
+
+### GitHub Pages
+
+To setup the tool to publish to GitHub pages use the following configuration.  
+**NOTE**: In the near feature we'll make this a dedicated single step Github ction 
+
+```yaml
+steps:
+  - id: repo-basename
+    run: 'echo "value=`basename ${{ github.repository }}`" >> $GITHUB_OUTPUT'
+  - uses: actions/checkout@v4
+  - name: Setup Pages
+    id: pages
+    uses: actions/configure-pages@v5.0.0
+  - name: Build documentation
+    uses: elastic/docs-builder@main
+    with:
+      prefix: '${{ steps.repo-basename.outputs.value }}'
+  - name: Upload artifact
+    uses: actions/upload-pages-artifact@v3.0.1
+    with:
+      path: .artifacts/docs/html
+      
+  - name: Deploy artifact
+    id: deployment
+    uses: actions/deploy-pages@v4.0.5 
+```
+
+Note `prefix:` is required to inject the appropiate `--path-prefix` argument to `docs-builder`
+
+Also make sure your repository settings are set up to deploy from github actions see:
+
+https://github.com/elastic/{your-repository}/settings/pages
+
+---
+![docs/source/_static/img/github-pages.png](docs/source/_static/img/github-pages.png)
+
+---
+
+## Run without docker
 
 If you have dotnet 8 installed you can use its CLI to publish a self-contained `docs-builder` native code
 binary. (On my M2 Pro mac the binary is currently 13mb)
