@@ -1,50 +1,57 @@
-# POC doc set builder. 
+# docs-builder. 
+
+You've reached the home of the latest incarnation of the documentation tooling. 
+
+This repository is host to:
+
+* *`docs-builder`* command line tool to generate single doc-sets (13mb native code, no dependencies)
+* *`docs-assembler`* command line tool to assemble all the doc sets. (IN PROGRESS)
+* `elastic/docs-builder@main` Github Action to build and validate a repositories documentation
 
 
-Use `./run.sh` to build and run the `./docs-builder` application without installing any dependencies locally.
+### Docs Builder
 
+In the near term native code will be published by CI for the following platforms
 
-## Continuous serve documentation live
+| OS       | Architectures |
+|----------|---------------|
+| Windows	 | x64, Arm64    |
+| Linux	   | x64, Arm64    |
+| macOS    | 	x64, Arm64   |
 
-```bash
-$ ./run.sh serve
-```
+And we'll invest time in making sure these are easily obtainable (`brew`, `winget`, `apt`)
 
-- Loads the documentation source (by default [`docs/source`](docs/source))
-- Serves the docs at http://localhost:8080
-- Reacts to changes e.g:
-  - changing toctree, removing/adding files will cause the site tree to be reconstructed (background)
-  - markdown content itself is always parsed and converted
-
-If https://github.com/elastic/markitpy-poc is cloned at `../markitpy-poc` relative to this `README.md` it is automatically 
-mounted by `run.sh`
-
-```bash
-$ ./run.sh serve --path markitpy-poc/docs/source
-```
-
-Will serve the https://github.com/elastic/markitpy-poc docset at http://localhost:8080
-
-## Convert to html
+For now you can run the tool locally through `docker run`
 
 ```bash
-$ ./run.sh generate
+docker run -v "./.git:/app/.git" -v "./docs:/app/docs" -v "./.artifacts:/app/.artifacts" \
+  ghcr.io/elastic/docs-builder:edge
 ```
 
-- Converts documents (by default [`docs/source`](docs/source))
-- Outputs HTML to `.artifacts/docs/html/` this path is mounted in docker so can be inspected locally
+This ensures `.git`/`docs` and `.artifacts` (the default output directory) are mounted.
 
-Likewise as with `serve` if `..markitpy-poc` is available its auto mounted and can be used to generate HTML.
+The tool will default to incremental compilation. 
+Only the changed files on subsequent runs will be compiled unless you pass `--force`
+to force a new compilation.
 
 ```bash
-$ ./run.sh generate --path markitpy-poc/docs/source
+docker run -v "./.git:/app/.git" -v "./docs:/app/docs" -v "./.artifacts:/app/.artifacts" \
+  ghcr.io/elastic/docs-builder:edge --force
 ```
 
-DO NOTE that the container might not be best served to test performance. 
+#### Live mode
 
-E.g simply enumerating the files takes 3x as long as generating with locally build binary.
+Through the `serve` command you can continuously and partially compile your documentation.
 
-# Build without docker
+```bash
+docker run -v "./.git:/app/.git" -v "./docs:/app/docs" -v "./.artifacts:/app/.artifacts" \
+  --expose 8080 ghcr.io/elastic/docs-builder:edge serve
+```
+
+Each page is compiled on demand as you browse http://localhost:8080 and is never cached so changes to files and 
+navigation will always be reflected upon refresh.
+
+# Run without docker
 
 If you have dotnet 8 installed you can use its CLI to publish a self-contained `docs-builder` native code
 binary. (On my M2 Pro mac the binary is currently 13mb)
@@ -58,36 +65,9 @@ $ dotnet publish "src/docs-builder/docs-builder.csproj" -c Release -o .artifacts
 
 The resulting binary `./.artifacts/publish/docs-builder` will run on machines without .NET installed
 
-Long term native code will be published by CI for the following platforms
-
-| OS       | Architectures |
-|----------|---------------|
-| Windows	 | x64, Arm64    |
-| Linux	   | x64, Arm64    |
-| macOS    | 	x64, Arm64   |
-
-
 # Performance
 
-To test performance its best to build the binary and run the code on physical hardware:
+To test performance it's best to build the binary and run outside of docker:
 
-For refence here's the `markitpy-doc` generation output on my local machine where it takes `14s`
-
-
-```bash
-$ ./.artifacts/publish/docs-builder generate --path ../markitpy-poc/docs/source/
-```
-```text
-:: generate :: Starting
-Fetched documentation set
-Resolving tree
-Resolved tree
-Handled 1010 files
-Handled 2013 files
-...TRUNCATED...
-Handled 5007 files
-Handled 56005 files
-Handled 57010 files
-:: generate :: Finished in '00:00:14.9856495
-```
-
+For refence here's the `markitpy-doc` docset (50k markdown files) currently takes `14s` vs `several minutes` compared to 
+existing surveyed tools
