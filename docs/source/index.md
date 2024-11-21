@@ -43,8 +43,7 @@ And we'll invest time in making sure these are easily obtainable (`brew`, `winge
 For now you can run the tool locally through `docker run`
 
 ```bash
-docker run -v "./.git:/app/.git" -v "./docs:/app/docs" -v "./.artifacts:/app/.artifacts" \
-  ghcr.io/elastic/docs-builder:edge
+docker run -v "./.git:/app/.git" -v "./docs:/app/docs" -v "./.artifacts:/app/.artifacts" ghcr.io/elastic/docs-builder:edge
 ```
 
 This ensures `.git`/`docs` and `.artifacts` (the default output directory) are mounted.
@@ -54,8 +53,7 @@ Only the changed files on subsequent runs will be compiled unless you pass `--fo
 to force a new compilation.
 
 ```bash
-docker run -v "./.git:/app/.git" -v "./docs:/app/docs" -v "./.artifacts:/app/.artifacts" \
-  ghcr.io/elastic/docs-builder:edge --force
+docker run -v "./.git:/app/.git" -v "./docs:/app/docs" -v "./.artifacts:/app/.artifacts" ghcr.io/elastic/docs-builder:edge --force
 ```
 
 #### Live mode
@@ -63,8 +61,7 @@ docker run -v "./.git:/app/.git" -v "./docs:/app/docs" -v "./.artifacts:/app/.ar
 Through the `serve` command you can continuously and partially compile your documentation.
 
 ```bash
-docker run -v "./.git:/app/.git" -v "./docs:/app/docs" -v "./.artifacts:/app/.artifacts" \
-  --expose 8080 ghcr.io/elastic/docs-builder:edge serve
+docker run -v "./.git:/app/.git" -v "./docs:/app/docs" -v "./.artifacts:/app/.artifacts" --expose 8080 ghcr.io/elastic/docs-builder:edge serve
 ```
 
 Each page is compiled on demand as you browse http://localhost:8080 and is never cached so changes to files and 
