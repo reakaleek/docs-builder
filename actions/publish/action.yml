@@ -16,7 +16,6 @@ runs:
     - id: repo-basename
       shell: bash
       run: 'echo "value=`basename ${{ github.repository }}`" >> $GITHUB_OUTPUT'
-    - uses: actions/checkout@v4
     - name: Setup Pages
       id: pages
       uses: actions/configure-pages@v5.0.0
