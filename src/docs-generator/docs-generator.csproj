@@ -1,12 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
+  <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <OutputType>Exe</OutputType>
     <AssemblyName>docs-generator</AssemblyName>
     <RootNamespace>Documentation.Generator</RootNamespace>
     <InvariantGlobalization>true</InvariantGlobalization>
-    <PublishAot>true</PublishAot>
+    <PublishAot>false</PublishAot>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
 
     <IsPublishable>true</IsPublishable>
     <EnableSdkContainerSupport>true</EnableSdkContainerSupport>
@@ -23,10 +25,10 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0"/>
     <PackageReference Include="Github.Actions.Core" Version="8.1.1"/>
-    <PackageReference Include="Soenneker.Utils.AutoBogus" Version="2.1.388" />
+    <PackageReference Include="Soenneker.Utils.AutoBogus" Version="2.1.388"/>
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Elastic.Markdown/Elastic.Markdown.csproj" />
+    <ProjectReference Include="../Elastic.Markdown/Elastic.Markdown.csproj"/>
   </ItemGroup>
 </Project>
