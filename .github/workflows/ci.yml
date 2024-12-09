@@ -90,5 +90,4 @@ jobs:
             -p ContainerBaseImage=${{ env.BASE_IMAGE }} \
             -p ContainerRegistry=ghcr.io \
             -p ContainerImageTags='"${{ env.DOCKER_TAG }};${{ steps.bootstrap.outputs.full-version }}"' \
-            -p ContainerRepository=${{ github.repository }} \
-            -p ContainerImageName=docs-generator
+            -p ContainerRepository=elastic/docs-generator \
