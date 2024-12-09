@@ -69,6 +69,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - id: repo-basename
+        run: 'echo "value=`basename ${{ github.repository }}`" >> $GITHUB_OUTPUT'
+
       - name: Publish docs-builder
         run: |
           dotnet publish "src/docs-builder/docs-builder.csproj" \
@@ -78,7 +81,7 @@ jobs:
             -p ContainerBaseImage=${{ env.BASE_IMAGE }} \
             -p ContainerRegistry=ghcr.io \
             -p ContainerImageTags='"${{ env.DOCKER_TAG }};${{ steps.bootstrap.outputs.full-version }}"' \
-            -p ContainerRepository=${{ github.repository }} \
+            -p ContainerRepository=${{ steps.repo-basename.outputs.value }}/docs-builder \
 
       - name: Publish docs-generator
         run: |
@@ -89,4 +92,4 @@ jobs:
             -p ContainerBaseImage=${{ env.BASE_IMAGE }} \
             -p ContainerRegistry=ghcr.io \
             -p ContainerImageTags='"${{ env.DOCKER_TAG }};${{ steps.bootstrap.outputs.full-version }}"' \
-            -p ContainerRepository=${{ github.repository }} \
+            -p ContainerRepository=${{ steps.repo-basename.outputs.value }}/docs-generator \
