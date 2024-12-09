@@ -42,23 +42,29 @@ public record BuildContext
 		ReadFileSystem = readFileSystem;
 		WriteFileSystem = writeFileSystem;
 
-		SourcePath = !string.IsNullOrWhiteSpace(source)
-			? ReadFileSystem.DirectoryInfo.New(source)
-			: ReadFileSystem.DirectoryInfo.New(Path.Combine(Paths.Root.FullName, "docs/source"));
+		var docsFolder = FindDocsFolderFromRoot();
+
+		SourcePath = !string.IsNullOrWhiteSpace(source) ? ReadFileSystem.DirectoryInfo.New(source) : docsFolder;
+
 		OutputPath = !string.IsNullOrWhiteSpace(output)
 			? WriteFileSystem.DirectoryInfo.New(output)
 			: WriteFileSystem.DirectoryInfo.New(Path.Combine(Paths.Root.FullName, ".artifacts/docs/html"));
 
 		ConfigurationPath =
-			SourcePath.EnumerateFiles("docset.yml", SearchOption.AllDirectories).FirstOrDefault()
-		    ?? ReadFileSystem.FileInfo.New(Path.Combine(SourcePath.FullName, "docset.yml"));
+		    ReadFileSystem.FileInfo.New(Path.Combine(SourcePath.FullName, "docset.yml"));
 
 		if (ConfigurationPath.FullName != SourcePath.FullName)
 			SourcePath = ConfigurationPath.Directory!;
 
 		Git = GitConfiguration.Create(ReadFileSystem);
+	}
 
-
+	private IDirectoryInfo FindDocsFolderFromRoot()
+	{
+		var defaultDocsFolder = ReadFileSystem.DirectoryInfo.New(Path.Combine(Paths.Root.FullName, "docs"));
+		var root = ReadFileSystem.DirectoryInfo.New(Paths.Root.FullName);
+		var docsFolder = root.EnumerateFiles("docset.yml", SearchOption.AllDirectories).FirstOrDefault();
+		return docsFolder?.Directory ?? defaultDocsFolder;
 	}
 
 }
