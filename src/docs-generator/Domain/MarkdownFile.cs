@@ -39,10 +39,15 @@ public record MarkdownFile
 
 	public string GetRandomLink()
 	{
+		//TODO since updates rewrite section headers old docs might
+		//no longer validate so we always link to whole files
+		return RelativePath;
+		/*
 		var sectionLink = Determinism.Random.Contents.Bool(0.8f);
 		if (!sectionLink) return RelativePath;
 		var section = Sections[Determinism.Random.Contents.Number(0, Sections.Length - 1)];
 		return $"{RelativePath}#{Generators.Slug.GenerateSlug(section.Header)}";
+		*/
 
 	}
 }
