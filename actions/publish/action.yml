@@ -14,6 +14,7 @@ runs:
   using: "composite"
   steps:
     - id: repo-basename
+      shell: bash
       run: 'echo "value=`basename ${{ github.repository }}`" >> $GITHUB_OUTPUT'
     - uses: actions/checkout@v4
     - name: Setup Pages
