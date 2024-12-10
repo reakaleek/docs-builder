@@ -29,7 +29,7 @@ runs:
         {
           "version": 2,
           "public": false,
-          "outputDirectory": ".artifacts/docs/html"
+          "outputDirectory": ".artifacts/docs/html",
           "git": {
             "deploymentEnabled": false
           }
