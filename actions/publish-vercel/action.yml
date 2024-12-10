@@ -41,7 +41,6 @@ runs:
     - uses: amondnet/vercel-action@v25.2.0 #deploy
       with:
         vercel-token: ${{ inputs.VERCEL_TOKEN }} # Required
-        github-token: ${{ secrets.GITHUB_TOKEN }} #Optional
         #vercel-args: '--prod' #Optional
         vercel-org-id: ${{ inputs.VERCEL_ORG_ID}}  #Required
         vercel-project-id: ${{ inputs.VERCEL_PROJECT_ID}} #Required
