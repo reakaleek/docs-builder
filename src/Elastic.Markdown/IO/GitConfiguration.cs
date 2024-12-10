@@ -37,6 +37,7 @@ public record GitConfiguration
 		{
 			head = head.Replace("ref: ", string.Empty);
 			gitRef = Read(".git/" + head);
+			branch = branch.Replace("ref: ", string.Empty);
 		}
 		else
 			branch = "detached/head";
