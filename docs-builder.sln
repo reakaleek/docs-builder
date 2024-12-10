@@ -44,6 +44,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "publish", "publish", "{CD28
 		actions\publish\action.yml = actions\publish\action.yml
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "publish-vercel", "publish-vercel", "{A2A34BBC-CB5E-4100-9529-A12B6ECB769C}"
+	ProjectSection(SolutionItems) = preProject
+		actions\publish-vercel\action.yml = actions\publish-vercel\action.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -86,5 +91,6 @@ Global
 		{61904527-9753-4379-B546-56B6A29073AC} = {BE6011CC-1200-4957-B01F-FCCA10C5CF5A}
 		{1C340CCF-9AAC-4163-A7BB-60528076E98B} = {245023D2-D3CA-47B9-831D-DAB91A2FFDC7}
 		{CD2887E3-BDA9-434B-A5BF-9ED38DE20332} = {245023D2-D3CA-47B9-831D-DAB91A2FFDC7}
+		{A2A34BBC-CB5E-4100-9529-A12B6ECB769C} = {245023D2-D3CA-47B9-831D-DAB91A2FFDC7}
 	EndGlobalSection
 EndGlobal
