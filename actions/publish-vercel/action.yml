@@ -25,25 +25,22 @@ runs:
     - name: "Create temp vercel.json file"
       shell: bash
       run: |
-        cat <<EOF > vercel.json
+        cat <<EOF > .artifacts/docs/html/vercel.json
         {
           "version": 2,
           "public": false,
-          "github": {
-            "enabled": false
-          },
-          "builds": [
-            { "src": ".artifacts/docs/html", "use": "@vercel/static" }
-          ]
+          "git": {
+            "deploymentEnabled": false
+          }
         }
         EOF
 
     - uses: amondnet/vercel-action@v25.2.0 #deploy
       with:
         vercel-token: ${{ inputs.VERCEL_TOKEN }} # Required
-        #vercel-args: '--prod' #Optional
+        vercel-args: '--prod' #Optional
         vercel-org-id: ${{ inputs.VERCEL_ORG_ID}}  #Required
         vercel-project-id: ${{ inputs.VERCEL_PROJECT_ID}} #Required
-        working-directory: ./
+        working-directory: .artifacts/docs/html
 
 
