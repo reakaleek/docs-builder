@@ -16,18 +16,20 @@ runs:
     - id: repo-basename
       shell: bash
       run: 'echo "value=`basename ${{ github.repository }}`" >> $GITHUB_OUTPUT'
-    - name: Setup Pages
-      id: pages
-      uses: actions/configure-pages@v5.0.0
     - name: Build documentation
       uses: elastic/docs-builder@main
       with:
         prefix: '${{ steps.repo-basename.outputs.value }}'
+    - name: Setup Pages
+      id: pages
+      uses: actions/configure-pages@v5.0.0
+    - name: List Documentation
+      shell: bash
+      run: 'ls .artifacts/docs/html'
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v3.0.1
       with:
         path: .artifacts/docs/html
-
     - name: Deploy artifact
       id: deployment
       uses: actions/deploy-pages@v4.0.5

@@ -27,7 +27,7 @@ public static class Generators
 			.Ignore(p => p.Links)
 			.Ignore(p => p.Directory)
 			.RuleFor(p => p.FileName, f => f.System.FileName("md"))
-			.RuleFor(p => p.IncludeInUpdate, f => f.Random.Float() <= Determinism.Random.FileProbability)
+			.RuleFor(p => p.IncludeInUpdate, f => f.Random.Float() <= Determinism.Random.ContentProbability)
 			.RuleFor(p => p.Sections, f => Section.Generate(Determinism.Random.Contents.Number(1, 12)).ToArray());
 	}
 

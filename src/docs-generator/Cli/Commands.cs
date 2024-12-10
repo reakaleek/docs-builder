@@ -148,7 +148,7 @@ internal class Commands(ILoggerFactory logger, ICoreService githubActionsService
 		}
 	}
 
-	void LoadStateFromFile(FileInfo fileInfo, bool? clear, ref int? seedFs, ref bool cleanOutput)
+	private void LoadStateFromFile(FileInfo fileInfo, bool? clear, ref int? seedFs, ref bool cleanOutput)
 	{
 		if (!fileInfo.Exists) return;
 		var state = File.ReadAllText(fileInfo.FullName).Split("|");

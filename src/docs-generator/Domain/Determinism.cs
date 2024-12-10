@@ -16,7 +16,7 @@ public record Determinism
 		FileSystem = new Randomizer(SeedFileSystem);
 		Contents = new Randomizer(SeedContent);
 
-		SectionProbability = Contents.Float(0.001f, Contents.Float(0.1f));
+		ContentProbability = Contents.Float(0.001f, Contents.Float(0.1f));
 		FileProbability = FileSystem.Float(0.001f, Contents.Float(0.1f));
 	}
 
@@ -27,7 +27,7 @@ public record Determinism
 	public Randomizer FileSystem { get; }
 	public Randomizer Contents { get; }
 
-	public float SectionProbability { get; }
+	public float ContentProbability { get; }
 	public float FileProbability { get;  }
 
 	public static Determinism Random { get; set; } = new(null, null);
