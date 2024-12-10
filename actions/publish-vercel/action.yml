@@ -25,10 +25,11 @@ runs:
     - name: "Create temp vercel.json file"
       shell: bash
       run: |
-        cat <<EOF > .artifacts/docs/html/vercel.json
+        cat <<EOF > vercel.json
         {
           "version": 2,
           "public": false,
+          "outputDirectory": ".artifacts/docs/html"
           "git": {
             "deploymentEnabled": false
           }
@@ -41,6 +42,6 @@ runs:
         vercel-args: '--prod' #Optional
         vercel-org-id: ${{ inputs.VERCEL_ORG_ID}}  #Required
         vercel-project-id: ${{ inputs.VERCEL_PROJECT_ID}} #Required
-        working-directory: .artifacts/docs/html
+        working-directory: .
 
 
