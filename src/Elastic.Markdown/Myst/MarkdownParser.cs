@@ -27,8 +27,7 @@ public class MarkdownParser(
 
 	private BuildContext Context { get; } = context;
 
-	//TODO directive properties are stateful, rewrite this so we can cache builders
-	public MarkdownPipeline MinimalPipeline =>
+	public static MarkdownPipeline MinimalPipeline { get; } =
 		new MarkdownPipelineBuilder()
 			.UseDiagnosticLinks()
 			.UseYamlFrontMatter()
@@ -36,7 +35,7 @@ public class MarkdownParser(
 			.UseSubstitution()
 			.Build();
 
-	public MarkdownPipeline Pipeline =>
+	public static MarkdownPipeline Pipeline { get; } =
 		new MarkdownPipelineBuilder()
 			.EnableTrackTrivia()
 			.UsePreciseSourceLocation()
