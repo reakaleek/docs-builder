@@ -74,7 +74,7 @@ let private publishContainers _ =
                 "/t:PublishContainer";
                 "-p"; "DebugType=none";
                 "-p"; $"ContainerBaseImage=mcr.microsoft.com/dotnet/nightly/runtime-deps:8.0-%s{imageTag}";
-                "-p"; $"ContainerImageTags='\"%s{labels};%s{Software.Version.ToString()}\"'"
+                "-p"; $"ContainerImageTags='\"%s{labels};%s{Software.Version.NormalizeToShorter()}\"'"
                 "-p"; $"ContainerRepository=%s{Software.GithubMoniker}"
             ]
         let registry =
