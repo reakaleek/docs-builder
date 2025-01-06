@@ -75,7 +75,7 @@ let private publishContainers _ =
                 "-p"; "DebugType=none";
                 "-p"; $"ContainerBaseImage=mcr.microsoft.com/dotnet/nightly/runtime-deps:8.0-%s{imageTag}";
                 "-p"; $"ContainerImageTags=\"%s{labels};%s{Software.Version.NormalizeToShorter()}\""
-                "-p"; $"ContainerRepository=%s{Software.GithubMoniker}"
+                "-p"; $"ContainerRepository=elastic/%s{project}"
             ]
         let registry =
             match Environment.environVarOrNone "GITHUB_ACTION" with
