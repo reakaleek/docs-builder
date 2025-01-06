@@ -36,7 +36,9 @@ let private version _ =
 let private format _ = exec { run "dotnet" "format" "--verbosity" "quiet" }
 
 let private lint _ =
-    match exec { exit_code_of "dotnet" "format" "--verify-no-changes" } with
+    match exec {
+        exit_code_of "dotnet" "format" "--verify-no-changes"
+    } with
     | 0 -> printfn "There are no dotnet formatting violations, continuing the build."
     | _ -> failwithf "There are dotnet formatting violations. Call `dotnet format` to fix or specify -c to ./build.sh to skip this check"
 
@@ -61,7 +63,10 @@ let private publishContainers _ =
     let createImage project =
         let imageTag = match project with | "docs-builder" -> "jammy-chiseled-aot" | _ -> "jammy-chiseled"
         let labels =
-            let exitCode = exec { exit_code_of "git" "describe" "--tags" "--exact-match" "HEAD" }
+            let exitCode = exec {
+                validExitCode (fun _ -> true)
+                exit_code_of "git" "describe" "--tags" "--exact-match" "HEAD"
+            }
             match exitCode with | 0 -> "edge;latest" | _ -> "edge"
         let args =
             ["publish"; $"src/%s{project}/%s{project}.csproj"]
