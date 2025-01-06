@@ -52,6 +52,7 @@ jobs:
 
       - name: Publish Binaries
         run: ./build.sh publishzip
+        shell: bash
 
       - name: Attach Distribution to release
         env:

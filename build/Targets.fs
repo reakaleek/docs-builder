@@ -31,7 +31,7 @@ let private publish _ = printfn "publish"
 let private version _ =
     let version = Software.Version
     printfn $"Informational version: %s{version.AsString}"
-    printfn $"Semantic version: %s{version.NormalizeToShorter()}"
+    printfn $"Semantic version: %s{version.Normalize()}"
 
 let private format _ = exec { run "dotnet" "format" "--verbosity" "quiet" }
 
@@ -90,7 +90,7 @@ let private publishContainers _ =
                 "/t:PublishContainer";
                 "-p"; "DebugType=none";
                 "-p"; $"ContainerBaseImage=mcr.microsoft.com/dotnet/nightly/runtime-deps:8.0-%s{imageTag}";
-                "-p"; $"ContainerImageTags=\"%s{labels};%s{Software.Version.NormalizeToShorter()}\""
+                "-p"; $"ContainerImageTags=\"%s{labels};%s{Software.Version.Normalize()}\""
                 "-p"; $"ContainerRepository=elastic/%s{project}"
             ]
         let registry =
