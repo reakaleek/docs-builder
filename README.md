@@ -93,34 +93,22 @@ jobs:
 
 ### GitHub Pages
 
-To setup the tool to publish to GitHub pages use the following configuration.
-**NOTE**: In the near feature we'll make this a dedicated single step Github ction
+To set up the tool to publish to GitHub pages use the following configuration.
+**NOTE**: In the near feature we'll make this a dedicated single step GitHub action
 
 ```yaml
+environment:
+  name: github-pages
+  url: ${{ steps.deployment.outputs.page_url }}
 steps:
-  - id: repo-basename
-    run: 'echo "value=`basename ${{ github.repository }}`" >> $GITHUB_OUTPUT'
   - uses: actions/checkout@v4
-  - name: Setup Pages
-    id: pages
-    uses: actions/configure-pages@v5.0.0
-  - name: Build documentation
-    uses: elastic/docs-builder@main
-    with:
-      prefix: '${{ steps.repo-basename.outputs.value }}'
-  - name: Upload artifact
-    uses: actions/upload-pages-artifact@v3.0.1
-    with:
-      path: .artifacts/docs/html
-
-  - name: Deploy artifact
+    
+  - name: Publish Github
+    uses: elastic/docs-builder/actions/publish@main
     id: deployment
-    uses: actions/deploy-pages@v4.0.5
 ```
 
-Note `prefix:` is required to inject the appropiate `--path-prefix` argument to `docs-builder`
-
-Also make sure your repository settings are set up to deploy from github actions see:
+Make sure your repository settings are set up to deploy from GitHub actions see:
 
 https://github.com/elastic/{your-repository}/settings/pages
 
