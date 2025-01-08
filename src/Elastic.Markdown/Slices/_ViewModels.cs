@@ -27,6 +27,18 @@ public class LayoutViewModel
 	public required string NavigationHtml { get; set; }
 	public required string? UrlPathPrefix { get; set; }
 
+	private MarkdownFile[]? _parents;
+	public MarkdownFile[] Parents
+	{
+		get
+		{
+			if (_parents is not null)
+				return _parents;
+
+			_parents = [.. CurrentDocument.YieldParents()];
+			return _parents;
+		}
+	}
 
 	public string Static(string path)
 	{

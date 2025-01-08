@@ -29,7 +29,9 @@ public record MarkdownFile : DocumentationFile
 		Collector = context.Collector;
 	}
 
-	public DiagnosticsCollector Collector { get; }
+	private DiagnosticsCollector Collector { get; }
+
+	public DocumentationFolder? Parent { get; set; }
 
 	public string? UrlPathPrefix { get; }
 	private MarkdownParser MarkdownParser { get; }
@@ -53,6 +55,19 @@ public record MarkdownFile : DocumentationFile
 	public string Url => $"{UrlPathPrefix}/{RelativePath.Replace(".md", ".html")}";
 
 	private bool _instructionsParsed;
+
+	public MarkdownFile[] YieldParents()
+	{
+		var parents = new List<MarkdownFile>();
+		var parent = Parent;
+		do
+		{
+			if (parent is { Index: not null } && parent.Index != this)
+				parents.Add(parent.Index);
+			parent = parent?.Parent;
+		} while (parent != null);
+		return parents.ToArray();
+	}
 
 	public async Task<MarkdownDocument> MinimalParse(Cancel ctx)
 	{
