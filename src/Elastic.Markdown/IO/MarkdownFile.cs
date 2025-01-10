@@ -10,6 +10,7 @@ using Elastic.Markdown.Slices;
 using Markdig;
 using Markdig.Extensions.Yaml;
 using Markdig.Syntax;
+using Markdig.Syntax.Inlines;
 using Slugify;
 
 namespace Elastic.Markdown.IO;
@@ -42,6 +43,7 @@ public record MarkdownFile : DocumentationFile
 		get => !string.IsNullOrEmpty(_navigationTitle) ? _navigationTitle : Title;
 		private set => _navigationTitle = value;
 	}
+	public IReadOnlySet<string> Links { get; private set; } = new HashSet<string>();
 
 	//indexed by slug
 	private readonly Dictionary<string, PageTocItem> _tableOfContent = new();
@@ -55,6 +57,8 @@ public record MarkdownFile : DocumentationFile
 	public string Url => $"{UrlPathPrefix}/{RelativePath.Replace(".md", ".html")}";
 
 	private bool _instructionsParsed;
+
+	public static readonly HashSet<string> ExcludedExternalLinkSchemes = ["http", "https", "mailto", "tel", "file"];
 
 	public MarkdownFile[] YieldParents()
 	{
@@ -82,9 +86,20 @@ public record MarkdownFile : DocumentationFile
 			await MinimalParse(ctx);
 
 		var document = await MarkdownParser.ParseAsync(SourceFile, YamlFrontMatter, ctx);
+		ReadLinks(document);
 		if (Title == RelativePath)
 			Collector.EmitWarning(SourceFile.FullName, "Missing yaml front-matter block defining a title or a level 1 header");
 		return document;
+	}
+
+	private void ReadLinks(MarkdownDocument document)
+	{
+		var links = document.Descendants<LinkInline>()
+			.Select(l => l.Url)
+			.Where(l => !string.IsNullOrEmpty(l) && !l.StartsWith('/'))
+			.Where(url => Uri.TryCreate(url, UriKind.Absolute, out var uri) && !ExcludedExternalLinkSchemes.Contains(uri.Scheme));
+
+		Links = new HashSet<string>(links!);
 	}
 
 	private void ReadDocumentInstructions(MarkdownDocument document)

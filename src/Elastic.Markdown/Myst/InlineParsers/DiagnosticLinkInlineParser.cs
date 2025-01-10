@@ -44,6 +44,7 @@ public class DiagnosticLinkInlineParser : LinkInlineParser
 			return match;
 
 		var url = link.Url;
+		var uri = Uri.TryCreate(url, UriKind.Absolute, out var u) ? u : null;
 		var line = link.Line + 1;
 		var column = link.Column;
 		var length = url?.Length ?? 1;
@@ -58,7 +59,12 @@ public class DiagnosticLinkInlineParser : LinkInlineParser
 			return match;
 		}
 
-		if (Uri.TryCreate(url, UriKind.Absolute, out var uri) && uri.Scheme.StartsWith("http"))
+		if (uri != null && !MarkdownFile.ExcludedExternalLinkSchemes.Contains(uri.Scheme))
+		{
+			return match;
+		}
+
+		if (uri != null && uri.Scheme.StartsWith("http"))
 		{
 			var baseDomain = uri.Host == "localhost" ? "localhost" : string.Join('.', uri.Host.Split('.')[^2..]);
 			if (!context.Configuration.ExternalLinkHosts.Contains(baseDomain))
@@ -128,8 +134,5 @@ public class DiagnosticLinkInlineParser : LinkInlineParser
 			link.Url += $"#{anchor}";
 
 		return match;
-
-
-
 	}
 }
