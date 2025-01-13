@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information
 using System.IO.Abstractions;
 using Elastic.Markdown.Diagnostics;
+using Elastic.Markdown.IO.Navigation;
 using Elastic.Markdown.Myst;
 using Elastic.Markdown.Myst.Directives;
 using Elastic.Markdown.Myst.FrontMatter;
@@ -13,6 +14,7 @@ using Markdig.Syntax;
 using Slugify;
 
 namespace Elastic.Markdown.IO;
+
 
 public record MarkdownFile : DocumentationFile
 {
@@ -31,7 +33,7 @@ public record MarkdownFile : DocumentationFile
 
 	private DiagnosticsCollector Collector { get; }
 
-	public DocumentationFolder? Parent
+	public DocumentationGroup? Parent
 	{
 		get => FileName == "index.md" ? _parent?.Parent : _parent;
 		set => _parent = value;
@@ -59,7 +61,7 @@ public record MarkdownFile : DocumentationFile
 	public string Url => $"{UrlPathPrefix}/{RelativePath.Replace(".md", ".html")}";
 
 	private bool _instructionsParsed;
-	private DocumentationFolder? _parent;
+	private DocumentationGroup? _parent;
 
 	public MarkdownFile[] YieldParents()
 	{

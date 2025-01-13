@@ -3,6 +3,8 @@
 // See the LICENSE file in the project root for more information
 
 using Elastic.Markdown.IO;
+using Elastic.Markdown.IO.Discovery;
+using Elastic.Markdown.IO.State;
 using FluentAssertions;
 using Xunit.Abstractions;
 
@@ -19,12 +21,12 @@ public class LinkReferenceTests(ITestOutputHelper output) : NavigationTestsBase(
 	}
 }
 
-public class GitConfigurationTests(ITestOutputHelper output) : NavigationTestsBase(output)
+public class GitCheckoutInformationTests(ITestOutputHelper output) : NavigationTestsBase(output)
 {
 	[Fact]
 	public void Create()
 	{
-		var git = GitConfiguration.Create(ReadFileSystem);
+		var git = GitCheckoutInformation.Create(ReadFileSystem);
 
 		git.Should().NotBeNull();
 		git!.Branch.Should().NotBeNullOrWhiteSpace();

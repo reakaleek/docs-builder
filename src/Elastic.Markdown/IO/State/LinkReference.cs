@@ -3,13 +3,14 @@
 // See the LICENSE file in the project root for more information
 
 using System.Text.Json.Serialization;
+using Elastic.Markdown.IO.Discovery;
 
-namespace Elastic.Markdown.IO;
+namespace Elastic.Markdown.IO.State;
 
 public record LinkReference
 {
 	[JsonPropertyName("origin")]
-	public required GitConfiguration Origin { get; init; }
+	public required GitCheckoutInformation Origin { get; init; }
 
 	[JsonPropertyName("url_path_prefix")]
 	public required string? UrlPathPrefix { get; init; }
