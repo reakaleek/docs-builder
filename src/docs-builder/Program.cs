@@ -6,10 +6,10 @@ using Actions.Core.Extensions;
 using ConsoleAppFramework;
 using Documentation.Builder;
 using Documentation.Builder.Cli;
+using Documentation.Builder.LinkIndex;
 using Elastic.Markdown.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Documentation.Builder.LinkIndex;
 
 var services = new ServiceCollection();
 services.AddGitHubActionsCore();

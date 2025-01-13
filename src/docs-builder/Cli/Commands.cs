@@ -6,10 +6,10 @@ using Actions.Core.Services;
 using ConsoleAppFramework;
 using Documentation.Builder.Diagnostics.Console;
 using Documentation.Builder.Http;
+using Documentation.Builder.LinkIndex;
 using Elastic.Markdown;
 using Elastic.Markdown.IO;
 using Microsoft.Extensions.Logging;
-using Documentation.Builder.LinkIndex;
 
 namespace Documentation.Builder.Cli;
 
