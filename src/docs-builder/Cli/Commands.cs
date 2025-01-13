@@ -4,16 +4,16 @@
 using System.IO.Abstractions;
 using Actions.Core.Services;
 using ConsoleAppFramework;
-using Documentation.Builder.Diagnostics;
 using Documentation.Builder.Diagnostics.Console;
 using Documentation.Builder.Http;
 using Elastic.Markdown;
 using Elastic.Markdown.IO;
 using Microsoft.Extensions.Logging;
+using Documentation.Builder.LinkIndex;
 
 namespace Documentation.Builder.Cli;
 
-internal class Commands(ILoggerFactory logger, ICoreService githubActionsService)
+internal class Commands(ILoggerFactory logger, ICoreService githubActionsService, ILinkIndex linkIndex)
 {
 	/// <summary>
 	///	Continuously serve a documentation folder at http://localhost:5000.
@@ -29,7 +29,6 @@ internal class Commands(ILoggerFactory logger, ICoreService githubActionsService
 		var host = new DocumentationWebHost(path, logger, new FileSystem());
 		await host.RunAsync(ctx);
 		await host.StopAsync(ctx);
-
 	}
 
 	/// <summary>
@@ -39,6 +38,7 @@ internal class Commands(ILoggerFactory logger, ICoreService githubActionsService
 	/// <param name="output"> -o, Defaults to `.artifacts/html` </param>
 	/// <param name="pathPrefix"> Specifies the path prefix for urls </param>
 	/// <param name="force"> Force a full rebuild of the destination folder</param>
+	/// <param name="uploadToLinkIndex"> Upload the links.json file to the link index</param>
 	/// <param name="ctx"></param>
 	[Command("generate")]
 	[ConsoleAppFilter<StopwatchFilter>]
@@ -48,6 +48,7 @@ internal class Commands(ILoggerFactory logger, ICoreService githubActionsService
 		string? output = null,
 		string? pathPrefix = null,
 		bool? force = null,
+		bool uploadToLinkIndex = false,
 		Cancel ctx = default
 	)
 	{
@@ -57,11 +58,13 @@ internal class Commands(ILoggerFactory logger, ICoreService githubActionsService
 		{
 			UrlPathPrefix = pathPrefix,
 			Force = force ?? false,
-			Collector = new ConsoleDiagnosticsCollector(logger, githubActionsService)
+			Collector = new ConsoleDiagnosticsCollector(logger, githubActionsService),
 		};
 		var set = new DocumentationSet(context);
 		var generator = new DocumentationGenerator(set, logger);
 		await generator.GenerateAll(ctx);
+		var linksJsonPath = set.LinkReferenceFile.FullName;
+		await linkIndex.UploadFileAsync(linksJsonPath, uploadToLinkIndex);
 		return context.Collector.Errors + context.Collector.Warnings;
 	}
 
@@ -72,6 +75,7 @@ internal class Commands(ILoggerFactory logger, ICoreService githubActionsService
 	/// <param name="output"> -o, Defaults to `.artifacts/html` </param>
 	/// <param name="pathPrefix"> Specifies the path prefix for urls </param>
 	/// <param name="force"> Force a full rebuild of the destination folder</param>
+	/// <param name="uploadToLinkIndex"> Upload the links.json file to the link index</param>
 	/// <param name="ctx"></param>
 	[Command("")]
 	[ConsoleAppFilter<StopwatchFilter>]
@@ -81,7 +85,8 @@ internal class Commands(ILoggerFactory logger, ICoreService githubActionsService
 		string? output = null,
 		string? pathPrefix = null,
 		bool? force = null,
+		bool uploadToLinkIndex = false,
 		Cancel ctx = default
 	) =>
-		await Generate(path, output, pathPrefix, force, ctx);
+		await Generate(path, output, pathPrefix, force, uploadToLinkIndex, ctx);
 }

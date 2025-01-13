@@ -9,6 +9,7 @@ using Documentation.Builder.Cli;
 using Elastic.Markdown.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Documentation.Builder.LinkIndex;
 
 var services = new ServiceCollection();
 services.AddGitHubActionsCore();
@@ -26,7 +27,8 @@ services.AddLogging(x =>
 });
 services.AddSingleton<DiagnosticsChannel>();
 services.AddSingleton<DiagnosticsCollector>();
-
+services.AddSingleton<S3LinkIndex>(sp => new S3LinkIndex("elastic-docs-link-index", sp.GetRequiredService<ILoggerFactory>()));
+services.AddSingleton<ILinkIndex>(sp => sp.GetRequiredService<S3LinkIndex>());
 
 await using var serviceProvider = services.BuildServiceProvider();
 var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
