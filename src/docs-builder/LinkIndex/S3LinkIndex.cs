@@ -29,16 +29,11 @@ public class S3LinkIndex : ILinkIndex
 		var githubRef = Environment.GetEnvironmentVariable("GITHUB_REF");
 		if (string.IsNullOrEmpty(githubRef) || githubRef != "refs/heads/main")
 		{
-			_logger.LogWarning("Not uploading link index: GITHUB_REF '{GitHubRef}' is not main branch", githubRef);
-			return;
+			throw new InvalidOperationException($"Cannot upload link index: GITHUB_REF '{githubRef}' is not main branch");
 		}
 
 		var s3DestinationPath = DeriveDestinationPath();
-		if (string.IsNullOrEmpty(s3DestinationPath))
-		{
-			_logger.LogWarning("Failed to derive destination path - cannot upload to link index");
-			return;
-		}
+
 		_logger.LogInformation("Uploading link index {FilePath} to S3://{Bucket}/{DestinationPath}", filePath, _bucketName, s3DestinationPath);
 		using var client = new AmazonS3Client();
 		var fileTransferUtility = new TransferUtility(client);
@@ -59,8 +54,8 @@ public class S3LinkIndex : ILinkIndex
 	private static string DeriveDestinationPath()
 	{
 		var repositoryName = Environment.GetEnvironmentVariable("GITHUB_REPOSITORY")?.Split('/').Last();
-		return string.IsNullOrEmpty(repositoryName)
-			? string.Empty
-			: $"{repositoryName}.json";
+		if (string.IsNullOrEmpty(repositoryName))
+			throw new InvalidOperationException("Cannot upload link index: GITHUB_REPOSITORY environment variable is not set or invalid");
+		return $"{repositoryName}.json";
 	}
 }
