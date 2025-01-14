@@ -10,6 +10,8 @@ This GitHub Action enforces documentation freezes by adding comments to pull req
 2. **Check Changes**: It checks the diff between the latest commits to detect modifications to `.asciidoc` files.
 3. **Add Comment**: If changes are detected, the Action posts a comment in the pull request, reminding the contributor of the freeze.
 
+This template was tested in https://github.com/elastic/observability-docs/pull/4768.
+
 ```yaml
 name: Comment on PR for .asciidoc changes
 
@@ -31,16 +33,18 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # This is important to fetch all history
 
       - name: Check for changes in .asciidoc files
         id: check-files
         run: |
-          if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -E '\.asciidoc$'; then
+          git fetch origin ${{ github.base_ref }}
+          if git diff --name-only origin/${{ github.base_ref }}..HEAD | grep -E '\.asciidoc$'; then
             echo "asciidoc_changed=true" >> $GITHUB_ENV
           else
             echo "asciidoc_changed=false" >> $GITHUB_ENV
           fi
-
       - name: Add a comment if .asciidoc files changed
         if: env.asciidoc_changed == 'true'
         uses: actions/github-script@v6
@@ -50,6 +54,5 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.payload.pull_request.number,
-              body: 'It looks like this PR modifies one or more `.asciidoc` files. The documentation is currently under a documentation freeze. Please do not merge this PR. See [link](link) to learn more.'
-            });
+              body: 'It looks like this PR modifies one or more `.asciidoc` files. The documentation is currently under a documentation freeze. Please do not merge this PR. See the [migration guide](https://elastic.github.io/docs-builder/migration/index.html) to learn more.'
 ```
