@@ -1,10 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <OutputType>Exe</OutputType>
-    <AssemblyName>docs-generator</AssemblyName>
-    <RootNamespace>Documentation.Generator</RootNamespace>
+    <AssemblyName>docs-assembler</AssemblyName>
+    <RootNamespace>Documentation.Assembler</RootNamespace>
     <InvariantGlobalization>true</InvariantGlobalization>
 
     <PublishAot>false</PublishAot>
@@ -20,12 +20,12 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0" />
-    <PackageReference Include="Github.Actions.Core" Version="9.0.0" />
-    <PackageReference Include="Soenneker.Utils.AutoBogus" Version="2.1.388"/>
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0"/>
+    <PackageReference Include="Github.Actions.Core" Version="9.0.0"/>
+    <PackageReference Include="Proc" Version="0.9.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Elastic.Markdown/Elastic.Markdown.csproj"/>
+    <ProjectReference Include="..\Elastic.Markdown\Elastic.Markdown.csproj" />
   </ItemGroup>
 </Project>
