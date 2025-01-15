@@ -18,17 +18,21 @@ inputs:
     description: 'Treat warnings as errors'
     required: false
     default: "false"
+  private:
+    description: 'Publishing from a private repository'
+    required: false
+    default: "false"
 
 runs:
   using: "composite"
   steps:
     - id: repo-basename
-      if: ${{ github.repository.private == false }}
+      if: ${{ inputs.private == 'false' }}
       shell: bash
       run: 'echo "value=`basename ${{ github.repository }}`" >> $GITHUB_OUTPUT'
 
     - name: Build public documentation
-      if: ${{ github.repository.private == false }}
+      if: ${{ inputs.private == 'false' }}
       uses: elastic/docs-builder@main
       continue-on-error: ${{ inputs.continue-on-error == 'true' }}
       with:
@@ -36,7 +40,7 @@ runs:
         strict: ${{ inputs.strict }}
 
     - name: Build private documentation
-      if: ${{ github.repository.private == true }}
+      if: ${{ inputs.private != 'false' }}
       uses: elastic/docs-builder@main
       continue-on-error: ${{ inputs.continue-on-error == 'true' }}
       with:
