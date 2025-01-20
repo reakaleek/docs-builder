@@ -77,7 +77,6 @@ public class HtmlWriter
 			outputFile.Directory.Create();
 
 		var rendered = await RenderLayout(markdown, ctx);
-		// var path = Path.ChangeExtension(outputFile.FullName, ".html");
 		string path;
 		if (outputFile.Name == "index.md")
 		{
