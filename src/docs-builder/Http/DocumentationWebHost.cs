@@ -99,9 +99,9 @@ public class DocumentationWebHost
 		var s = Path.GetExtension(slug) == string.Empty ? Path.Combine(slug, "index.md") : slug.Replace(".html", ".md");
 		if (!generator.DocumentationSet.FlatMappedFiles.TryGetValue(s, out var documentationFile))
 		{
-		    s = Path.GetExtension(slug) == string.Empty ? slug + ".md" : s.Replace("/index.md", ".md");
-		    if (!generator.DocumentationSet.FlatMappedFiles.TryGetValue(s, out documentationFile))
-			    return Results.NotFound();
+			s = Path.GetExtension(slug) == string.Empty ? slug + ".md" : s.Replace("/index.md", ".md");
+			if (!generator.DocumentationSet.FlatMappedFiles.TryGetValue(s, out documentationFile))
+				return Results.NotFound();
 		}
 
 		switch (documentationFile)
