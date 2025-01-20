@@ -85,22 +85,16 @@ public class HtmlWriter
 		}
 		else
 		{
-			if (outputFile.Directory is null)
-			{
-				path = Path.GetFileNameWithoutExtension(outputFile.Name) + ".html";
-			}
-			else
-			{
+			var dir = outputFile.Directory is null
+				? null
+				: Path.Combine(outputFile.Directory.FullName, Path.GetFileNameWithoutExtension(outputFile.Name));
 
-				var dir = Path.Combine(outputFile.Directory.FullName, Path.GetFileNameWithoutExtension(outputFile.Name));
-				if (!_writeFileSystem.Directory.Exists(dir))
-					_writeFileSystem.Directory.CreateDirectory(dir);
-				path = Path.Combine([
-					outputFile.Directory.FullName,
-					Path.GetFileNameWithoutExtension(outputFile.Name),
-					"index.html"]
-				);
-			}
+			if (dir is not null && !_writeFileSystem.Directory.Exists(dir))
+				_writeFileSystem.Directory.CreateDirectory(dir);
+
+			path = dir is null
+				? Path.GetFileNameWithoutExtension(outputFile.Name) + ".html"
+				: Path.Combine(dir, "index.html");
 		}
 
 		await _writeFileSystem.File.WriteAllTextAsync(path, rendered, ctx);
