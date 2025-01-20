@@ -60,7 +60,7 @@ public class LinkToPageTests(ITestOutputHelper output) : LinkTestBase(output,
 	public void GeneratesHtml() =>
 		// language=html
 		Html.Should().Contain(
-			"""<p><a href="testing/req.html">Requirements</a></p>"""
+			"""<p><a href="testing/req">Requirements</a></p>"""
 		);
 
 	[Fact]
@@ -83,7 +83,7 @@ public class InsertPageTitleTests(ITestOutputHelper output) : LinkTestBase(outpu
 	public void GeneratesHtml() =>
 		// language=html
 		Html.Should().Contain(
-			"""<p><a href="testing/req.html">Special Requirements</a></p>"""
+			"""<p><a href="testing/req">Special Requirements</a></p>"""
 		);
 
 	[Fact]
@@ -108,7 +108,7 @@ public class LinkReferenceTest(ITestOutputHelper output) : LinkTestBase(output,
 	public void GeneratesHtml() =>
 		// language=html
 		Html.Should().Contain(
-			"""<p><a href="testing/req.html">test</a></p>"""
+			"""<p><a href="testing/req">test</a></p>"""
 		);
 
 	[Fact]
@@ -134,7 +134,7 @@ public class CrossLinkReferenceTest(ITestOutputHelper output) : LinkTestBase(out
 		// language=html
 		Html.Should().Contain(
 			// TODO: The link is not rendered correctly yet, will be fixed in a follow-up
-			"""<p><a href="kibana://index.html">test</a></p>"""
+			"""<p><a href="kibana://index">test</a></p>"""
 		);
 
 	[Fact]
@@ -160,7 +160,7 @@ public class CrossLinkTest(ITestOutputHelper output) : LinkTestBase(output,
 		// language=html
 		Html.Should().Contain(
 			// TODO: The link is not rendered correctly yet, will be fixed in a follow-up
-			"""<p>Go to <a href="kibana://index.html">test</a></p>"""
+			"""<p>Go to <a href="kibana://index">test</a></p>"""
 		);
 
 	[Fact]
@@ -227,10 +227,10 @@ public class CommentedNonExistingLinks2(ITestOutputHelper output) : LinkTestBase
 		Html.TrimEnd().Should().Be("""
 		<p>Links:</p>
 		<ul>
-		<li> <a href="/testing/req.html">Special Requirements</a></li>
+		<li> <a href="/testing/req">Special Requirements</a></li>
 		</ul>
 		<ul>
-		<li> <a href="/testing/req.html">Special Requirements</a></li>
+		<li> <a href="/testing/req">Special Requirements</a></li>
 		</ul>
 		""");
 

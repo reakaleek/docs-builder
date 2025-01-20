@@ -77,7 +77,32 @@ public class HtmlWriter
 			outputFile.Directory.Create();
 
 		var rendered = await RenderLayout(markdown, ctx);
-		var path = Path.ChangeExtension(outputFile.FullName, ".html");
+		// var path = Path.ChangeExtension(outputFile.FullName, ".html");
+		string path;
+		if (outputFile.Name == "index.md")
+		{
+			path = Path.ChangeExtension(outputFile.FullName, ".html");
+		}
+		else
+		{
+			if (outputFile.Directory is null)
+			{
+				path = Path.GetFileNameWithoutExtension(outputFile.Name) + ".html";
+			}
+			else
+			{
+
+				var dir = Path.Combine(outputFile.Directory.FullName, Path.GetFileNameWithoutExtension(outputFile.Name));
+				if (!_writeFileSystem.Directory.Exists(dir))
+					_writeFileSystem.Directory.CreateDirectory(dir);
+				path = Path.Combine([
+					outputFile.Directory.FullName,
+					Path.GetFileNameWithoutExtension(outputFile.Name),
+					"index.html"]
+				);
+			}
+		}
+
 		await _writeFileSystem.File.WriteAllTextAsync(path, rendered, ctx);
 	}
 

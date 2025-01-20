@@ -71,7 +71,7 @@ public class ExternalPageAnchorTests(ITestOutputHelper output) : AnchorLinkTestB
 	public void GeneratesHtml() =>
 		// language=html
 		Html.Should().Contain(
-			"""<p><a href="testing/req.html#sub-requirements">Sub Requirements</a></p>"""
+			"""<p><a href="testing/req#sub-requirements">Sub Requirements</a></p>"""
 		);
 
 	[Fact]
@@ -89,7 +89,7 @@ public class ExternalPageCustomAnchorTests(ITestOutputHelper output) : AnchorLin
 	public void GeneratesHtml() =>
 		// language=html
 		Html.Should().Contain(
-			"""<p><a href="testing/req.html#new-reqs">Sub Requirements</a></p>"""
+			"""<p><a href="testing/req#new-reqs">Sub Requirements</a></p>"""
 		);
 
 	[Fact]
@@ -106,7 +106,7 @@ public class ExternalPageAnchorAutoTitleTests(ITestOutputHelper output) : Anchor
 	public void GeneratesHtml() =>
 		// language=html
 		Html.Should().Contain(
-			"""<p><a href="testing/req.html#sub-requirements">Special Requirements &gt; Sub Requirements</a></p>"""
+			"""<p><a href="testing/req#sub-requirements">Special Requirements &gt; Sub Requirements</a></p>"""
 		);
 
 	[Fact]
@@ -142,7 +142,7 @@ public class ExternalPageBadAnchorTests(ITestOutputHelper output) : AnchorLinkTe
 	public void GeneratesHtml() =>
 		// language=html
 		Html.Should().Contain(
-			"""<p><a href="testing/req.html#sub-requirements2">Sub Requirements</a></p>"""
+			"""<p><a href="testing/req#sub-requirements2">Sub Requirements</a></p>"""
 		);
 
 	[Fact]
