@@ -92,18 +92,36 @@ public record MarkdownFile : DocumentationFile
 			await MinimalParse(ctx);
 
 		var document = await MarkdownParser.ParseAsync(SourceFile, YamlFrontMatter, ctx);
-		if (Title == RelativePath)
-			Collector.EmitWarning(SourceFile.FullName, "Missing yaml front-matter block defining a title or a level 1 header");
 		return document;
 	}
 
 	private void ReadDocumentInstructions(MarkdownDocument document)
 	{
+
+		Title = document
+			.FirstOrDefault(block => block is HeadingBlock { Level: 1 })?
+			.GetData("header") as string;
+
 		if (document.FirstOrDefault() is YamlFrontMatterBlock yaml)
 		{
 			var raw = string.Join(Environment.NewLine, yaml.Lines.Lines);
-			YamlFrontMatter = ReadYamlFrontMatter(document, raw);
-			Title = YamlFrontMatter.Title;
+			YamlFrontMatter = ReadYamlFrontMatter(raw);
+
+			// TODO remove when migration tool and our demo content sets are updated
+			var deprecatedTitle = YamlFrontMatter.Title;
+			if (!string.IsNullOrEmpty(deprecatedTitle))
+			{
+				Collector.EmitWarning(FilePath, "'title' is no longer supported in yaml frontmatter please use a level 1 header instead.");
+				// TODO remove fallback once migration is over and we fully deprecate front matter titles
+				if (string.IsNullOrEmpty(Title))
+					Title = deprecatedTitle;
+			}
+
+
+			// set title on yaml front matter manually.
+			// frontmatter gets passed around as page information throughout
+			YamlFrontMatter.Title = Title;
+
 			NavigationTitle = YamlFrontMatter.NavigationTitle;
 			if (!string.IsNullOrEmpty(NavigationTitle))
 			{
@@ -125,10 +143,15 @@ public record MarkdownFile : DocumentationFile
 			}
 		}
 		else
+			YamlFrontMatter = new YamlFrontMatter { Title = Title };
+
+		if (string.IsNullOrEmpty(Title))
 		{
 			Title = RelativePath;
-			NavigationTitle = RelativePath;
+			Collector.EmitWarning(FilePath, "Document has no title, using file name as title.");
 		}
+
+
 
 		var contents = document
 			.Where(block => block is HeadingBlock { Level: >= 2 })
@@ -158,7 +181,7 @@ public record MarkdownFile : DocumentationFile
 		_instructionsParsed = true;
 	}
 
-	private YamlFrontMatter ReadYamlFrontMatter(MarkdownDocument document, string raw)
+	private YamlFrontMatter ReadYamlFrontMatter(string raw)
 	{
 		try
 		{
@@ -172,14 +195,12 @@ public record MarkdownFile : DocumentationFile
 	}
 
 
-	public string CreateHtml(MarkdownDocument document) =>
-		// var writer = new StringWriter();
-		// var renderer = new HtmlRenderer(writer);
-		// renderer.LinkRewriter = (s => s);
-		// MarkdownParser.Pipeline.Setup(renderer);
-		//
-		// var document = MarkdownParser.Parse(markdown, pipeline);
-		// renderer.Render(document);
-		// writer.Flush();
-		document.ToHtml(MarkdownParser.Pipeline);
+	public string CreateHtml(MarkdownDocument document)
+	{
+		//we manually render title and optionally append an applies block embedded in yaml front matter.
+		var h1 = document.Descendants<HeadingBlock>().FirstOrDefault(h => h.Level == 1);
+		if (h1 is not null)
+			document.Remove(h1);
+		return document.ToHtml(MarkdownParser.Pipeline);
+	}
 }

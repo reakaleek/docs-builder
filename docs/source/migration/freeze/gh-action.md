@@ -1,6 +1,4 @@
----
-title: GH Action
----
+# GH Action
 
 ## Overview
 

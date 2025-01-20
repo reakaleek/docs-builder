@@ -1,6 +1,4 @@
----
-title: Documentation Freeze
----
+# Documentation Freeze
 
 During the documentation freeze, the Docs team will focus almost entirely on migration tasks to ensure all content is successfully migrated and will handle only emergency documentation requests and release-related activities. When the migration is complete, the docs team will assess any documentation requests that were submitted during the documentation freeze and ensure that they're still relevant in the new information architecture and format.
 
