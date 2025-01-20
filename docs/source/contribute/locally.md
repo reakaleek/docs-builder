@@ -27,7 +27,7 @@ Follow these steps to contribute to Elastic docs.
    ```
 
 3. **Run the Binary:**
-   Use the `serve` command to start serving the documentation at http://localhost:5000. The path to the docset.yml file that you want to build can be specified with `-p`:
+   Use the `serve` command to start serving the documentation at http://localhost:3000. The path to the docset.yml file that you want to build can be specified with `-p`:
    ```sh
    ./docs-builder serve -p ./path/to/docs
    ```
@@ -51,7 +51,7 @@ Follow these steps to contribute to Elastic docs.
    ```
 
 3. **Run the Binary:**
-   Use the `serve` command to start serving the documentation at http://localhost:5000. The path to the docset.yml file that you want to build can be specified with `-p`:
+   Use the `serve` command to start serving the documentation at http://localhost:3000. The path to the docset.yml file that you want to build can be specified with `-p`:
    ```sh
    .\docs-builder serve -p ./path/to/docs
    ```
@@ -75,7 +75,7 @@ Follow these steps to contribute to Elastic docs.
    ```
 
 3. **Run the Binary:**
-   Use the `serve` command to start serving the documentation at http://localhost:5000. The path to the docset.yml file that you want to build can be specified with `-p`:
+   Use the `serve` command to start serving the documentation at http://localhost:3000. The path to the docset.yml file that you want to build can be specified with `-p`:
    ```sh
    ./docs-builder serve -p ./path/to/docs
    ```
@@ -99,7 +99,7 @@ git clone https://github.com/elastic/docs-content.git
    ```
 
 2. **Run the Binary:**
-   Use the `serve` command to start serving the documentation at http://localhost:5000. The path to the `docset.yml` file that you want to build can be specified with `-p`:
+   Use the `serve` command to start serving the documentation at http://localhost:3000. The path to the `docset.yml` file that you want to build can be specified with `-p`:
    ```sh
    # macOS/Linux
    ./docs-builder serve -p ./migration-test
@@ -108,7 +108,7 @@ git clone https://github.com/elastic/docs-content.git
    .\docs-builder serve -p .\migration-test
    ```
 
-Now you should be able to view the documentation locally by navigating to http://localhost:5000.
+Now you should be able to view the documentation locally by navigating to http://localhost:3000.
 
 ## Step 4: Open a PR [#step-four]
 
