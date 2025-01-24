@@ -42,11 +42,21 @@ public record MarkdownFile : DocumentationFile
 	public string? UrlPathPrefix { get; }
 	private MarkdownParser MarkdownParser { get; }
 	public YamlFrontMatter? YamlFrontMatter { get; private set; }
-	public string? Title { get; private set; }
+	public string? TitleRaw { get; private set; }
+
+	public string? Title
+	{
+		get => _title;
+		private set
+		{
+			_title = value?.StripMarkdown();
+			TitleRaw = value;
+		}
+	}
 	public string? NavigationTitle
 	{
 		get => !string.IsNullOrEmpty(_navigationTitle) ? _navigationTitle : Title;
-		private set => _navigationTitle = value;
+		private set => _navigationTitle = value?.StripMarkdown();
 	}
 
 	//indexed by slug
@@ -64,6 +74,7 @@ public record MarkdownFile : DocumentationFile
 
 	private bool _instructionsParsed;
 	private DocumentationGroup? _parent;
+	private string? _title;
 
 	public MarkdownFile[] YieldParents()
 	{
@@ -156,7 +167,7 @@ public record MarkdownFile : DocumentationFile
 			.Select(h => (h.GetData("header") as string, h.GetData("anchor") as string))
 			.Select(h => new PageTocItem
 			{
-				Heading = h.Item1!.Replace("`", "").Replace("*", ""),
+				Heading = h.Item1!.StripMarkdown(),
 				Slug = (h.Item2 ?? h.Item1).Slugify()
 			})
 			.ToList();
