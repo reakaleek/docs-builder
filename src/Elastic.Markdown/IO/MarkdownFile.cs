@@ -60,10 +60,10 @@ public record MarkdownFile : DocumentationFile
 	}
 
 	//indexed by slug
-	private readonly Dictionary<string, PageTocItem> _tableOfContent = new();
+	private readonly Dictionary<string, PageTocItem> _tableOfContent = new(StringComparer.OrdinalIgnoreCase);
 	public IReadOnlyDictionary<string, PageTocItem> TableOfContents => _tableOfContent;
 
-	private readonly HashSet<string> _additionalLabels = new();
+	private readonly HashSet<string> _additionalLabels = new(StringComparer.OrdinalIgnoreCase);
 	public IReadOnlySet<string> AdditionalLabels => _additionalLabels;
 
 	public string FilePath { get; }
