@@ -53,6 +53,7 @@ public class MarkdownParser(
 			.UseDirectives()
 			.UseEnhancedCodeBlocks()
 			.DisableHtml()
+			.UseHardBreaks()
 			.Build();
 
 	public ConfigurationFile Configuration { get; } = configuration;
@@ -107,6 +108,4 @@ public class MarkdownParser(
 		var markdownDocument = Markdig.Markdown.Parse(yaml, Pipeline, context);
 		return markdownDocument;
 	}
-
-
 }
