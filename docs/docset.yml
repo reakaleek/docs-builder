@@ -43,6 +43,9 @@ toc:
       - folder: guide
         children:
           - file: index.md
+          - file: automated.md
+          - file: tooling.md
+          - file: bug-bash.md
           - file: file-structure.md
           - file: mapping.md
   - folder: configure
