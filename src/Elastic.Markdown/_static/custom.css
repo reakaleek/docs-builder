@@ -135,3 +135,33 @@ See https://github.com/elastic/docs-builder/issues/219 for further details
 	--color-2: var(--gray-a4);
 	--color-3: var(--gray-10);
 }
+
+
+.yue ol>li {
+	list-style-type: decimal; 
+}
+.yue ol ol>li {
+	list-style-type: lower-alpha !important;
+}
+.yue ol ol ol>li {
+	list-style-type: lower-roman !important;
+}
+
+
+
+.yue code span.code-callout {
+	display: inline-flex;
+	font-size: 0.75em;
+	border-radius: 99999px;
+	background-color: var(--accent-11);
+	width: 20px;
+	height: 20px;
+	align-items: center;
+	justify-content: center;
+	margin: 0 0.25em;
+	transform: translateY(-2px);
+}
+
+.yue code span.code-callout > span {
+	color: white;
+}
