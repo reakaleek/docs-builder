@@ -37,6 +37,9 @@ Otherwise, the docs-builder will throw an error.
 
 This syntax mimics what was implemented for our asciidoc system
 
+:::{dropdown} Input
+:open:
+
 ````markdown
 ```yaml
 project:
@@ -50,13 +53,37 @@ project:
 
 1. The license
 ````
+:::
+
+:::{dropdown} Output
+:open:
+
+```yaml
+project:
+  title: MyST Markdown
+  github: https://github.com/jupyter-book/mystmd
+  license:
+    code: MIT
+    content: CC-BY-4.0 <1>
+  subject: MyST Markdown
+```
+
+1. The license
+
+:::
+
+
+
 
 
 ### Magic Callout
 
 You can include the callouts also directly as code using either `//` or `#` comments.
+These will then be listed and numbered automatically.
 
-These will then be listed and numbered automatically
+
+:::{dropdown} Input
+:open:
 
 ````markdown
 ```csharp
@@ -65,12 +92,17 @@ var client = new ElasticsearchClient("<CLOUD_ID>", apiKey);
 ```
 ````
 
-Will output:
+:::
+
+:::{dropdown} Output
+:open:
 
 ```csharp
 var apiKey = new ApiKey("<API_KEY>"); // Set up the api key
 var client = new ElasticsearchClient("<CLOUD_ID>", apiKey);
 ```
+
+:::
 
 :::{note}
 the comments have the follow code to be hoisted as a callout.
