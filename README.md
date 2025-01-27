@@ -25,7 +25,7 @@ Options:
 
 Commands:
   generate    Converts a source markdown folder or file to an output folder
-  serve       Continuously serve a documentation folder at http://localhost:5000.
+  serve       Continuously serve a documentation folder at http://localhost:3000.
     File systems changes will be reflected without having to restart the server.
 ```
 
@@ -63,10 +63,10 @@ Through the `serve` command you can continuously and partially compile your docu
 
 ```bash
 docker run -v "./.git:/app/.git" -v "./docs:/app/docs" -v "./.artifacts:/app/.artifacts" \
-  -p 8080:8080 ghcr.io/elastic/docs-builder:edge serve
+  -p 3000:3000 ghcr.io/elastic/docs-builder:edge serve
 ```
 
-Each page is compiled on demand as you browse http://localhost:8080 and is never cached so changes to files and
+Each page is compiled on demand as you browse http://localhost:3000 and is never cached so changes to files and
 navigation will always be reflected upon refresh.
 
 Note the docker image is `linux-x86` and will be somewhat slower to invoke on OSX due to virtualization.
@@ -147,7 +147,7 @@ This project uses [Semantic Versioning](https://semver.org/) and its version is
 automatically determined by [release-drafter](https://github.com/release-drafter/release-drafter)
 based on the labels of the pull requests merged into the `main` branch.
 
-See the [release-drafter configuration](../.github/release-drafter.yml) for more details.
+See the [release-drafter configuration](./.github/release-drafter.yml) for more details.
 
 ## Creating a New Release
 
@@ -157,9 +157,9 @@ create a draft release or update the existing draft release in the [Releases](ht
 To create a new release you need to publish the existing draft release created by release-drafter.
 
 > [!IMPORTANT]
-> Make sure the [release-drafter workflow](../.github/workflows/release-drafter.yml) is finished before publishing the release.
+> Make sure the [release-drafter workflow](https://github.com/elastic/docs-builder/actions/workflows/release-drafter.yml) is finished before publishing the release.
 
 > [!NOTE]
-> When a release is published, the [create-major-tag workflow](../.github/workflows/create-major-tag.yml)
+> When a release is published, the [create-major-tag workflow](./.github/workflows/create-major-tag.yml)
 > will force push a new major tag in the format `vX` where `X` is the major version of the release.
 > For example, if the release is `1.2.3` was published, the workflow will force push a new tag `v1` on the same commit.

@@ -1,5 +1,0 @@
----
-title: File structure
----
-
-tbd

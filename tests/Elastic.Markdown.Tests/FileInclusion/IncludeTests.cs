@@ -23,7 +23,7 @@ public class IncludeTests(ITestOutputHelper output) : DirectiveTest<IncludeBlock
 	{
 		// language=markdown
 		var inclusion = "*Hello world*";
-		fileSystem.AddFile(@"docs/source/_snippets/test.md", inclusion);
+		fileSystem.AddFile(@"docs/_snippets/test.md", inclusion);
 	}
 
 	[Fact]
@@ -33,7 +33,7 @@ public class IncludeTests(ITestOutputHelper output) : DirectiveTest<IncludeBlock
 	public void IncludesInclusionHtml() =>
 		Html.Should()
 			.Contain("Hello world")
-			.And.Be("<p><em>Hello world</em></p>\n")
+			.And.Be("<p><em>Hello world</em></p>")
 		;
 }
 
@@ -41,7 +41,6 @@ public class IncludeTests(ITestOutputHelper output) : DirectiveTest<IncludeBlock
 public class IncludeSubstitutionTests(ITestOutputHelper output) : DirectiveTest<IncludeBlock>(output,
 """
 ---
-title: My Document
 sub:
   foo: "bar"
 ---
@@ -54,7 +53,7 @@ sub:
 	{
 		// language=markdown
 		var inclusion = "*Hello {{foo}}*";
-		fileSystem.AddFile(@"docs/source/_snippets/test.md", inclusion);
+		fileSystem.AddFile(@"docs/_snippets/test.md", inclusion);
 	}
 
 	[Fact]
@@ -64,7 +63,7 @@ sub:
 	public void InclusionInheritsYamlContext() =>
 		Html.Should()
 			.Contain("Hello bar")
-			.And.Be("<p><em>Hello bar</em></p>\n")
+			.And.Be("<p><em>Hello bar</em></p>")
 		;
 }
 
@@ -127,7 +126,7 @@ public class IncludeNeedsToLiveInSpecialFolder(ITestOutputHelper output) : Direc
 	{
 		// language=markdown
 		var inclusion = "*Hello world*";
-		fileSystem.AddFile(@"docs/source/test.md", inclusion);
+		fileSystem.AddFile(@"docs/test.md", inclusion);
 	}
 
 	[Fact]
@@ -163,7 +162,7 @@ public class CanNotIncludeItself(ITestOutputHelper output) : DirectiveTest<Inclu
 :::{include} test.md
 :::
 """;
-		fileSystem.AddFile(@"docs/source/_snippets/test.md", inclusion);
+		fileSystem.AddFile(@"docs/_snippets/test.md", inclusion);
 	}
 
 	[Fact]

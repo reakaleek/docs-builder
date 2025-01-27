@@ -16,20 +16,21 @@ namespace Documentation.Builder.Cli;
 internal class Commands(ILoggerFactory logger, ICoreService githubActionsService)
 {
 	/// <summary>
-	///	Continuously serve a documentation folder at http://localhost:5000.
+	///	Continuously serve a documentation folder at http://localhost:3000.
 	/// File systems changes will be reflected without having to restart the server.
 	/// </summary>
 	/// <param name="path">-p, Path to serve the documentation.
 	/// Defaults to the`{pwd}/docs` folder
 	/// </param>
+	/// <param name="port">Port to serve the documentation.</param>
 	/// <param name="ctx"></param>
 	[Command("serve")]
-	public async Task Serve(string? path = null, Cancel ctx = default)
+	[ConsoleAppFilter<CheckForUpdatesFilter>]
+	public async Task Serve(string? path = null, int port = 3000, Cancel ctx = default)
 	{
-		var host = new DocumentationWebHost(path, logger, new FileSystem());
+		var host = new DocumentationWebHost(path, port, logger, new FileSystem());
 		await host.RunAsync(ctx);
 		await host.StopAsync(ctx);
-
 	}
 
 	/// <summary>
@@ -45,6 +46,7 @@ internal class Commands(ILoggerFactory logger, ICoreService githubActionsService
 	[Command("generate")]
 	[ConsoleAppFilter<StopwatchFilter>]
 	[ConsoleAppFilter<CatchExceptionFilter>]
+	[ConsoleAppFilter<CheckForUpdatesFilter>]
 	public async Task<int> Generate(
 		string? path = null,
 		string? output = null,
@@ -89,6 +91,7 @@ internal class Commands(ILoggerFactory logger, ICoreService githubActionsService
 	[Command("")]
 	[ConsoleAppFilter<StopwatchFilter>]
 	[ConsoleAppFilter<CatchExceptionFilter>]
+	[ConsoleAppFilter<CheckForUpdatesFilter>]
 	public async Task<int> GenerateDefault(
 		string? path = null,
 		string? output = null,

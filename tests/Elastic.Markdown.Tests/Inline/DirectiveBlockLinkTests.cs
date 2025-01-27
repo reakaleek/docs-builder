@@ -27,17 +27,15 @@ This is a 'warning' admonition
 		// language=markdown
 		var inclusion =
 """
----
-title: Special Requirements
----
+# Special Requirements
 
 :::{important}
 :name: hint_ref
-This is a 'important' admonition
+This is an 'important' admonition
 :::
 """;
-		fileSystem.AddFile(@"docs/source/testing/req.md", inclusion);
-		fileSystem.AddFile(@"docs/source/_static/img/observability.png", new MockFileData(""));
+		fileSystem.AddFile(@"docs/testing/req.md", inclusion);
+		fileSystem.AddFile(@"docs/_static/img/observability.png", new MockFileData(""));
 	}
 
 }

@@ -8,18 +8,17 @@ using Elastic.Markdown.IO.Navigation;
 using Elastic.Markdown.Myst;
 using Elastic.Markdown.Myst.Directives;
 using Elastic.Markdown.Myst.FrontMatter;
+using Elastic.Markdown.Myst.InlineParsers;
 using Elastic.Markdown.Slices;
 using Markdig;
 using Markdig.Extensions.Yaml;
 using Markdig.Syntax;
-using Slugify;
 
 namespace Elastic.Markdown.IO;
 
 
 public record MarkdownFile : DocumentationFile
 {
-	private readonly SlugHelper _slugHelper = new();
 	private string? _navigationTitle;
 
 	public MarkdownFile(IFileInfo sourceFile, IDirectoryInfo rootPath, MarkdownParser parser, BuildContext context)
@@ -43,18 +42,28 @@ public record MarkdownFile : DocumentationFile
 	public string? UrlPathPrefix { get; }
 	private MarkdownParser MarkdownParser { get; }
 	public YamlFrontMatter? YamlFrontMatter { get; private set; }
-	public string? Title { get; private set; }
+	public string? TitleRaw { get; private set; }
+
+	public string? Title
+	{
+		get => _title;
+		private set
+		{
+			_title = value?.StripMarkdown();
+			TitleRaw = value;
+		}
+	}
 	public string? NavigationTitle
 	{
 		get => !string.IsNullOrEmpty(_navigationTitle) ? _navigationTitle : Title;
-		private set => _navigationTitle = value;
+		private set => _navigationTitle = value?.StripMarkdown();
 	}
 
 	//indexed by slug
-	private readonly Dictionary<string, PageTocItem> _tableOfContent = new();
+	private readonly Dictionary<string, PageTocItem> _tableOfContent = new(StringComparer.OrdinalIgnoreCase);
 	public IReadOnlyDictionary<string, PageTocItem> TableOfContents => _tableOfContent;
 
-	private readonly HashSet<string> _additionalLabels = new();
+	private readonly HashSet<string> _additionalLabels = new(StringComparer.OrdinalIgnoreCase);
 	public IReadOnlySet<string> AdditionalLabels => _additionalLabels;
 
 	public string FilePath { get; }
@@ -63,10 +72,11 @@ public record MarkdownFile : DocumentationFile
 		? $"{UrlPathPrefix}/{RelativePath.Remove(RelativePath.LastIndexOf("index.md", StringComparison.Ordinal), "index.md".Length)}"
 		: $"{UrlPathPrefix}/{RelativePath.Remove(RelativePath.LastIndexOf(".md", StringComparison.Ordinal), 3)}";
 
-	public int NavigationIndex { get; set; }
+	public int NavigationIndex { get; internal set; } = -1;
 
 	private bool _instructionsParsed;
 	private DocumentationGroup? _parent;
+	private string? _title;
 
 	public MarkdownFile[] YieldParents()
 	{
@@ -94,18 +104,36 @@ public record MarkdownFile : DocumentationFile
 			await MinimalParse(ctx);
 
 		var document = await MarkdownParser.ParseAsync(SourceFile, YamlFrontMatter, ctx);
-		if (Title == RelativePath)
-			Collector.EmitWarning(SourceFile.FullName, "Missing yaml front-matter block defining a title or a level 1 header");
 		return document;
 	}
 
 	private void ReadDocumentInstructions(MarkdownDocument document)
 	{
+
+		Title = document
+			.FirstOrDefault(block => block is HeadingBlock { Level: 1 })?
+			.GetData("header") as string;
+
 		if (document.FirstOrDefault() is YamlFrontMatterBlock yaml)
 		{
 			var raw = string.Join(Environment.NewLine, yaml.Lines.Lines);
-			YamlFrontMatter = ReadYamlFrontMatter(document, raw);
-			Title = YamlFrontMatter.Title;
+			YamlFrontMatter = ReadYamlFrontMatter(raw);
+
+			// TODO remove when migration tool and our demo content sets are updated
+			var deprecatedTitle = YamlFrontMatter.Title;
+			if (!string.IsNullOrEmpty(deprecatedTitle))
+			{
+				Collector.EmitWarning(FilePath, "'title' is no longer supported in yaml frontmatter please use a level 1 header instead.");
+				// TODO remove fallback once migration is over and we fully deprecate front matter titles
+				if (string.IsNullOrEmpty(Title))
+					Title = deprecatedTitle;
+			}
+
+
+			// set title on yaml front matter manually.
+			// frontmatter gets passed around as page information throughout
+			YamlFrontMatter.Title = Title;
+
 			NavigationTitle = YamlFrontMatter.NavigationTitle;
 			if (!string.IsNullOrEmpty(NavigationTitle))
 			{
@@ -127,9 +155,12 @@ public record MarkdownFile : DocumentationFile
 			}
 		}
 		else
+			YamlFrontMatter = new YamlFrontMatter { Title = Title };
+
+		if (string.IsNullOrEmpty(Title))
 		{
 			Title = RelativePath;
-			NavigationTitle = RelativePath;
+			Collector.EmitWarning(FilePath, "Document has no title, using file name as title.");
 		}
 
 		var contents = document
@@ -138,8 +169,8 @@ public record MarkdownFile : DocumentationFile
 			.Select(h => (h.GetData("header") as string, h.GetData("anchor") as string))
 			.Select(h => new PageTocItem
 			{
-				Heading = h.Item1!.Replace("`", "").Replace("*", ""),
-				Slug = _slugHelper.GenerateSlug(h.Item2 ?? h.Item1)
+				Heading = h.Item1!.StripMarkdown(),
+				Slug = (h.Item2 ?? h.Item1).Slugify()
 			})
 			.ToList();
 		_tableOfContent.Clear();
@@ -149,8 +180,10 @@ public record MarkdownFile : DocumentationFile
 		var labels = document.Descendants<DirectiveBlock>()
 			.Select(b => b.CrossReferenceName)
 			.Where(l => !string.IsNullOrWhiteSpace(l))
-			.Select(_slugHelper.GenerateSlug)
+			.Select(s => s.Slugify())
+			.Concat(document.Descendants<InlineAnchor>().Select(a => a.Anchor))
 			.ToArray();
+
 		foreach (var label in labels)
 		{
 			if (!string.IsNullOrEmpty(label))
@@ -160,7 +193,7 @@ public record MarkdownFile : DocumentationFile
 		_instructionsParsed = true;
 	}
 
-	private YamlFrontMatter ReadYamlFrontMatter(MarkdownDocument document, string raw)
+	private YamlFrontMatter ReadYamlFrontMatter(string raw)
 	{
 		try
 		{
@@ -174,14 +207,12 @@ public record MarkdownFile : DocumentationFile
 	}
 
 
-	public string CreateHtml(MarkdownDocument document) =>
-		// var writer = new StringWriter();
-		// var renderer = new HtmlRenderer(writer);
-		// renderer.LinkRewriter = (s => s);
-		// MarkdownParser.Pipeline.Setup(renderer);
-		//
-		// var document = MarkdownParser.Parse(markdown, pipeline);
-		// renderer.Render(document);
-		// writer.Flush();
-		document.ToHtml(MarkdownParser.Pipeline);
+	public string CreateHtml(MarkdownDocument document)
+	{
+		//we manually render title and optionally append an applies block embedded in yaml front matter.
+		var h1 = document.Descendants<HeadingBlock>().FirstOrDefault(h => h.Level == 1);
+		if (h1 is not null)
+			document.Remove(h1);
+		return document.ToHtml(MarkdownParser.Pipeline);
+	}
 }
