@@ -119,7 +119,7 @@ public class EnhancedCodeBlockParser : FencedBlockParserBase<EnhancedCodeBlock>
 		}
 
 		//update string slices to ignore call outs
-		if (codeBlock.CallOuts?.Count > 0)
+		if (codeBlock.CallOuts.Count > 0)
 		{
 
 			var callouts = codeBlock.CallOuts.Aggregate(new Dictionary<int, CallOut>(), (acc, curr) =>
@@ -200,9 +200,11 @@ public class EnhancedCodeBlockParser : FencedBlockParserBase<EnhancedCodeBlock>
 
 	private static List<CallOut> ParseClassicCallOuts(ValueMatch match, ref ReadOnlySpan<char> span, ref int callOutIndex, int originatingLine)
 	{
-		var startIndex = span.LastIndexOf("<");
+		var indexOfLastComment = Math.Max(span.LastIndexOf('#'), span.LastIndexOf("//"));
+		var startIndex = span.LastIndexOf('<');
 		if (startIndex <= 0)
 			return [];
+
 		var allStartIndices = new List<int>();
 		for (var i = 0; i < span.Length; i++)
 		{
@@ -215,15 +217,17 @@ public class EnhancedCodeBlockParser : FencedBlockParserBase<EnhancedCodeBlock>
 			callOutIndex++;
 			var endIndex = span.Slice(match.Index + individualStartIndex).IndexOf('>') + 1;
 			var callout = span.Slice(match.Index + individualStartIndex, endIndex);
-			_ = int.TryParse(callout.Trim(['<', '>']), out var index);
-			callOuts.Add(new CallOut
+			if (int.TryParse(callout.Trim(['<', '>']), out var index))
 			{
-				Index = index,
-				Text = callout.TrimStart('/').TrimStart('#').TrimStart().ToString(),
-				InlineCodeAnnotation = false,
-				SliceStart = individualStartIndex,
-				Line = originatingLine,
-			});
+				callOuts.Add(new CallOut
+				{
+					Index = index,
+					Text = callout.TrimStart('/').TrimStart('#').TrimStart().ToString(),
+					InlineCodeAnnotation = false,
+					SliceStart = indexOfLastComment > 0 ? indexOfLastComment : startIndex,
+					Line = originatingLine,
+				});
+			}
 		}
 		return callOuts;
 	}
