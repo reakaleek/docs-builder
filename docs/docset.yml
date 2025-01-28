@@ -55,7 +55,6 @@ toc:
         children:
           - file: index.md
           - file: content.md
-          - file: shared-attributes.md
           - file: landing-page.md
           - file: redirects.md
       - folder: content-set
@@ -78,6 +77,7 @@ toc:
       - file: file_inclusion.md
       - file: frontmatter.md
       - file: images.md
+      - file: line_breaks.md
       - file: links.md
       - file: passthrough.md
       - file: applies.md
