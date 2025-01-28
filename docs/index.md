@@ -9,3 +9,32 @@ Elastic Docs V3 is our next-generation documentation platform designed to improv
 * [Configure content sets in V3](./configure/index.md)
 * [Learn about V3 syntax](./syntax/index.md)
 * [Contribute to V3 (developer guide)](./development/index.md)
+
+
+:::{dropdown} Markdown
+:open:
+
+````markdown
+```csharp
+var x = 1; <1>
+var y = x - 2;
+var z = y - 2; <1> <2>
+```
+
+1. Foo
+2. Bar
+````
+
+:::
+
+:::{dropdown} Output
+:open:
+```csharp
+var x = 1; <1>
+var y = x - 2;
+var z = y - 2; <1> <2>
+```
+
+1. Foo
+2. Bar
+:::

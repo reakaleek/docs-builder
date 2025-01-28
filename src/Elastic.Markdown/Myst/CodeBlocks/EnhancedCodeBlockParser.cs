@@ -98,39 +98,48 @@ public class EnhancedCodeBlockParser : FencedBlockParserBase<EnhancedCodeBlock>
 			if (codeBlock.OpeningFencedCharCount > 3)
 				continue;
 
-			if (span.IndexOf("<") < 0 && span.IndexOf("//") < 0)
-				continue;
+			List<CallOut> callOuts = [];
 
-			CallOut? callOut = null;
-
-			if (span.IndexOf("<") > 0)
+			var hasClassicCallout = span.IndexOf("<") > 0;
+			if (hasClassicCallout)
 			{
 				var matchClassicCallout = CallOutParser.CallOutNumber().EnumerateMatches(span);
-				callOut = EnumerateAnnotations(matchClassicCallout, ref span, ref callOutIndex, originatingLine, false);
+				callOuts.AddRange(
+					EnumerateAnnotations(matchClassicCallout, ref span, ref callOutIndex, originatingLine, false)
+				);
 			}
 
 			// only support magic callouts for smaller line lengths
-			if (callOut is null && span.Length < 200)
+			if (callOuts.Count == 0 && span.Length < 200)
 			{
 				var matchInline = CallOutParser.MathInlineAnnotation().EnumerateMatches(span);
-				callOut = EnumerateAnnotations(matchInline, ref span, ref callOutIndex, originatingLine,
-					true);
+				callOuts.AddRange(
+					EnumerateAnnotations(matchInline, ref span, ref callOutIndex, originatingLine, true)
+				);
 			}
 
-			if (callOut is null)
+			if (callOuts.Count == 0)
 				continue;
 
 			codeBlock.CallOuts ??= [];
-			codeBlock.CallOuts.Add(callOut);
+			codeBlock.CallOuts.AddRange(callOuts);
 		}
 
 		//update string slices to ignore call outs
-		if (codeBlock.CallOuts is not null)
+		if (codeBlock.CallOuts?.Count > 0)
 		{
-			foreach (var callout in codeBlock.CallOuts)
+
+			var callouts = codeBlock.CallOuts.Aggregate(new Dictionary<int, CallOut>(), (acc, curr) =>
+			{
+				if (acc.TryAdd(curr.Line, curr)) return acc;
+				if (acc[curr.Line].SliceStart > curr.SliceStart)
+					acc[curr.Line] = curr;
+				return acc;
+			});
+
+			foreach (var callout in callouts.Values)
 			{
 				var line = lines.Lines[callout.Line - 1];
-
 				var newSpan = line.Slice.AsSpan()[..callout.SliceStart];
 				var s = new StringSlice(newSpan.ToString());
 				lines.Lines[callout.Line - 1] = new StringLine(ref s);
@@ -149,44 +158,79 @@ public class EnhancedCodeBlockParser : FencedBlockParserBase<EnhancedCodeBlock>
 		return base.Close(processor, block);
 	}
 
-	private static CallOut? EnumerateAnnotations(Regex.ValueMatchEnumerator matches,
+	private static List<CallOut> EnumerateAnnotations(Regex.ValueMatchEnumerator matches,
 		ref ReadOnlySpan<char> span,
 		ref int callOutIndex,
 		int originatingLine,
 		bool inlineCodeAnnotation)
 	{
+		var callOuts = new List<CallOut>();
 		foreach (var match in matches)
 		{
 			if (match.Length == 0)
 				continue;
 
-			var startIndex = span.LastIndexOf("<");
-			if (!inlineCodeAnnotation && startIndex <= 0)
-				continue;
 			if (inlineCodeAnnotation)
 			{
-				startIndex = Math.Max(span.LastIndexOf("//"), span.LastIndexOf('#'));
-				if (startIndex <= 0)
-					continue;
+				var callOut = ParseMagicCallout(match, ref span, ref callOutIndex, originatingLine);
+				if (callOut != null)
+					return [callOut];
+				continue;
 			}
 
+			var classicCallOuts = ParseClassicCallOuts(match, ref span, ref callOutIndex, originatingLine);
+			callOuts.AddRange(classicCallOuts);
+		}
+
+		return callOuts;
+	}
+
+	private static CallOut? ParseMagicCallout(ValueMatch match, ref ReadOnlySpan<char> span, ref int callOutIndex, int originatingLine)
+	{
+		var startIndex = Math.Max(span.LastIndexOf("//"), span.LastIndexOf('#'));
+		if (startIndex <= 0)
+			return null;
+
+		callOutIndex++;
+		var callout = span.Slice(match.Index + startIndex, match.Length - startIndex);
+
+		return new CallOut
+		{
+			Index = callOutIndex,
+			Text = callout.TrimStart('/').TrimStart('#').TrimStart().ToString(),
+			InlineCodeAnnotation = true,
+			SliceStart = startIndex,
+			Line = originatingLine,
+		};
+	}
+
+	private static List<CallOut> ParseClassicCallOuts(ValueMatch match, ref ReadOnlySpan<char> span, ref int callOutIndex, int originatingLine)
+	{
+		var startIndex = span.LastIndexOf("<");
+		if (startIndex <= 0)
+			return [];
+		var allStartIndices = new List<int>();
+		for (var i = 0; i < span.Length; i++)
+		{
+			if (span[i] == '<')
+				allStartIndices.Add(i);
+		}
+		var callOuts = new List<CallOut>();
+		foreach (var individualStartIndex in allStartIndices)
+		{
 			callOutIndex++;
-			var callout = span.Slice(match.Index + startIndex, match.Length - startIndex);
-			var index = callOutIndex;
-			if (!inlineCodeAnnotation && int.TryParse(callout.Trim(['<', '>']), out index))
-			{
-
-			}
-			return new CallOut
+			var endIndex = span.Slice(match.Index + individualStartIndex).IndexOf('>') + 1;
+			var callout = span.Slice(match.Index + individualStartIndex, endIndex);
+			_ = int.TryParse(callout.Trim(['<', '>']), out var index);
+			callOuts.Add(new CallOut
 			{
 				Index = index,
 				Text = callout.TrimStart('/').TrimStart('#').TrimStart().ToString(),
-				InlineCodeAnnotation = inlineCodeAnnotation,
-				SliceStart = startIndex,
+				InlineCodeAnnotation = false,
+				SliceStart = individualStartIndex,
 				Line = originatingLine,
-			};
+			});
 		}
-
-		return null;
+		return callOuts;
 	}
 }
