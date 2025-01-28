@@ -131,7 +131,8 @@ public class EnhancedCodeBlockParser : FencedBlockParserBase<EnhancedCodeBlock>
 
 			var callouts = codeBlock.CallOuts.Aggregate(new Dictionary<int, CallOut>(), (acc, curr) =>
 			{
-				if (acc.TryAdd(curr.Line, curr)) return acc;
+				if (acc.TryAdd(curr.Line, curr))
+					return acc;
 				if (acc[curr.Line].SliceStart > curr.SliceStart)
 					acc[curr.Line] = curr;
 				return acc;
