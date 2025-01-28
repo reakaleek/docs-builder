@@ -239,3 +239,28 @@ public class MultipleCalloutsInOneLine(ITestOutputHelper output) : CodeBlockCall
 	[Fact]
 	public void HasNoErrors() => Collector.Diagnostics.Should().HaveCount(0);
 }
+
+public class CodeBlockWithChevronInsideCode(ITestOutputHelper output) : CodeBlockCallOutTests(output, "csharp",
+	"""
+	app.UseFilter<StopwatchFilter>(); <1>
+	app.UseFilter<CatchExceptionFilter>(); <2>
+
+	var x = 1; <1>
+	var y = x - 2;
+	var z = y - 2; <1> <2>
+	""",
+	"""
+	1. First callout
+	2. Second callout
+	"""
+)
+{
+	[Fact]
+	public void ParsesMagicCallOuts() => Block!.CallOuts
+		.Should().NotBeNullOrEmpty()
+		.And.HaveCount(5)
+		.And.OnlyContain(c => c.Text.StartsWith("<"));
+
+	[Fact]
+	public void HasNoErrors() => Collector.Diagnostics.Should().HaveCount(0);
+}
