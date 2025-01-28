@@ -99,7 +99,6 @@ public class EnhancedCodeBlockParser : FencedBlockParserBase<EnhancedCodeBlock>
 				continue;
 
 			List<CallOut> callOuts = [];
-
 			var hasClassicCallout = span.IndexOf("<") > 0;
 			if (hasClassicCallout)
 			{
@@ -108,7 +107,6 @@ public class EnhancedCodeBlockParser : FencedBlockParserBase<EnhancedCodeBlock>
 					EnumerateAnnotations(matchClassicCallout, ref span, ref callOutIndex, originatingLine, false)
 				);
 			}
-
 			// only support magic callouts for smaller line lengths
 			if (callOuts.Count == 0 && span.Length < 200)
 			{
@@ -117,11 +115,6 @@ public class EnhancedCodeBlockParser : FencedBlockParserBase<EnhancedCodeBlock>
 					EnumerateAnnotations(matchInline, ref span, ref callOutIndex, originatingLine, true)
 				);
 			}
-
-			if (callOuts.Count == 0)
-				continue;
-
-			codeBlock.CallOuts ??= [];
 			codeBlock.CallOuts.AddRange(callOuts);
 		}
 
