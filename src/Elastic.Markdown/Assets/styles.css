@@ -1,8 +1,8 @@
-@import "legacy/pygments.css";
-@import "legacy/shibuya.css";
-@import "legacy/mystnb.css";
-@import "legacy/copybutton.css";
-@import "legacy/togglebutton.css";
-@import "legacy/sphinx-design.min.css";
-@import "legacy/custom.css";
-@import "legacy/atom-one-light.css";
+@import "tailwindcss";
+@import "highlight.js/styles/atom-one-dark.css";
+@import "./theme.css";
+@import "./markdown/typography.css";
+
+main.markdown-content {
+    max-width: 80ch;
+}
