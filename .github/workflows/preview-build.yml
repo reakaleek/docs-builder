@@ -63,7 +63,7 @@ jobs:
         id: deployment
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}
-          REF: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.ref || github.ref_name }}
+          REF: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.sha || github.ref_name }}
         with:
           result-encoding: string
           script: |
