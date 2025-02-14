@@ -26,6 +26,7 @@ external_hosts:
   - atlassian.net
   - elastic.dev
   - visualstudio.com
+  - wikipedia.org
 exclude:
   - '_*.md'
 subs:
@@ -81,6 +82,7 @@ toc:
   - folder: syntax
     children:
       - file: index.md
+      - file: headings.md
       - file: admonitions.md
       - file: applies.md
       - file: automated_settings.md
