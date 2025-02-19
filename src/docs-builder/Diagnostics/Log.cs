@@ -5,8 +5,7 @@
 using Elastic.Markdown.Diagnostics;
 using Microsoft.Extensions.Logging;
 
-// ReSharper disable once CheckNamespace
-namespace Documentation.Builder;
+namespace Documentation.Builder.Diagnostics;
 
 // named Log for terseness on console output
 public class Log(ILogger logger) : IDiagnosticsOutput
@@ -14,9 +13,9 @@ public class Log(ILogger logger) : IDiagnosticsOutput
 	public void Write(Diagnostic diagnostic)
 	{
 		if (diagnostic.Severity == Severity.Error)
-			logger.LogError($"{diagnostic.Message} ({diagnostic.File}:{diagnostic.Line})");
+			logger.LogError("{Message} ({File}:{Line})", diagnostic.Message, diagnostic.File, diagnostic.Line);
 		else
-			logger.LogWarning($"{diagnostic.Message} ({diagnostic.File}:{diagnostic.Line})");
+			logger.LogWarning("{Message} ({File}:{Line})", diagnostic.Message, diagnostic.File, diagnostic.Line);
 	}
 }
 

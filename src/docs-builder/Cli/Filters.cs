@@ -6,7 +6,7 @@ using ConsoleAppFramework;
 
 namespace Documentation.Builder.Cli;
 
-internal class StopwatchFilter(ConsoleAppFilter next) : ConsoleAppFilter(next)
+internal sealed class StopwatchFilter(ConsoleAppFilter next) : ConsoleAppFilter(next)
 {
 	public override async Task InvokeAsync(ConsoleAppContext context, Cancel ctx)
 	{
@@ -28,9 +28,9 @@ internal class StopwatchFilter(ConsoleAppFilter next) : ConsoleAppFilter(next)
 	}
 }
 
-internal class CatchExceptionFilter(ConsoleAppFilter next) : ConsoleAppFilter(next)
+internal sealed class CatchExceptionFilter(ConsoleAppFilter next) : ConsoleAppFilter(next)
 {
-	public override async Task InvokeAsync(ConsoleAppContext context, CancellationToken cancellationToken)
+	public override async Task InvokeAsync(ConsoleAppContext context, Cancel cancellationToken)
 	{
 		try
 		{

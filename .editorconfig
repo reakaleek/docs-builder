@@ -143,6 +143,9 @@ csharp_style_expression_bodied_operators = true:suggestion
 csharp_style_expression_bodied_properties = true:suggestion
 csharp_style_expression_bodied_indexers = true:suggestion
 csharp_style_expression_bodied_accessors = true:suggestion
+csharp_style_expression_bodied_local_functions = when_on_single_line:error
+dotnet_style_prefer_conditional_expression_over_return = false
+
 
 # Suggest more modern language features when available
 csharp_style_pattern_matching_over_is_with_cast_check = true:error
@@ -197,11 +200,36 @@ resharper_redundant_case_label_highlighting=do_not_show
 resharper_redundant_argument_default_value_highlighting=do_not_show
 resharper_explicit_caller_info_argument_highlighting=hint
 
+csharp_style_namespace_declarations = file_scoped
+
+dotnet_analyzer_diagnostic.severity = warning
+dotnet_analyzer_diagnostic.category-Style.severity = warning
+
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1848
+dotnet_diagnostic.CA1848.severity = suggestion
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca2201
+dotnet_diagnostic.CA2201.severity = none
+
+# disable for default arm on switches, IDE0072 still covers missing enum members
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0010
+dotnet_diagnostic.IDE0010.severity = none
+
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/IDE0200
+dotnet_diagnostic.IDE0200.severity = none
+
+# TODO enable GenerateDocumentationFile to properly document our code
+dotnet_diagnostic.IDE0005.severity = none
+
+dotnet_diagnostic.IDE0001.severity = none
+
 dotnet_diagnostic.IDE0057.severity = none
 
 [DocumentationWebHost.cs]
 dotnet_diagnostic.IL3050.severity = none
 dotnet_diagnostic.IL2026.severity = none
+
+[tests/**/*.cs]
+dotnet_diagnostic.IDE0058.severity = none
 
 
 [*.{sh,bat,ps1}]

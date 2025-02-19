@@ -11,13 +11,15 @@ using Microsoft.Extensions.Logging;
 
 namespace Documentation.Assembler.Cli;
 
-internal class LinkCommands(ILoggerFactory logger)
+internal sealed class LinkCommands(ILoggerFactory logger)
 {
 	private void AssignOutputLogger()
 	{
 		var log = logger.CreateLogger<Program>();
+#pragma warning disable CA2254
 		ConsoleApp.Log = msg => log.LogInformation(msg);
 		ConsoleApp.LogError = msg => log.LogError(msg);
+#pragma warning restore CA2254
 	}
 
 	/// <summary>
@@ -38,7 +40,7 @@ internal class LinkCommands(ILoggerFactory logger)
 		Console.WriteLine("--------------------------------------");
 
 
-		var linkIndex = new LinkIndex { Repositories = new Dictionary<string, Dictionary<string, LinkIndexEntry>>() };
+		var linkIndex = new LinkIndex { Repositories = [] };
 		try
 		{
 			ListObjectsV2Response response;

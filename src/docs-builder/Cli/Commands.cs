@@ -13,13 +13,15 @@ using Microsoft.Extensions.Logging;
 
 namespace Documentation.Builder.Cli;
 
-internal class Commands(ILoggerFactory logger, ICoreService githubActionsService)
+internal sealed class Commands(ILoggerFactory logger, ICoreService githubActionsService)
 {
 	private void AssignOutputLogger()
 	{
 		var log = logger.CreateLogger<Program>();
+#pragma warning disable CA2254
 		ConsoleApp.Log = msg => log.LogInformation(msg);
 		ConsoleApp.LogError = msg => log.LogError(msg);
+#pragma warning restore CA2254
 	}
 
 	/// <summary>

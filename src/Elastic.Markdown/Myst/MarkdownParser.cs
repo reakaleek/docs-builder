@@ -35,34 +35,35 @@ public class MarkdownParser(
 	private ICrossLinkResolver LinksResolver { get; } = linksResolver;
 
 	// ReSharper disable once InconsistentNaming
-	private static MarkdownPipeline? _minimalPipeline;
-	public static MarkdownPipeline MinimalPipeline
+	private static MarkdownPipeline? MinimalPipelineCached;
+
+	private static MarkdownPipeline MinimalPipeline
 	{
 		get
 		{
-			if (_minimalPipeline is not null)
-				return _minimalPipeline;
+			if (MinimalPipelineCached is not null)
+				return MinimalPipelineCached;
 			var builder = new MarkdownPipelineBuilder()
 				.UseYamlFrontMatter()
 				.UseInlineAnchors()
 				.UseHeadingsWithSlugs()
 				.UseDirectives();
 
-			builder.BlockParsers.TryRemove<IndentedCodeBlockParser>();
-			_minimalPipeline = builder.Build();
-			return _minimalPipeline;
+			_ = builder.BlockParsers.TryRemove<IndentedCodeBlockParser>();
+			MinimalPipelineCached = builder.Build();
+			return MinimalPipelineCached;
 
 		}
 	}
 
 	// ReSharper disable once InconsistentNaming
-	private static MarkdownPipeline? _pipeline;
+	private static MarkdownPipeline? PipelineCached;
 	public static MarkdownPipeline Pipeline
 	{
 		get
 		{
-			if (_pipeline is not null)
-				return _pipeline;
+			if (PipelineCached is not null)
+				return PipelineCached;
 
 			var builder = new MarkdownPipelineBuilder()
 				.UseInlineAnchors()
@@ -81,9 +82,9 @@ public class MarkdownParser(
 				.UseEnhancedCodeBlocks()
 				.DisableHtml()
 				.UseHardBreaks();
-			builder.BlockParsers.TryRemove<IndentedCodeBlockParser>();
-			_pipeline = builder.Build();
-			return _pipeline;
+			_ = builder.BlockParsers.TryRemove<IndentedCodeBlockParser>();
+			PipelineCached = builder.Build();
+			return PipelineCached;
 		}
 	}
 
@@ -108,7 +109,7 @@ public class MarkdownParser(
 		return ParseAsync(path, context, Pipeline, ctx);
 	}
 
-	private async Task<MarkdownDocument> ParseAsync(
+	private static async Task<MarkdownDocument> ParseAsync(
 		IFileInfo path,
 		MarkdownParserContext context,
 		MarkdownPipeline pipeline,

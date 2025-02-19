@@ -2,6 +2,7 @@
 // Elasticsearch B.V licenses this file to you under the Apache 2.0 License.
 // See the LICENSE file in the project root for more information
 
+using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
@@ -9,11 +10,29 @@ using YamlDotNet.Serialization;
 
 namespace Elastic.Markdown.Myst.FrontMatter;
 
+public class WarningCollection : IEquatable<WarningCollection>, IReadOnlyCollection<string>
+{
+	private readonly List<string> _list = [];
+
+	public WarningCollection(IEnumerable<string> warnings) => _list.AddRange(warnings);
+
+	public bool Equals(WarningCollection? other) => other != null && _list.SequenceEqual(other._list);
+
+	public IEnumerator<string> GetEnumerator() => _list.GetEnumerator();
+
+	public override bool Equals(object? obj) => Equals(obj as WarningCollection);
+
+	public override int GetHashCode() => _list.GetHashCode();
+	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+	public int Count => _list.Count;
+}
+
 [YamlSerializable]
 public record ApplicableTo
 {
 	[YamlMember(Alias = "stack")]
-	public ApplicabilityOverTime? Stack { get; set; }
+	public AppliesCollection? Stack { get; set; }
 
 	[YamlMember(Alias = "deployment")]
 	public DeploymentApplicability? Deployment { get; set; }
@@ -22,16 +41,16 @@ public record ApplicableTo
 	public ServerlessProjectApplicability? Serverless { get; set; }
 
 	[YamlMember(Alias = "product")]
-	public ApplicabilityOverTime? Product { get; set; }
+	public AppliesCollection? Product { get; set; }
 
-	public string[]? Warnings { get; set; }
+	internal WarningCollection? Warnings { get; set; }
 
 	public static ApplicableTo All { get; } = new()
 	{
-		Stack = ApplicabilityOverTime.GenerallyAvailable,
+		Stack = AppliesCollection.GenerallyAvailable,
 		Serverless = ServerlessProjectApplicability.All,
 		Deployment = DeploymentApplicability.All,
-		Product = ApplicabilityOverTime.GenerallyAvailable
+		Product = AppliesCollection.GenerallyAvailable
 	};
 }
 
@@ -39,23 +58,23 @@ public record ApplicableTo
 public record DeploymentApplicability
 {
 	[YamlMember(Alias = "self")]
-	public ApplicabilityOverTime? Self { get; set; }
+	public AppliesCollection? Self { get; set; }
 
 	[YamlMember(Alias = "ece")]
-	public ApplicabilityOverTime? Ece { get; set; }
+	public AppliesCollection? Ece { get; set; }
 
 	[YamlMember(Alias = "eck")]
-	public ApplicabilityOverTime? Eck { get; set; }
+	public AppliesCollection? Eck { get; set; }
 
 	[YamlMember(Alias = "ess")]
-	public ApplicabilityOverTime? Ess { get; set; }
+	public AppliesCollection? Ess { get; set; }
 
 	public static DeploymentApplicability All { get; } = new()
 	{
-		Ece = ApplicabilityOverTime.GenerallyAvailable,
-		Eck = ApplicabilityOverTime.GenerallyAvailable,
-		Ess = ApplicabilityOverTime.GenerallyAvailable,
-		Self = ApplicabilityOverTime.GenerallyAvailable
+		Ece = AppliesCollection.GenerallyAvailable,
+		Eck = AppliesCollection.GenerallyAvailable,
+		Ess = AppliesCollection.GenerallyAvailable,
+		Self = AppliesCollection.GenerallyAvailable
 	};
 }
 
@@ -63,27 +82,27 @@ public record DeploymentApplicability
 public record ServerlessProjectApplicability
 {
 	[YamlMember(Alias = "elasticsearch")]
-	public ApplicabilityOverTime? Elasticsearch { get; set; }
+	public AppliesCollection? Elasticsearch { get; set; }
 
 	[YamlMember(Alias = "observability")]
-	public ApplicabilityOverTime? Observability { get; set; }
+	public AppliesCollection? Observability { get; set; }
 
 	[YamlMember(Alias = "security")]
-	public ApplicabilityOverTime? Security { get; set; }
+	public AppliesCollection? Security { get; set; }
 
 	/// <summary>
 	/// Returns if all projects share the same applicability
 	/// </summary>
-	public ApplicabilityOverTime? AllProjects =>
+	public AppliesCollection? AllProjects =>
 		Elasticsearch == Observability && Observability == Security
 			? Elasticsearch
 			: null;
 
 	public static ServerlessProjectApplicability All { get; } = new()
 	{
-		Elasticsearch = ApplicabilityOverTime.GenerallyAvailable,
-		Observability = ApplicabilityOverTime.GenerallyAvailable,
-		Security = ApplicabilityOverTime.GenerallyAvailable
+		Elasticsearch = AppliesCollection.GenerallyAvailable,
+		Observability = AppliesCollection.GenerallyAvailable,
+		Security = AppliesCollection.GenerallyAvailable
 	};
 }
 
@@ -115,7 +134,7 @@ public class ApplicableToConverter : IYamlTypeConverter
 		var warnings = new List<string>();
 
 		var keys = dictionary.Keys.OfType<string>().ToArray();
-		var oldStyleKeys = keys.Where(k => k.StartsWith(":")).ToList();
+		var oldStyleKeys = keys.Where(k => k.StartsWith(':')).ToList();
 		if (oldStyleKeys.Count > 0)
 			warnings.Add($"Applies block does not use valid yaml keys: {string.Join(", ", oldStyleKeys)}");
 		var unknownKeys = keys.Except(KnownKeys).Except(oldStyleKeys).ToList();
@@ -138,7 +157,7 @@ public class ApplicableToConverter : IYamlTypeConverter
 			applicableTo.Serverless = serverless;
 
 		if (warnings.Count > 0)
-			applicableTo.Warnings = warnings.ToArray();
+			applicableTo.Warnings = new WarningCollection(warnings);
 		return applicableTo;
 	}
 
@@ -147,11 +166,11 @@ public class ApplicableToConverter : IYamlTypeConverter
 		if (!dictionary.TryGetValue("deployment", out var deploymentType))
 			return;
 
-		if (deploymentType is null || deploymentType is string s && string.IsNullOrWhiteSpace(s))
+		if (deploymentType is null || (deploymentType is string s && string.IsNullOrWhiteSpace(s)))
 			applicableTo.Deployment = DeploymentApplicability.All;
 		else if (deploymentType is string deploymentTypeString)
 		{
-			var av = ApplicabilityOverTime.TryParse(deploymentTypeString, out var a) ? a : null;
+			var av = AppliesCollection.TryParse(deploymentTypeString, out var a) ? a : null;
 			applicableTo.Deployment = new DeploymentApplicability
 			{
 				Ece = av,
@@ -209,11 +228,11 @@ public class ApplicableToConverter : IYamlTypeConverter
 		if (!dictionary.TryGetValue("serverless", out var serverless))
 			return;
 
-		if (serverless is null || serverless is string s && string.IsNullOrWhiteSpace(s))
+		if (serverless is null || (serverless is string s && string.IsNullOrWhiteSpace(s)))
 			applicableTo.Serverless = ServerlessProjectApplicability.All;
 		else if (serverless is string serverlessString)
 		{
-			var av = ApplicabilityOverTime.TryParse(serverlessString, out var a) ? a : null;
+			var av = AppliesCollection.TryParse(serverlessString, out var a) ? a : null;
 			applicableTo.Serverless = new ServerlessProjectApplicability
 			{
 				Elasticsearch = av,
@@ -259,16 +278,16 @@ public class ApplicableToConverter : IYamlTypeConverter
 		return true;
 	}
 
-	private static bool TryGetApplicabilityOverTime(Dictionary<object, object?> dictionary, string key, out ApplicabilityOverTime? availability)
+	private static bool TryGetApplicabilityOverTime(Dictionary<object, object?> dictionary, string key, out AppliesCollection? availability)
 	{
 		availability = null;
 		if (!dictionary.TryGetValue(key, out var target))
 			return false;
 
-		if (target is null || target is string s && string.IsNullOrWhiteSpace(s))
-			availability = ApplicabilityOverTime.GenerallyAvailable;
+		if (target is null || (target is string s && string.IsNullOrWhiteSpace(s)))
+			availability = AppliesCollection.GenerallyAvailable;
 		else if (target is string stackString)
-			availability = ApplicabilityOverTime.TryParse(stackString, out var a) ? a : null;
+			availability = AppliesCollection.TryParse(stackString, out var a) ? a : null;
 		return availability is not null;
 	}
 
