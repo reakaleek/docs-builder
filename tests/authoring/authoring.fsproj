@@ -51,6 +51,7 @@
     <Compile Include="Inline\InlineLinks.fs" />
     <Compile Include="Inline\CrossLinks.fs" />
     <Compile Include="Inline\CrossLinksRedirects.fs" />
+    <Compile Include="Inline\RelativeLinks.fs" />
     <Compile Include="Container\DefinitionLists.fs"/>
     <Compile Include="Generator\LinkReferenceFile.fs"/>
   </ItemGroup>
@@ -64,6 +65,10 @@
   <ItemGroup>
     <Compile Include="Applicability\AppliesToFrontMatter.fs" />
     <Compile Include="Applicability\AppliesToDirective.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="Directives\IncludeBlocks.fs" />
   </ItemGroup>
 
 </Project>
