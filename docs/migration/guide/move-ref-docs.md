@@ -4,9 +4,13 @@ navigation_title: Move reference docs
 
 # Move reference docs from Asciidocalypse
 
-:::{note}
-This guide is only for technical writers tasked with moving content out of `elastic/asciidocalypse`.
-:::
+This page is divided into three sections:
+
+1. [How Reference Content Works in V3](#how-reference-content-works-in-v3) – Useful for contributors who want to understand the difference between PR previews and full website builds.  
+2. [How to Move Reference Content](#how-to-move-reference-content) – No longer relevant, as the process has been automated.  
+3. [How to Manage Moved Reference Content](#how-to-manage-moved-reference-content) – Important for writers responsible for merging reference content.  
+
+Jump to the relevant section based on your needs.
 
 ## How reference content works in V3
 
@@ -70,6 +74,10 @@ For the **full Elastic.co/docs site**, the assembler references the individual c
 ![Diagram of how everything maps together](../../images/great-drawing-of-new-structure.png)
 
 ## How to Move Reference Content
+
+:::{note}
+The moving of reference content has been automated. These docs will live on in the short term as a point of reference.
+:::
 
 The steps below explain how to move reference content. You can also take a look at our [sample PR](https://github.com/elastic/apm-agent-android/pull/398), which has specific commits to illustrate some of the steps below.
 
@@ -175,3 +183,38 @@ Once everything is confirmed working, merge the pull request.
 ### Step 6: Update the Tracking Issue
 
 Update [issue#130](https://github.com/elastic/docs-eng-team/issues/130) to reflect the completed migration.
+
+## How to manage moved reference content
+
+You've been assigned to a repository in [issue #130](https://github.com/elastic/docs-eng-team/issues/130). Now what?
+
+The good news: all necessary PRs have already been opened for you. Each repository has two PRs:
+
+1. A PR that adds GitHub Actions for build previews ([example](https://github.com/elastic/ecs-logging/pull/85)).
+2. A PR that removes AsciiDoc content and adds Markdown content ([example](https://github.com/elastic/ecs-logging/pull/84)).
+
+### Your Role
+
+Ideally, your job is to work with codeowners and repo admins to:
+
+1. **Get the first PR merged** (to ensure previews work).
+2. **Merge `main` into the second PR and get it merged**.
+
+Splitting this into two PRs ensures that content is merged with a clean CI pass on the first attempt.
+
+### Alternative Approach
+
+Some repositories may be more challenging to work with. If needed, you can cherry-pick the commits into a single PR and collaborate with codeowners to get it merged. 
+
+**Downside:** We won't know if CI passes until after merging.  
+**Use your judgment**—choose the best approach for your situation.
+
+### Key Considerations
+
+Before merging, review the following:
+
+- **Is the right content being deleted?** Ensure no essential internal docs are being removed.
+- **Is the correct content being moved?** Double-check that everything is in its proper place.
+- **Are tests passing?** If not, what adjustments are needed to make the content mergeable?
+
+Let us know if you encounter any blockers. Thanks for your help!
