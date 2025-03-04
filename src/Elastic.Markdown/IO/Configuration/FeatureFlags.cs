@@ -6,7 +6,18 @@ namespace Elastic.Markdown.IO.Configuration;
 
 public class FeatureFlags(Dictionary<string, bool> featureFlags)
 {
-	private bool IsEnabled(string key) => featureFlags.TryGetValue(key, out var value) && value;
-
 	public bool IsPrimaryNavEnabled => IsEnabled("primary-nav");
+	public bool IsLandingPageEnabled => IsEnabled("landing-page");
+	private bool IsEnabled(string key)
+	{
+		var envKey = $"FEATURE_{key.ToUpperInvariant().Replace('-', '_')}";
+		if (Environment.GetEnvironmentVariable(envKey) is { } envValue)
+		{
+			if (bool.TryParse(envValue, out var envBool))
+				return envBool;
+			// if the env var is set but not a bool, we treat it as enabled
+			return true;
+		}
+		return featureFlags.TryGetValue(key, out var value) && value;
+	}
 }
