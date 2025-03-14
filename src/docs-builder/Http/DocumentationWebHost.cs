@@ -4,6 +4,7 @@
 
 using System.IO.Abstractions;
 using System.Net;
+using System.Runtime.InteropServices;
 using Documentation.Builder.Diagnostics.LiveMode;
 using Elastic.Documentation.Tooling;
 using Elastic.Markdown;
@@ -149,10 +150,13 @@ public class DocumentationWebHost
 	{
 		var generator = holder.Generator;
 
+		if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+			slug = slug.Replace('/', Path.DirectorySeparatorChar);
+
 		var s = Path.GetExtension(slug) == string.Empty ? Path.Combine(slug, "index.md") : slug;
 		if (!generator.DocumentationSet.FlatMappedFiles.TryGetValue(s, out var documentationFile))
 		{
-			s = Path.GetExtension(slug) == string.Empty ? slug + ".md" : s.Replace("/index.md", ".md");
+			s = Path.GetExtension(slug) == string.Empty ? slug + ".md" : s.Replace($"{Path.DirectorySeparatorChar}index.md", ".md");
 			if (!generator.DocumentationSet.FlatMappedFiles.TryGetValue(s, out documentationFile))
 			{
 				foreach (var extension in generator.Context.Configuration.EnabledExtensions)
@@ -230,7 +234,7 @@ public sealed class EmbeddedOrPhysicalFileProvider : IFileProvider, IDisposable
 
 	public IFileInfo GetFileInfo(string subpath)
 	{
-		var path = subpath.Replace("/_static", "");
+		var path = subpath.Replace($"{Path.DirectorySeparatorChar}_static", "");
 		var fileInfo = FirstYielding(path, static (a, p) => p.GetFileInfo(a));
 		if (fileInfo is null || !fileInfo.Exists)
 			fileInfo = _embeddedProvider.GetFileInfo(subpath);

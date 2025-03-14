@@ -147,7 +147,7 @@ public class DocumentationGenerator
 			if (resourceStream == null)
 				continue;
 
-			var path = a.Replace("Elastic.Markdown.", "").Replace("_static.", "_static/");
+			var path = a.Replace("Elastic.Markdown.", "").Replace("_static.", $"_static{Path.DirectorySeparatorChar}");
 
 			var outputFile = OutputFile(path);
 			await _documentationFileExporter.CopyEmbeddedResource(outputFile, resourceStream, ctx);
