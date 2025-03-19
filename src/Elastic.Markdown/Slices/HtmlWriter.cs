@@ -63,7 +63,7 @@ public class IsolatedBuildNavigationHtmlWriter(DocumentationSet set) : INavigati
 	}
 }
 
-public class HtmlWriter(DocumentationSet documentationSet, IFileSystem writeFileSystem, INavigationHtmlWriter? navigationHtmlWriter = null)
+public class HtmlWriter(DocumentationSet documentationSet, IFileSystem writeFileSystem, IDescriptionGenerator descriptionGenerator, INavigationHtmlWriter? navigationHtmlWriter = null)
 {
 	private DocumentationSet DocumentationSet { get; } = documentationSet;
 	public INavigationHtmlWriter NavigationHtmlWriter { get; } = navigationHtmlWriter ?? new IsolatedBuildNavigationHtmlWriter(documentationSet);
@@ -93,6 +93,7 @@ public class HtmlWriter(DocumentationSet documentationSet, IFileSystem writeFile
 		var slice = Index.Create(new IndexViewModel
 		{
 			Title = markdown.Title ?? "[TITLE NOT SET]",
+			Description = markdown.YamlFrontMatter?.Description ?? descriptionGenerator.GenerateDescription(document),
 			TitleRaw = markdown.TitleRaw ?? "[TITLE NOT SET]",
 			MarkdownHtml = html,
 			PageTocItems = [.. markdown.PageTableOfContent.Values],
