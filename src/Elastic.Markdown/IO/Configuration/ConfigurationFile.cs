@@ -74,7 +74,7 @@ public record ConfigurationFile : DocumentationFile, ITableOfContentsScope
 		var redirectFile = new RedirectFile(redirectFileInfo, _context);
 		Redirects = redirectFile.Redirects;
 
-		var reader = new YamlStreamReader(sourceFile, _context);
+		var reader = new YamlStreamReader(sourceFile, _context.Collector);
 		try
 		{
 			foreach (var entry in reader.Read())
@@ -120,7 +120,7 @@ public record ConfigurationFile : DocumentationFile, ITableOfContentsScope
 			}
 
 			//we read it twice to ensure we read 'toc' last
-			reader = new YamlStreamReader(sourceFile, _context);
+			reader = new YamlStreamReader(sourceFile, _context.Collector);
 			foreach (var entry in reader.Read())
 			{
 				switch (entry.Key)
