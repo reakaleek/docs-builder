@@ -49,14 +49,11 @@ public class IsolatedBuildNavigationHtmlWriter(DocumentationSet set) : INavigati
 		if (navigation is not DocumentationGroup tree)
 			throw new InvalidOperationException("Expected a documentation group");
 
-		var isRoot = navigation.Id == tree.Id;
-
 		return new NavigationViewModel
 		{
 			Title = tree.Index?.NavigationTitle ?? "Docs",
 			TitleUrl = tree.Index?.Url ?? Set.Build.UrlPathPrefix ?? "/",
 			Tree = tree,
-			IsRoot = isRoot,
 			IsPrimaryNavEnabled = Set.Configuration.Features.IsPrimaryNavEnabled,
 			TopLevelItems = Set.Tree.NavigationItems.OfType<GroupNavigation>().ToList()
 		};
