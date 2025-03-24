@@ -62,7 +62,8 @@
 		@await RenderPartialAsync(_TocTreeNav.Create(new NavigationTreeItem
 		{
 			IsPrimaryNavEnabled = Model.IsPrimaryNavEnabled,
-			Level = Model.Tree.Depth,
+			IsGlobalAssemblyBuild = Model.IsGlobalAssemblyBuild,
+			Level = 0,
 			SubTree = Model.Tree,
 			RootNavigationId = Model.Tree.Id,
 		}))
