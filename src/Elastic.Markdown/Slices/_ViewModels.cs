@@ -25,6 +25,7 @@ public class IndexViewModel
 	public required string NavigationHtml { get; init; }
 	public required string? UrlPathPrefix { get; init; }
 	public required string? GithubEditUrl { get; init; }
+	public required string? ReportIssueUrl { get; init; }
 	public required ApplicableTo? Applies { get; init; }
 	public required bool AllowIndexing { get; init; }
 	public required Uri? CanonicalBaseUrl { get; init; }
@@ -50,6 +51,7 @@ public class LayoutViewModel
 	public required string NavigationHtml { get; init; }
 	public required string? UrlPathPrefix { get; init; }
 	public required string? GithubEditUrl { get; init; }
+	public required string? ReportIssueUrl { get; init; }
 	public required bool AllowIndexing { get; init; }
 	public required Uri? CanonicalBaseUrl { get; init; }
 	public required bool EnableGoogleTagManager { get; init; }
