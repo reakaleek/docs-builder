@@ -67,13 +67,15 @@ public class AssembleContext
 			ExtractAssemblerConfiguration(historyMappingPath, "historymapping.yml");
 		HistoryMappingPath = ReadFileSystem.FileInfo.New(historyMappingPath);
 
-		CheckoutDirectory = ReadFileSystem.DirectoryInfo.New(checkoutDirectory ?? ".artifacts/checkouts");
-		OutputDirectory = ReadFileSystem.DirectoryInfo.New(output ?? ".artifacts/assembly");
-
-
 		if (!Configuration.Environments.TryGetValue(environment, out var env))
 			throw new Exception($"Could not find environment {environment}");
 		Environment = env;
+
+		var contentSource = Environment.ContentSource.ToStringFast();
+		CheckoutDirectory = ReadFileSystem.DirectoryInfo.New(checkoutDirectory ?? Path.Combine(".artifacts", "checkouts", contentSource));
+		OutputDirectory = ReadFileSystem.DirectoryInfo.New(output ?? Path.Combine(".artifacts", "assembly"));
+
+
 	}
 
 	private void ExtractAssemblerConfiguration(string configPath, string file)
