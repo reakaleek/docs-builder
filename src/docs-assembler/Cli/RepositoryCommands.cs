@@ -154,15 +154,13 @@ internal sealed class RepositoryCommands(ICoreService githubActionsService, ILog
 				{
 					var name = kv.Key.Trim();
 					var checkout = cloner.CloneOrUpdateRepository(kv.Value, name, kv.Value.GetBranch(contentSource), dict);
-
-					var docsMetadataPath = Path.Combine(checkout.Directory.FullName, ".docs-metadata");
-
+					var outputPath = Directory.CreateTempSubdirectory(checkout.Repository.Name).FullName;
 					var context = new BuildContext(
 						collector,
 						new FileSystem(),
 						new FileSystem(),
 						checkout.Directory.FullName,
-						docsMetadataPath
+						outputPath
 					);
 					var set = new DocumentationSet(context, logger);
 					var generator = new DocumentationGenerator(set, logger, null, null, new NoopDocumentationFileExporter());
@@ -170,7 +168,7 @@ internal sealed class RepositoryCommands(ICoreService githubActionsService, ILog
 
 					IAmazonS3 s3Client = new AmazonS3Client();
 					const string bucketName = "elastic-docs-link-index";
-					var linksJsonPath = Path.Combine(docsMetadataPath, "links.json");
+					var linksJsonPath = Path.Combine(outputPath, "links.json");
 					var content = await File.ReadAllTextAsync(linksJsonPath, c);
 					var putObjectRequest = new PutObjectRequest
 					{
