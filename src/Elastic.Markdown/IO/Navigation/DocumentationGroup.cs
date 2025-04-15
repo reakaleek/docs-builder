@@ -116,6 +116,8 @@ public class TableOfContentsTree : DocumentationGroup
 		TreeCollector.Collect(source, this);
 	}
 
+	protected override DocumentationGroup DefaultNavigation => this;
+
 }
 
 [DebuggerDisplay("Group >{Depth} {FolderName} ({NavigationItems.Count} items)")]
@@ -146,6 +148,8 @@ public class DocumentationGroup : INavigationGroup
 	public INavigationItem? Parent { get; set; }
 
 	public string FolderName { get; }
+
+	protected virtual DocumentationGroup DefaultNavigation => this;
 
 	protected DocumentationGroup(
 		TableOfContentsTreeCollector treeCollector,
@@ -178,7 +182,13 @@ public class DocumentationGroup : INavigationGroup
 		NavigationSource = navigationSource;
 		_treeCollector = treeCollector;
 		Depth = depth;
-		toplevelTree ??= this;
+		// Virtual calls don't use state so while ugly not an issue
+		// We'll need to address this more structurally
+		// ReSharper disable VirtualMemberCallInConstructor
+		toplevelTree ??= DefaultNavigation;
+		if (parent?.Depth == 0)
+			toplevelTree = DefaultNavigation;
+		// ReSharper enable VirtualMemberCallInConstructor
 		NavigationRoot = toplevelTree;
 		// ReSharper restore VirtualMemberCallInConstructor
 		Index = ProcessTocItems(context, toplevelTree, index, lookups, depth, ref fileIndex, out var groups, out var files, out var navigationItems);
