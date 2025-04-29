@@ -5,7 +5,6 @@
 using Amazon.Lambda.Core;
 using Amazon.S3;
 using Amazon.S3.Model;
-using Elastic.Markdown.IO.State;
 
 namespace Elastic.Documentation.Lambda.LinkIndexUploader;
 

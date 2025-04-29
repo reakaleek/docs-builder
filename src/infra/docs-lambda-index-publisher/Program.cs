@@ -9,9 +9,9 @@ using Amazon.Lambda.Serialization.SystemTextJson;
 using Amazon.Lambda.SQSEvents;
 using Amazon.S3;
 using Amazon.S3.Util;
+using Elastic.Documentation;
 using Elastic.Documentation.Lambda.LinkIndexUploader;
-using Elastic.Markdown.IO.State;
-using Elastic.Markdown.Links.CrossLinks;
+using Elastic.Documentation.Links;
 
 const string bucketName = "elastic-docs-link-index";
 const string indexFile = "link-index.json";
