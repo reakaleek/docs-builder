@@ -18,6 +18,7 @@ using Documentation.Assembler.Legacy;
 using Documentation.Assembler.Navigation;
 using Documentation.Assembler.Sourcing;
 using Elastic.Documentation.Configuration.Assembler;
+using Elastic.Documentation.Links;
 using Elastic.Documentation.Tooling.Diagnostics.Console;
 using Elastic.Markdown;
 using Elastic.Markdown.Exporters;
@@ -104,9 +105,10 @@ internal sealed class RepositoryCommands(ICoreService githubActionsService, ILog
 			await assembleContext.Collector.StopAsync(ctx);
 			return 1;
 		}
-
 		var cloner = new AssemblerRepositorySourcer(logger, assembleContext);
-		var checkouts = cloner.GetAll().ToArray();
+		var checkoutResult = cloner.GetAll();
+		var checkouts = checkoutResult.Checkouts.ToArray();
+
 		if (checkouts.Length == 0)
 			throw new Exception("No checkouts found");
 
@@ -122,6 +124,8 @@ internal sealed class RepositoryCommands(ICoreService githubActionsService, ILog
 
 		var builder = new AssemblerBuilder(logger, assembleContext, navigation, htmlWriter, pathProvider, historyMapper);
 		await builder.BuildAllAsync(assembleSources.AssembleSets, ctx);
+
+		await cloner.WriteLinkRegistrySnapshot(checkoutResult.LinkRegistrySnapshot, ctx);
 
 		var sitemapBuilder = new SitemapBuilder(navigation.NavigationItems, assembleContext.WriteFileSystem, assembleContext.OutputDirectory);
 		sitemapBuilder.Generate();
